@@ -49,7 +49,7 @@ const SignUp = () => {
             {goalOptions.map((goal) => (
               <motion.div
                 key={goal.id}
-                className={`p-6 rounded-2xl backdrop-blur-sm border transition-all duration-300 cursor-pointer
+                className={`relative p-6 rounded-2xl backdrop-blur-sm border transition-all duration-300 cursor-pointer overflow-hidden group
                   ${selectedGoal === goal.id 
                     ? 'bg-green-50/80 border-green-400 shadow-lg' 
                     : 'bg-white/80 border-gray-100 hover:border-green-200'}`}
@@ -57,15 +57,22 @@ const SignUp = () => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <h3 className="text-xl font-semibold mb-3">{goal.title}</h3>
-                <p className="text-gray-600 mb-4 text-sm">{goal.description}</p>
-                <ul className="space-y-2">
-                  {goal.examples.map((example, idx) => (
-                    <li key={idx} className="text-sm text-gray-600">
-                      • {example}
-                    </li>
-                  ))}
-                </ul>
+                <div className={`absolute inset-0 transition-opacity duration-300 opacity-0 group-hover:opacity-10 bg-cover bg-center
+                  ${goal.id === 'health' && 'bg-[url("/images/health-bg.jpg")]'}
+                  ${goal.id === 'fitness' && 'bg-[url("/images/fitness-bg.jpg")]'}
+                  ${goal.id === 'dietary' && 'bg-[url("/images/dietary-bg.jpg")]'}`}
+                />
+                <div className="relative z-10">
+                  <h3 className="text-xl font-semibold mb-3">{goal.title}</h3>
+                  <p className="text-gray-600 mb-4 text-sm">{goal.description}</p>
+                  <ul className="space-y-2">
+                    {goal.examples.map((example, idx) => (
+                      <li key={idx} className="text-sm text-gray-600">
+                        • {example}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </motion.div>
             ))}
           </div>
