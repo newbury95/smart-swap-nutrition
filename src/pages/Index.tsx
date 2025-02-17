@@ -2,8 +2,10 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Leaf, Heart, Scale, Activity, Check } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
+  const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(true);
 
   const fadeInUp = {
@@ -32,7 +34,10 @@ const Index = () => {
             Personalized nutrition recommendations based on your health conditions and goals. 
             Get healthier alternatives without sacrificing taste.
           </p>
-          <button className="bg-gradient-to-r from-green-600 to-green-400 text-white px-8 py-4 rounded-full font-medium hover:opacity-90 transition-all duration-300 flex items-center gap-2 mx-auto shadow-lg hover:shadow-xl">
+          <button 
+            onClick={() => navigate('/signup')}
+            className="bg-gradient-to-r from-green-600 to-green-400 text-white px-8 py-4 rounded-full font-medium hover:opacity-90 transition-all duration-300 flex items-center gap-2 mx-auto shadow-lg hover:shadow-xl"
+          >
             Start Your Journey
             <ArrowRight className="w-4 h-4" />
           </button>
