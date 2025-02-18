@@ -11,6 +11,7 @@ import HealthGoals from "./pages/goals/HealthGoals";
 import FitnessGoals from "./pages/goals/FitnessGoals";
 import DietaryGoals from "./pages/goals/DietaryGoals";
 import PersonalInfo from "./pages/signup/PersonalInfo";
+import FoodDiary from "./pages/diary/FoodDiary";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/goals/fitness" element={<FitnessGoals />} />
           <Route path="/goals/dietary" element={<DietaryGoals />} />
           <Route path="/signup/personal-info" element={<PersonalInfo />} />
+          <Route path="/diary" element={<FoodDiary />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
