@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Heart, Activity, Leaf } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 type GoalType = "health" | "fitness" | "dietary";
@@ -11,6 +11,7 @@ interface GoalOption {
   title: string;
   description: string;
   examples: string[];
+  icon: JSX.Element;
 }
 
 const SignUp = () => {
@@ -49,12 +50,12 @@ const SignUp = () => {
             {goalOptions.map((goal) => (
               <motion.div
                 key={goal.id}
-                className={`relative p-6 rounded-2xl backdrop-blur-sm border transition-all duration-300 cursor-pointer overflow-hidden group
+                className={`relative p-8 rounded-3xl backdrop-blur-sm border-2 transition-all duration-300 cursor-pointer overflow-hidden group
                   ${selectedGoal === goal.id 
-                    ? 'bg-green-50/80 border-green-400 shadow-lg' 
-                    : 'bg-white/80 border-gray-100 hover:border-green-200'}`}
+                    ? 'bg-green-50/80 border-green-400 shadow-xl' 
+                    : 'bg-white/80 border-gray-100 hover:border-green-200 hover:shadow-lg'}`}
                 onClick={() => handleSelectGoal(goal.id)}
-                whileHover={{ scale: 1.02 }}
+                whileHover={{ scale: 1.02, y: -5 }}
                 whileTap={{ scale: 0.98 }}
               >
                 <div className={`absolute inset-0 transition-opacity duration-300 opacity-0 group-hover:opacity-10 bg-cover bg-center
@@ -63,12 +64,18 @@ const SignUp = () => {
                   ${goal.id === 'dietary' && 'bg-[url("/images/dietary-bg.jpg")]'}`}
                 />
                 <div className="relative z-10">
-                  <h3 className="text-xl font-semibold mb-3">{goal.title}</h3>
-                  <p className="text-gray-600 mb-4 text-sm">{goal.description}</p>
-                  <ul className="space-y-2">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-3 rounded-2xl bg-green-50 text-green-600">
+                      {goal.icon}
+                    </div>
+                    <h3 className="text-xl font-semibold">{goal.title}</h3>
+                  </div>
+                  <p className="text-gray-600 mb-6 text-sm">{goal.description}</p>
+                  <ul className="space-y-3">
                     {goal.examples.map((example, idx) => (
-                      <li key={idx} className="text-sm text-gray-600">
-                        • {example}
+                      <li key={idx} className="text-sm text-gray-600 flex items-center gap-2 group-hover:translate-x-1 transition-transform">
+                        <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
+                        {example}
                       </li>
                     ))}
                   </ul>
@@ -107,7 +114,8 @@ const goalOptions: GoalOption[] = [
       "Heart Health",
       "Digestive Issues",
       "Food Allergies"
-    ]
+    ],
+    icon: <Heart className="w-6 h-6" />
   },
   {
     id: "fitness",
@@ -118,7 +126,8 @@ const goalOptions: GoalOption[] = [
       "Weight Loss",
       "Athletic Performance",
       "Energy Boost"
-    ]
+    ],
+    icon: <Activity className="w-6 h-6" />
   },
   {
     id: "dietary",
@@ -129,7 +138,8 @@ const goalOptions: GoalOption[] = [
       "Gluten-Free",
       "Low-Carb",
       "Mediterranean"
-    ]
+    ],
+    icon: <Leaf className="w-6 h-6" />
   }
 ];
 
