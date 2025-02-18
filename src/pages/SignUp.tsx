@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, Heart, Activity, Leaf } from "lucide-react";
@@ -92,7 +91,7 @@ const SignUp = () => {
             {selectedGoal && (
               <button 
                 className="bg-gradient-to-r from-green-600 to-green-400 text-white px-8 py-4 rounded-full font-medium hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl"
-                onClick={() => console.log(`Selected goal: ${selectedGoal}`)}
+                onClick={() => navigate(`/goals/${selectedGoal}`)}
               >
                 Continue
               </button>
