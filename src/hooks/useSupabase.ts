@@ -2,9 +2,13 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
+// When using Lovable's Supabase integration, these values are automatically injected
+const supabaseUrl = window.ENV?.VITE_SUPABASE_URL;
+const supabaseKey = window.ENV?.VITE_SUPABASE_ANON_KEY;
+
 const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
+  supabaseUrl ?? '',
+  supabaseKey ?? ''
 );
 
 export type CustomFood = {
@@ -25,8 +29,12 @@ export const useSupabase = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    checkPremiumStatus();
-    loadCustomFoods();
+    if (supabaseUrl && supabaseKey) {
+      checkPremiumStatus();
+      loadCustomFoods();
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   const checkPremiumStatus = async () => {
