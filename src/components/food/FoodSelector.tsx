@@ -1,6 +1,7 @@
 
-import { useState } from "react";
-import { Search, Barcode, Plus } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, Barcode, Plus, X } from "lucide-react";
+import { BrowserMultiFormatReader, Result } from '@zxing/library';
 import { Input } from "@/components/ui/input";
 import {
   Sheet,
@@ -11,6 +12,9 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useToast } from "@/components/ui/use-toast";
+
+type Supermarket = "Tesco" | "Sainsburys" | "Asda" | "Morrisons" | "Waitrose" | "Coop" | "M&S" | "Ocado";
 
 type Food = {
   id: string;
@@ -21,13 +25,15 @@ type Food = {
   carbs: number;
   fat: number;
   servingSize: string;
-  supermarket: "Tesco" | "Sainsburys" | "Asda" | "Morrisons" | "Waitrose";
+  barcode?: string;
+  supermarket: Supermarket;
 };
 
 interface FoodSelectorProps {
   onFoodSelect: (food: Food) => void;
 }
 
+// Extended mock database with items from all major UK supermarkets
 const mockFoods: Food[] = [
   {
     id: "1",
@@ -38,32 +44,167 @@ const mockFoods: Food[] = [
     carbs: 4.8,
     fat: 1.8,
     servingSize: "100ml",
+    barcode: "5000436889195",
     supermarket: "Tesco"
   },
-  // Add more mock foods here
+  {
+    id: "2",
+    name: "Greek Style Yogurt",
+    brand: "Sainsburys",
+    calories: 133,
+    protein: 5.2,
+    carbs: 4.7,
+    fat: 10.2,
+    servingSize: "100g",
+    barcode: "7874236589120",
+    supermarket: "Sainsburys"
+  },
+  {
+    id: "3",
+    name: "Free Range Eggs",
+    brand: "Asda",
+    calories: 72,
+    protein: 6.5,
+    carbs: 0,
+    fat: 5.1,
+    servingSize: "1 egg (58g)",
+    barcode: "5051413584726",
+    supermarket: "Asda"
+  },
+  {
+    id: "4",
+    name: "Organic Bananas",
+    brand: "Waitrose",
+    calories: 95,
+    protein: 1.2,
+    carbs: 22,
+    fat: 0.3,
+    servingSize: "1 banana (118g)",
+    barcode: "0000000000000",
+    supermarket: "Waitrose"
+  },
+  {
+    id: "5",
+    name: "British Chicken Breast",
+    brand: "M&S",
+    calories: 165,
+    protein: 31,
+    carbs: 0,
+    fat: 3.6,
+    servingSize: "100g",
+    barcode: "7891234567890",
+    supermarket: "M&S"
+  },
+  {
+    id: "6",
+    name: "Wholemeal Bread",
+    brand: "Co-op",
+    calories: 93,
+    protein: 4.1,
+    carbs: 15.6,
+    fat: 1.2,
+    servingSize: "1 slice (40g)",
+    barcode: "5060075960124",
+    supermarket: "Coop"
+  },
+  {
+    id: "7",
+    name: "Scottish Salmon Fillet",
+    brand: "Ocado",
+    calories: 208,
+    protein: 20.4,
+    carbs: 0,
+    fat: 13.8,
+    servingSize: "100g",
+    barcode: "5000436889195",
+    supermarket: "Ocado"
+  },
+  {
+    id: "8",
+    name: "Extra Virgin Olive Oil",
+    brand: "Morrisons",
+    calories: 824,
+    protein: 0,
+    carbs: 0,
+    fat: 91.6,
+    servingSize: "100ml",
+    barcode: "5010251543217",
+    supermarket: "Morrisons"
+  },
+  // ... Add more items as needed
 ];
 
 export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [isScanning, setIsScanning] = useState(false);
-
-  const filteredFoods = mockFoods.filter(food => 
-    food.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    food.brand.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const [selectedSupermarket, setSelectedSupermarket] = useState<Supermarket | "all">("all");
+  
+  const filteredFoods = mockFoods.filter(food => {
+    const matchesSearch = 
+      food.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      food.brand.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSupermarket = selectedSupermarket === "all" || food.supermarket === selectedSupermarket;
+    return matchesSearch && matchesSupermarket;
+  });
 
   const handleBarcodeScanner = async () => {
     setIsScanning(true);
+    const codeReader = new BrowserMultiFormatReader();
+
     try {
-      // Here we would integrate with a barcode scanning library
-      // For now, we'll just show a mock implementation
-      setTimeout(() => {
-        setIsScanning(false);
-        // Mock finding a food item by barcode
-        onFoodSelect(mockFoods[0]);
-      }, 2000);
+      // Get video input devices
+      const videoInputDevices = await codeReader.listVideoInputDevices();
+      
+      if (videoInputDevices.length === 0) {
+        toast({
+          variant: "destructive",
+          title: "No camera found",
+          description: "Please ensure you have a camera connected and have granted permission.",
+        });
+        return;
+      }
+
+      // Create a preview element
+      const previewEl = document.createElement('video');
+      previewEl.className = 'w-full h-64 object-cover rounded-lg';
+      const previewContainer = document.getElementById('barcode-scanner-preview');
+      if (previewContainer) {
+        previewContainer.innerHTML = '';
+        previewContainer.appendChild(previewEl);
+      }
+
+      // Start scanning
+      const result = await codeReader.decodeOnceFromConstraints(
+        { video: { facingMode: 'environment' } },
+        previewEl
+      );
+
+      // Look up the food item by barcode
+      const foodItem = mockFoods.find(food => food.barcode === result.getText());
+      
+      if (foodItem) {
+        onFoodSelect(foodItem);
+        toast({
+          title: "Food found!",
+          description: `Added ${foodItem.name} to your diary.`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Food not found",
+          description: "This barcode isn't in our database yet.",
+        });
+      }
     } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Scanning failed",
+        description: "Please try again or search manually.",
+      });
+    } finally {
       setIsScanning(false);
+      codeReader.reset();
     }
   };
 
@@ -99,9 +240,36 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
             </Button>
           </div>
 
+          <select
+            className="w-full p-2 rounded-md border border-gray-300"
+            value={selectedSupermarket}
+            onChange={(e) => setSelectedSupermarket(e.target.value as Supermarket | "all")}
+          >
+            <option value="all">All Supermarkets</option>
+            <option value="Tesco">Tesco</option>
+            <option value="Sainsburys">Sainsbury's</option>
+            <option value="Asda">Asda</option>
+            <option value="Morrisons">Morrisons</option>
+            <option value="Waitrose">Waitrose</option>
+            <option value="Coop">Co-op</option>
+            <option value="M&S">M&S</option>
+            <option value="Ocado">Ocado</option>
+          </select>
+
           {isScanning && (
-            <div className="text-center py-8 text-sm text-muted-foreground">
-              Scanning barcode...
+            <div className="space-y-4">
+              <div id="barcode-scanner-preview" className="w-full h-64 bg-gray-100 rounded-lg overflow-hidden" />
+              <p className="text-center text-sm text-muted-foreground">
+                Point your camera at a barcode
+              </p>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => setIsScanning(false)}
+              >
+                <X className="h-4 w-4 mr-2" />
+                Cancel Scanning
+              </Button>
             </div>
           )}
 
