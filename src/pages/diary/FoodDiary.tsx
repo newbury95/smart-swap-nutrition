@@ -2,9 +2,9 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Calendar } from "@/components/ui/calendar";
-import { Button } from "@/components/ui/button";
-import { Plus, ChevronLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { FoodSelector } from "@/components/food/FoodSelector";
 
 type Meal = {
   id: string;
@@ -37,13 +37,24 @@ const FoodDiary = () => {
     }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
   };
 
+  const handleAddFood = (type: MealType) => (food: any) => {
+    const newMeal: Meal = {
+      ...food,
+      id: Math.random().toString(36).substr(2, 9),
+      time: new Date().toLocaleTimeString(),
+    };
+
+    setMeals(prev => ({
+      ...prev,
+      [type]: [...prev[type], newMeal]
+    }));
+  };
+
   const renderMealSection = (type: MealType, title: string) => (
     <div className="bg-white rounded-xl p-6 shadow-sm">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
-        <Button variant="ghost" size="icon">
-          <Plus className="h-4 w-4" />
-        </Button>
+        <FoodSelector onFoodSelect={handleAddFood(type)} />
       </div>
       
       {meals[type].length === 0 ? (
