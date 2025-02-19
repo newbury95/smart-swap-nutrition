@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
 // When using Lovable's Supabase integration, these values are automatically injected
-const supabaseUrl = window.ENV?.VITE_SUPABASE_URL;
-const supabaseKey = window.ENV?.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = (window as any).ENV?.VITE_SUPABASE_URL;
+const supabaseKey = (window as any).ENV?.VITE_SUPABASE_ANON_KEY;
 
 const supabase = createClient(
   supabaseUrl ?? '',
