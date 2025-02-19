@@ -6,10 +6,7 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = (window as any).ENV?.VITE_SUPABASE_URL;
 const supabaseKey = (window as any).ENV?.VITE_SUPABASE_ANON_KEY;
 
-const supabase = createClient(
-  supabaseUrl ?? '',
-  supabaseKey ?? ''
-);
+const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
 export type CustomFood = {
   id: string;
@@ -29,7 +26,7 @@ export const useSupabase = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (supabaseUrl && supabaseKey) {
+    if (supabase) {
       checkPremiumStatus();
       loadCustomFoods();
     } else {
@@ -38,6 +35,8 @@ export const useSupabase = () => {
   }, []);
 
   const checkPremiumStatus = async () => {
+    if (!supabase) return;
+    
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) {
       const { data } = await supabase
@@ -51,6 +50,8 @@ export const useSupabase = () => {
   };
 
   const loadCustomFoods = async () => {
+    if (!supabase) return;
+
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) {
       const { data } = await supabase
@@ -62,6 +63,8 @@ export const useSupabase = () => {
   };
 
   const addCustomFood = async (food: Omit<CustomFood, 'id' | 'created_at'>) => {
+    if (!supabase) return null;
+
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.user) return null;
 
