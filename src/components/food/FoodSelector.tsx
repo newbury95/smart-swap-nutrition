@@ -16,7 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSupabase } from "@/hooks/useSupabase";
 import { CustomFoodForm } from "./CustomFoodForm";
 
-type Supermarket = "Tesco" | "Sainsburys" | "Asda" | "Morrisons" | "Waitrose" | "Coop" | "M&S" | "Ocado";
+type Supermarket = "Tesco" | "Sainsburys" | "Asda" | "Morrisons" | "Waitrose" | "Coop" | "M&S" | "Ocado" | "All Supermarkets";
 
 type Food = {
   id: string;
@@ -35,7 +35,6 @@ interface FoodSelectorProps {
   onFoodSelect: (food: Food) => void;
 }
 
-// Extended mock database with more real products
 const mockFoods: Food[] = [
   {
     id: "1",
@@ -138,7 +137,7 @@ const mockFoods: Food[] = [
     carbs: 10.6,
     fat: 0,
     servingSize: "100ml",
-    supermarket: "Multiple"
+    supermarket: "All Supermarkets"
   },
   {
     id: "10",
@@ -149,7 +148,7 @@ const mockFoods: Food[] = [
     carbs: 9.1,
     fat: 0,
     servingSize: "100ml",
-    supermarket: "Multiple"
+    supermarket: "All Supermarkets"
   },
   {
     id: "11",
@@ -160,7 +159,7 @@ const mockFoods: Food[] = [
     carbs: 51,
     fat: 32,
     servingSize: "100g",
-    supermarket: "Multiple"
+    supermarket: "All Supermarkets"
   },
   {
     id: "12",
@@ -171,7 +170,7 @@ const mockFoods: Food[] = [
     carbs: 45,
     fat: 37.5,
     servingSize: "100g",
-    supermarket: "Multiple"
+    supermarket: "All Supermarkets"
   },
   {
     id: "13",
@@ -193,7 +192,7 @@ const mockFoods: Food[] = [
     carbs: 60,
     fat: 8,
     servingSize: "100g",
-    supermarket: "Multiple"
+    supermarket: "All Supermarkets"
   },
   {
     id: "15",
@@ -215,7 +214,7 @@ const mockFoods: Food[] = [
     carbs: 77.6,
     fat: 1.3,
     servingSize: "100g dry",
-    supermarket: "Multiple"
+    supermarket: "All Supermarkets"
   },
   {
     id: "17",
@@ -226,7 +225,7 @@ const mockFoods: Food[] = [
     carbs: 1.3,
     fat: 79,
     servingSize: "100g",
-    supermarket: "Multiple"
+    supermarket: "All Supermarkets"
   },
   {
     id: "18",
@@ -237,7 +236,7 @@ const mockFoods: Food[] = [
     carbs: 9.1,
     fat: 0.4,
     servingSize: "100g",
-    supermarket: "Multiple"
+    supermarket: "All Supermarkets"
   },
   {
     id: "19",
@@ -289,7 +288,6 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
     const codeReader = new BrowserMultiFormatReader();
 
     try {
-      // Get video input devices
       const videoInputDevices = await codeReader.listVideoInputDevices();
       
       if (videoInputDevices.length === 0) {
@@ -301,7 +299,6 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
         return;
       }
 
-      // Create a preview element
       const previewEl = document.createElement('video');
       previewEl.className = 'w-full h-64 object-cover rounded-lg';
       const previewContainer = document.getElementById('barcode-scanner-preview');
@@ -310,13 +307,11 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
         previewContainer.appendChild(previewEl);
       }
 
-      // Start scanning
       const result = await codeReader.decodeOnceFromConstraints(
         { video: { facingMode: 'environment' } },
         previewEl
       );
 
-      // Look up the food item by barcode
       const foodItem = mockFoods.find(food => food.barcode === result.getText());
       
       if (foodItem) {
@@ -354,7 +349,7 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
       carbs: customFood.carbs,
       fat: customFood.fat,
       servingSize: customFood.serving_size,
-      supermarket: "Tesco" // Default value for custom foods
+      supermarket: "Tesco"
     };
     onFoodSelect(food);
   };
