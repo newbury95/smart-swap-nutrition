@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Barcode, Plus, X } from "lucide-react";
+import { Search, Barcode, Plus, X, Filter } from "lucide-react";
 import { BrowserMultiFormatReader } from '@zxing/library';
 import { Input } from "@/components/ui/input";
 import {
@@ -18,6 +18,20 @@ import { CustomFoodForm } from "./CustomFoodForm";
 
 type Supermarket = "Tesco" | "Sainsburys" | "Asda" | "Morrisons" | "Waitrose" | "Coop" | "M&S" | "Ocado" | "All Supermarkets";
 
+type FoodCategory = 
+  | "Dairy & Eggs"
+  | "Fruits & Vegetables"
+  | "Meat & Fish"
+  | "Bread & Bakery"
+  | "Drinks"
+  | "Snacks"
+  | "Ready Meals"
+  | "Cereals"
+  | "Pasta & Rice"
+  | "Condiments"
+  | "Frozen Foods"
+  | "All Categories";
+
 type Food = {
   id: string;
   name: string;
@@ -29,6 +43,7 @@ type Food = {
   servingSize: string;
   barcode?: string;
   supermarket: Supermarket;
+  category: FoodCategory;
 };
 
 interface FoodSelectorProps {
@@ -46,7 +61,8 @@ const mockFoods: Food[] = [
     fat: 1.8,
     servingSize: "100ml",
     barcode: "5000436889195",
-    supermarket: "Tesco"
+    supermarket: "Tesco",
+    category: "Dairy & Eggs"
   },
   {
     id: "2",
@@ -58,7 +74,8 @@ const mockFoods: Food[] = [
     fat: 10.2,
     servingSize: "100g",
     barcode: "7874236589120",
-    supermarket: "Sainsburys"
+    supermarket: "Sainsburys",
+    category: "Dairy & Eggs"
   },
   {
     id: "3",
@@ -70,7 +87,8 @@ const mockFoods: Food[] = [
     fat: 5.1,
     servingSize: "1 egg (58g)",
     barcode: "5051413584726",
-    supermarket: "Asda"
+    supermarket: "Asda",
+    category: "Dairy & Eggs"
   },
   {
     id: "4",
@@ -82,7 +100,8 @@ const mockFoods: Food[] = [
     fat: 0.3,
     servingSize: "1 banana (118g)",
     barcode: "0000000000000",
-    supermarket: "Waitrose"
+    supermarket: "Waitrose",
+    category: "Fruits & Vegetables"
   },
   {
     id: "5",
@@ -93,7 +112,8 @@ const mockFoods: Food[] = [
     carbs: 14,
     fat: 0.2,
     servingSize: "1 apple (100g)",
-    supermarket: "M&S"
+    supermarket: "M&S",
+    category: "Fruits & Vegetables"
   },
   {
     id: "6",
@@ -104,7 +124,8 @@ const mockFoods: Food[] = [
     carbs: 0,
     fat: 3.6,
     servingSize: "100g",
-    supermarket: "Tesco"
+    supermarket: "Tesco",
+    category: "Meat & Fish"
   },
   {
     id: "7",
@@ -115,7 +136,8 @@ const mockFoods: Food[] = [
     carbs: 0,
     fat: 13.8,
     servingSize: "100g",
-    supermarket: "Sainsburys"
+    supermarket: "Sainsburys",
+    category: "Meat & Fish"
   },
   {
     id: "8",
@@ -126,7 +148,8 @@ const mockFoods: Food[] = [
     carbs: 15.6,
     fat: 1.2,
     servingSize: "1 slice (40g)",
-    supermarket: "Tesco"
+    supermarket: "Tesco",
+    category: "Bread & Bakery"
   },
   {
     id: "9",
@@ -137,7 +160,8 @@ const mockFoods: Food[] = [
     carbs: 10.6,
     fat: 0,
     servingSize: "100ml",
-    supermarket: "All Supermarkets"
+    supermarket: "All Supermarkets",
+    category: "Drinks"
   },
   {
     id: "10",
@@ -148,7 +172,8 @@ const mockFoods: Food[] = [
     carbs: 9.1,
     fat: 0,
     servingSize: "100ml",
-    supermarket: "All Supermarkets"
+    supermarket: "All Supermarkets",
+    category: "Drinks"
   },
   {
     id: "11",
@@ -159,7 +184,8 @@ const mockFoods: Food[] = [
     carbs: 51,
     fat: 32,
     servingSize: "100g",
-    supermarket: "All Supermarkets"
+    supermarket: "All Supermarkets",
+    category: "Snacks"
   },
   {
     id: "12",
@@ -170,7 +196,8 @@ const mockFoods: Food[] = [
     carbs: 45,
     fat: 37.5,
     servingSize: "100g",
-    supermarket: "All Supermarkets"
+    supermarket: "All Supermarkets",
+    category: "Snacks"
   },
   {
     id: "13",
@@ -181,7 +208,8 @@ const mockFoods: Food[] = [
     carbs: 55,
     fat: 14,
     servingSize: "400g",
-    supermarket: "Sainsburys"
+    supermarket: "Sainsburys",
+    category: "Ready Meals"
   },
   {
     id: "14",
@@ -192,7 +220,8 @@ const mockFoods: Food[] = [
     carbs: 60,
     fat: 8,
     servingSize: "100g",
-    supermarket: "All Supermarkets"
+    supermarket: "All Supermarkets",
+    category: "Cereals"
   },
   {
     id: "15",
@@ -203,7 +232,8 @@ const mockFoods: Food[] = [
     carbs: 68,
     fat: 2.2,
     servingSize: "100g dry",
-    supermarket: "Tesco"
+    supermarket: "Tesco",
+    category: "Pasta & Rice"
   },
   {
     id: "16",
@@ -214,7 +244,8 @@ const mockFoods: Food[] = [
     carbs: 77.6,
     fat: 1.3,
     servingSize: "100g dry",
-    supermarket: "All Supermarkets"
+    supermarket: "All Supermarkets",
+    category: "Pasta & Rice"
   },
   {
     id: "17",
@@ -225,7 +256,8 @@ const mockFoods: Food[] = [
     carbs: 1.3,
     fat: 79,
     servingSize: "100g",
-    supermarket: "All Supermarkets"
+    supermarket: "All Supermarkets",
+    category: "Condiments"
   },
   {
     id: "18",
@@ -236,7 +268,8 @@ const mockFoods: Food[] = [
     carbs: 9.1,
     fat: 0.4,
     servingSize: "100g",
-    supermarket: "All Supermarkets"
+    supermarket: "All Supermarkets",
+    category: "Pasta & Rice"
   },
   {
     id: "19",
@@ -247,7 +280,8 @@ const mockFoods: Food[] = [
     carbs: 3.6,
     fat: 0.4,
     servingSize: "100g",
-    supermarket: "M&S"
+    supermarket: "M&S",
+    category: "Fruits & Vegetables"
   },
   {
     id: "20",
@@ -258,7 +292,8 @@ const mockFoods: Food[] = [
     carbs: 3.9,
     fat: 0.2,
     servingSize: "100g",
-    supermarket: "Waitrose"
+    supermarket: "Waitrose",
+    category: "Fruits & Vegetables"
   }
 ];
 
@@ -268,14 +303,37 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isScanning, setIsScanning] = useState(false);
   const [selectedSupermarket, setSelectedSupermarket] = useState<Supermarket | "all">("all");
+  const [selectedCategory, setSelectedCategory] = useState<FoodCategory>("All Categories");
+  const [showFilters, setShowFilters] = useState(false);
   const [activeTab, setActiveTab] = useState("database");
+  const [nutritionFilters, setNutritionFilters] = useState({
+    minCalories: "",
+    maxCalories: "",
+    minProtein: "",
+    maxProtein: "",
+    minCarbs: "",
+    maxCarbs: "",
+    minFat: "",
+    maxFat: "",
+  });
   
   const filteredFoods = mockFoods.filter(food => {
     const matchesSearch = 
       food.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       food.brand.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesSupermarket = selectedSupermarket === "all" || food.supermarket === selectedSupermarket;
-    return matchesSearch && matchesSupermarket;
+    const matchesCategory = selectedCategory === "All Categories" || food.category === selectedCategory;
+    const matchesNutrition = 
+      (!nutritionFilters.minCalories || food.calories >= Number(nutritionFilters.minCalories)) &&
+      (!nutritionFilters.maxCalories || food.calories <= Number(nutritionFilters.maxCalories)) &&
+      (!nutritionFilters.minProtein || food.protein >= Number(nutritionFilters.minProtein)) &&
+      (!nutritionFilters.maxProtein || food.protein <= Number(nutritionFilters.maxProtein)) &&
+      (!nutritionFilters.minCarbs || food.carbs >= Number(nutritionFilters.minCarbs)) &&
+      (!nutritionFilters.maxCarbs || food.carbs <= Number(nutritionFilters.maxCarbs)) &&
+      (!nutritionFilters.minFat || food.fat >= Number(nutritionFilters.minFat)) &&
+      (!nutritionFilters.maxFat || food.fat <= Number(nutritionFilters.maxFat));
+
+    return matchesSearch && matchesSupermarket && matchesCategory && matchesNutrition;
   });
 
   const filteredCustomFoods = customFoods.filter(food =>
@@ -349,7 +407,8 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
       carbs: customFood.carbs,
       fat: customFood.fat,
       servingSize: customFood.serving_size,
-      supermarket: "Tesco"
+      supermarket: "Tesco",
+      category: "Dairy & Eggs"
     };
     onFoodSelect(food);
   };
@@ -388,6 +447,13 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
                 <Button
                   variant="outline"
                   size="icon"
+                  onClick={() => setShowFilters(!showFilters)}
+                >
+                  <Filter className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
                   onClick={handleBarcodeScanner}
                   disabled={isScanning}
                 >
@@ -395,21 +461,83 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
                 </Button>
               </div>
 
-              <select
-                className="w-full p-2 rounded-md border border-gray-300"
-                value={selectedSupermarket}
-                onChange={(e) => setSelectedSupermarket(e.target.value as Supermarket | "all")}
-              >
-                <option value="all">All Supermarkets</option>
-                <option value="Tesco">Tesco</option>
-                <option value="Sainsburys">Sainsbury's</option>
-                <option value="Asda">Asda</option>
-                <option value="Morrisons">Morrisons</option>
-                <option value="Waitrose">Waitrose</option>
-                <option value="Coop">Co-op</option>
-                <option value="M&S">M&S</option>
-                <option value="Ocado">Ocado</option>
-              </select>
+              {showFilters && (
+                <div className="space-y-4 p-4 border rounded-lg">
+                  <div className="grid grid-cols-2 gap-4">
+                    <select
+                      className="w-full p-2 rounded-md border border-gray-300"
+                      value={selectedSupermarket}
+                      onChange={(e) => setSelectedSupermarket(e.target.value as Supermarket | "all")}
+                    >
+                      <option value="all">All Supermarkets</option>
+                      <option value="Tesco">Tesco</option>
+                      <option value="Sainsburys">Sainsbury's</option>
+                      <option value="Asda">Asda</option>
+                      <option value="Morrisons">Morrisons</option>
+                      <option value="Waitrose">Waitrose</option>
+                      <option value="Coop">Co-op</option>
+                      <option value="M&S">M&S</option>
+                      <option value="Ocado">Ocado</option>
+                    </select>
+
+                    <select
+                      className="w-full p-2 rounded-md border border-gray-300"
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value as FoodCategory)}
+                    >
+                      <option value="All Categories">All Categories</option>
+                      <option value="Dairy & Eggs">Dairy & Eggs</option>
+                      <option value="Fruits & Vegetables">Fruits & Vegetables</option>
+                      <option value="Meat & Fish">Meat & Fish</option>
+                      <option value="Bread & Bakery">Bread & Bakery</option>
+                      <option value="Drinks">Drinks</option>
+                      <option value="Snacks">Snacks</option>
+                      <option value="Ready Meals">Ready Meals</option>
+                      <option value="Cereals">Cereals</option>
+                      <option value="Pasta & Rice">Pasta & Rice</option>
+                      <option value="Condiments">Condiments</option>
+                      <option value="Frozen Foods">Frozen Foods</option>
+                    </select>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium mb-2">Calories</p>
+                      <div className="flex gap-2">
+                        <Input
+                          type="number"
+                          placeholder="Min"
+                          value={nutritionFilters.minCalories}
+                          onChange={(e) => setNutritionFilters({...nutritionFilters, minCalories: e.target.value})}
+                        />
+                        <Input
+                          type="number"
+                          placeholder="Max"
+                          value={nutritionFilters.maxCalories}
+                          onChange={(e) => setNutritionFilters({...nutritionFilters, maxCalories: e.target.value})}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium mb-2">Protein</p>
+                      <div className="flex gap-2">
+                        <Input
+                          type="number"
+                          placeholder="Min"
+                          value={nutritionFilters.minProtein}
+                          onChange={(e) => setNutritionFilters({...nutritionFilters, minProtein: e.target.value})}
+                        />
+                        <Input
+                          type="number"
+                          placeholder="Max"
+                          value={nutritionFilters.maxProtein}
+                          onChange={(e) => setNutritionFilters({...nutritionFilters, maxProtein: e.target.value})}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {isScanning && (
                 <div className="space-y-4">
@@ -440,6 +568,7 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
                         <div>
                           <h4 className="font-medium">{food.name}</h4>
                           <p className="text-sm text-muted-foreground">{food.brand}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{food.category}</p>
                         </div>
                         <span className="text-sm font-medium">
                           {food.calories} kcal
