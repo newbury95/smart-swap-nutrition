@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
@@ -37,12 +36,7 @@ const TrackingPage = () => {
   const [timeRange, setTimeRange] = useState<TimeRange>("daily");
   const [weight, setWeight] = useState<string>("");
   const [height, setHeight] = useState<string>("");
-  const [trackingData, setTrackingData] = useState<TrackingData[]>([
-    // Sample data
-    { date: "2024-03-01", weight: 70, height: 175, bmi: 22.9 },
-    { date: "2024-03-07", weight: 69.5, height: 175, bmi: 22.7 },
-    { date: "2024-03-14", weight: 69, height: 175, bmi: 22.5 },
-  ]);
+  const [trackingData, setTrackingData] = useState<TrackingData[]>([]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
