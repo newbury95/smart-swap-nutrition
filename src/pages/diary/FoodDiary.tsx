@@ -2,9 +2,10 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Calendar } from "@/components/ui/calendar";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { FoodSelector } from "@/components/food/FoodSelector";
+import { useToast } from "@/components/ui/use-toast";
 
 type Meal = {
   id: string;
@@ -20,6 +21,7 @@ type MealType = "breakfast" | "lunch" | "dinner" | "snack";
 
 const FoodDiary = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [meals, setMeals] = useState<Record<MealType, Meal[]>>({
     breakfast: [],
@@ -37,6 +39,11 @@ const FoodDiary = () => {
     }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
   };
 
+  const getAllMealsNutrients = () => {
+    const allMeals = [...meals.breakfast, ...meals.lunch, ...meals.dinner, ...meals.snack];
+    return getTotalNutrients(allMeals);
+  };
+
   const handleAddFood = (type: MealType) => (food: any) => {
     const newMeal: Meal = {
       ...food,
@@ -48,6 +55,23 @@ const FoodDiary = () => {
       ...prev,
       [type]: [...prev[type], newMeal]
     }));
+
+    toast({
+      title: "Food added",
+      description: `${food.name} added to ${type}`,
+    });
+  };
+
+  const handleDeleteFood = (type: MealType, mealId: string) => {
+    setMeals(prev => ({
+      ...prev,
+      [type]: prev[type].filter(meal => meal.id !== mealId)
+    }));
+
+    toast({
+      title: "Food removed",
+      description: "Item has been removed from your diary",
+    });
   };
 
   const renderMealSection = (type: MealType, title: string) => (
@@ -63,12 +87,20 @@ const FoodDiary = () => {
         <div className="space-y-3">
           {meals[type].map((meal) => (
             <div key={meal.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-              <div>
+              <div className="flex-1">
                 <p className="font-medium text-gray-800">{meal.name}</p>
                 <p className="text-sm text-gray-500">{meal.time}</p>
               </div>
-              <div className="text-sm text-gray-600">
-                {meal.calories} kcal
+              <div className="flex items-center gap-4">
+                <div className="text-sm text-gray-600">
+                  {meal.calories} kcal
+                </div>
+                <button
+                  onClick={() => handleDeleteFood(type, meal.id)}
+                  className="text-red-500 hover:text-red-600 transition-colors"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
               </div>
             </div>
           ))}
@@ -82,6 +114,8 @@ const FoodDiary = () => {
       )}
     </div>
   );
+
+  const dailyTotals = getAllMealsNutrients();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -114,19 +148,19 @@ const FoodDiary = () => {
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Calories</span>
-                  <span className="font-medium">0 kcal</span>
+                  <span className="font-medium">{dailyTotals.calories} kcal</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Protein</span>
-                  <span className="font-medium">0g</span>
+                  <span className="font-medium">{dailyTotals.protein}g</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Carbs</span>
-                  <span className="font-medium">0g</span>
+                  <span className="font-medium">{dailyTotals.carbs}g</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Fat</span>
-                  <span className="font-medium">0g</span>
+                  <span className="font-medium">{dailyTotals.fat}g</span>
                 </div>
               </div>
             </div>
