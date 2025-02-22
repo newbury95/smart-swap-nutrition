@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Calendar } from "@/components/ui/calendar";
@@ -8,6 +7,8 @@ import { useToast } from "@/hooks/use-toast";
 import { MealSection } from "@/components/diary/MealSection";
 import { DailySummary } from "@/components/diary/DailySummary";
 import { SponsorBanner } from "@/components/diary/SponsorBanner";
+import { Button } from "@/components/ui/button";
+import { FoodSwapSuggestions } from "@/components/diary/FoodSwapSuggestions";
 
 type Meal = {
   id: string;
@@ -21,6 +22,15 @@ type Meal = {
 
 type MealType = "breakfast" | "lunch" | "dinner" | "snack";
 
+const mockSwaps = [
+  {
+    original: "Fried egg on toast with butter",
+    suggestion: "Scrambled egg on dry wholemeal toast",
+    reason: "Lower in calories and saturated fats while maintaining protein content. Wholemeal bread provides more fiber and nutrients."
+  },
+  // Add more mock swaps as needed
+];
+
 const FoodDiary = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -31,6 +41,7 @@ const FoodDiary = () => {
     dinner: [],
     snack: []
   });
+  const [showSwaps, setShowSwaps] = useState(false);
 
   const getTotalNutrients = (mealList: Meal[]) => {
     return mealList.reduce((acc, meal) => ({
@@ -76,6 +87,14 @@ const FoodDiary = () => {
     });
   };
 
+  const handleComplete = () => {
+    setShowSwaps(true);
+    toast({
+      title: "Daily food diary completed",
+      description: "Here are some suggested food swaps based on your goals",
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white border-b">
@@ -103,6 +122,15 @@ const FoodDiary = () => {
             </div>
 
             <DailySummary dailyTotals={getAllMealsNutrients()} />
+
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              <Button 
+                onClick={handleComplete}
+                className="w-full"
+              >
+                Complete Day
+              </Button>
+            </div>
           </div>
 
           <div className="space-y-6">
@@ -132,6 +160,13 @@ const FoodDiary = () => {
       </main>
 
       <SponsorBanner />
+      
+      {showSwaps && (
+        <FoodSwapSuggestions
+          swaps={mockSwaps}
+          onClose={() => setShowSwaps(false)}
+        />
+      )}
     </div>
   );
 };
