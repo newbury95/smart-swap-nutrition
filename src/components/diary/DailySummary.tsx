@@ -1,4 +1,6 @@
 
+import React from 'react';
+
 interface NutritionSummary {
   calories: number;
   protein: number;
