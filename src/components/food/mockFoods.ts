@@ -221,7 +221,7 @@ export const mockFoods: Food[] = [
     supermarket: "All Supermarkets",
     category: "Frozen Foods"
   },
-   {
+  {
     id: "19",
     name: "Beef Mince 5% Fat",
     brand: "Tesco",
@@ -340,5 +340,65 @@ export const mockFoods: Food[] = [
     servingSize: "100g",
     supermarket: "All Supermarkets",
     category: "Cereals"
+  },
+  {
+    id: "29",
+    name: "Greek Yogurt 0% Fat",
+    brand: "Fage",
+    calories: 54,
+    protein: 10.3,
+    carbs: 3.0,
+    fat: 0,
+    servingSize: "100g",
+    supermarket: "All Supermarkets",
+    category: "Dairy & Eggs"
+  },
+  {
+    id: "30",
+    name: "Sweet Potato",
+    brand: "Tesco",
+    calories: 86,
+    protein: 1.6,
+    carbs: 20.1,
+    fat: 0.1,
+    servingSize: "100g",
+    supermarket: "Tesco",
+    category: "Fruits & Vegetables"
+  },
+  {
+    id: "31",
+    name: "Quinoa",
+    brand: "Merchant Gourmet",
+    calories: 120,
+    protein: 4.4,
+    carbs: 21.3,
+    fat: 1.9,
+    servingSize: "100g cooked",
+    supermarket: "All Supermarkets",
+    category: "Pasta & Rice"
+  },
+  {
+    id: "32",
+    name: "Protein Bar",
+    brand: "Quest",
+    calories: 190,
+    protein: 20,
+    carbs: 21,
+    fat: 8,
+    servingSize: "60g bar",
+    supermarket: "All Supermarkets",
+    category: "Snacks"
+  },
+  {
+    id: "33",
+    name: "Turkey Breast",
+    brand: "Sainsburys",
+    calories: 104,
+    protein: 24,
+    carbs: 0,
+    fat: 1,
+    servingSize: "100g",
+    supermarket: "Sainsburys",
+    category: "Meat & Fish"
   }
 ];

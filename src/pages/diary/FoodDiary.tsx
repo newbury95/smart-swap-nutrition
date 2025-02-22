@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Calendar } from "@/components/ui/calendar";
@@ -9,6 +10,7 @@ import { DailySummary } from "@/components/diary/DailySummary";
 import { SponsorBanner } from "@/components/diary/SponsorBanner";
 import { Button } from "@/components/ui/button";
 import { FoodSwapSuggestions } from "@/components/diary/FoodSwapSuggestions";
+import { HealthMetrics } from "@/components/diary/HealthMetrics";
 
 type Meal = {
   id: string;
@@ -27,8 +29,7 @@ const mockSwaps = [
     original: "Fried egg on toast with butter",
     suggestion: "Scrambled egg on dry wholemeal toast",
     reason: "Lower in calories and saturated fats while maintaining protein content. Wholemeal bread provides more fiber and nutrients."
-  },
-  // Add more mock swaps as needed
+  }
 ];
 
 const FoodDiary = () => {
@@ -122,18 +123,18 @@ const FoodDiary = () => {
             </div>
 
             <DailySummary dailyTotals={getAllMealsNutrients()} />
+          </div>
 
-            <div className="bg-white rounded-xl p-6 shadow-sm">
+          <div className="space-y-6">
+            <div className="flex justify-end mb-4">
               <Button 
                 onClick={handleComplete}
-                className="w-full"
+                className="w-auto"
               >
                 Complete Day
               </Button>
             </div>
-          </div>
 
-          <div className="space-y-6">
             {[
               { type: "breakfast", title: "Breakfast" },
               { type: "lunch", title: "Lunch" },
@@ -155,6 +156,8 @@ const FoodDiary = () => {
                 />
               </motion.div>
             ))}
+
+            <HealthMetrics />
           </div>
         </div>
       </main>
@@ -172,3 +175,4 @@ const FoodDiary = () => {
 };
 
 export default FoodDiary;
+

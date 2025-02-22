@@ -46,7 +46,11 @@ export const MealSection = ({ type, title, meals, onAddFood, onDeleteFood }: Mea
             <div key={meal.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
               <div className="flex-1">
                 <p className="font-medium text-gray-800">{meal.name}</p>
-                <p className="text-sm text-gray-500">{meal.time}</p>
+                <div className="flex gap-3 text-sm text-gray-600">
+                  <span>{meal.protein}g P</span>
+                  <span>{meal.carbs}g C</span>
+                  <span>{meal.fat}g F</span>
+                </div>
               </div>
               <div className="flex items-center gap-4">
                 <div className="text-sm text-gray-600">
@@ -72,3 +76,4 @@ export const MealSection = ({ type, title, meals, onAddFood, onDeleteFood }: Mea
     </div>
   );
 };
+
