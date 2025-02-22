@@ -1,18 +1,10 @@
 
-import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Leaf, Heart, Scale, Activity, Check } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Index = () => {
   const navigate = useNavigate();
-  const [isVisible, setIsVisible] = useState(true);
-
-  const fadeInUp = {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.6 }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-soft-green/20 to-white">
@@ -24,191 +16,98 @@ const Index = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <span className="px-4 py-2 bg-gradient-to-r from-green-500/20 to-white rounded-full text-sm font-medium inline-block mb-6 shadow-sm">
-            Smart Nutrition Made Simple
-          </span>
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 tracking-tight bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent">
-            Transform Your Diet with Intelligent Food Swaps
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 tracking-tight text-green-800">
+            Transform Your Diet,<br />Achieve Your Goals
           </h1>
           <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-            Personalized nutrition recommendations based on your health conditions and goals. 
-            Get healthier alternatives without sacrificing taste.
+            Get personalized meal suggestions and healthy food swaps tailored to your
+            specific health, diet, or fitness goals.
           </p>
-          <button 
-            onClick={() => navigate('/signup')}
-            className="bg-gradient-to-r from-green-600 to-green-400 text-white px-8 py-4 rounded-full font-medium hover:opacity-90 transition-all duration-300 flex items-center gap-2 mx-auto shadow-lg hover:shadow-xl"
-          >
-            Start Your Journey
-            <ArrowRight className="w-4 h-4" />
-          </button>
         </motion.div>
       </section>
 
-      {/* Features Section */}
+      {/* Plans Section */}
       <section className="py-24 bg-gradient-to-b from-white to-soft-green/20">
         <div className="container mx-auto px-4">
-          <motion.div 
-            className="text-center mb-16"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent">
-              Smart Swaps for Better Health
-            </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Our intelligent system suggests personalized food alternatives based on your specific needs
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
-              <motion.div
-                key={feature.title}
-                className="p-6 rounded-2xl bg-white/80 backdrop-blur-sm border border-gray-100 hover:shadow-lg transition-all duration-300 hover:border-green-200"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            {/* Free Plan */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100"
+            >
+              <h2 className="text-2xl font-bold mb-6">Free Plan Features</h2>
+              <ul className="space-y-4 mb-8">
+                {freePlanFeatures.map((feature) => (
+                  <li key={feature} className="flex items-start gap-3">
+                    <Check className="w-5 h-5 text-green-500 mt-1 shrink-0" />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-gray-600 mb-6">Perfect for getting started with healthy eating</p>
+              <button 
+                onClick={() => navigate('/signup')}
+                className="w-full bg-white border-2 border-green-500 text-green-500 hover:bg-green-50 px-6 py-3 rounded-full font-medium transition-colors flex items-center justify-center gap-2"
               >
-                <feature.icon className="w-12 h-12 text-green-600 mb-4" />
-                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                <p className="text-gray-600">{feature.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+                Try for Free
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </motion.div>
 
-      {/* Health Conditions Section */}
-      <section className="py-24 bg-gradient-to-br from-soft-green/20 to-white">
-        <div className="container mx-auto px-4">
-          <motion.div 
-            className="text-center mb-16"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent">
-              Tailored to Your Needs
-            </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Get personalized recommendations based on your health conditions and goals
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {conditions.map((condition, index) => (
-              <motion.div
-                key={condition.name}
-                className="p-6 rounded-2xl bg-white/90 backdrop-blur-sm border border-green-100 hover:border-green-200 hover:shadow-xl transition-all duration-300"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <span className="inline-block px-3 py-1 bg-gradient-to-r from-green-500/20 to-green-400/20 rounded-full text-sm font-medium mb-4">
-                  {condition.category}
+            {/* Premium Plan */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="bg-green-50 rounded-2xl p-8 shadow-lg border border-green-100"
+            >
+              <div className="flex justify-between items-start mb-6">
+                <h2 className="text-2xl font-bold">Premium Plan</h2>
+                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                  £7.99/month
                 </span>
-                <h3 className="text-xl font-semibold mb-2">{condition.name}</h3>
-                <p className="text-gray-600 mb-4">{condition.description}</p>
-                <ul className="space-y-2">
-                  {condition.swaps.map((swap, idx) => (
-                    <li key={idx} className="flex items-center gap-2 text-sm text-gray-600">
-                      <Check className="w-4 h-4 text-green-500" />
-                      {swap}
-                    </li>
-                  ))}
-                </ul>
-              </motion.div>
-            ))}
+              </div>
+              <ul className="space-y-4 mb-8">
+                {premiumPlanFeatures.map((feature) => (
+                  <li key={feature} className="flex items-start gap-3">
+                    <Check className="w-5 h-5 text-green-500 mt-1 shrink-0" />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-gray-600 mb-6">For those serious about their health goals</p>
+              <button 
+                onClick={() => navigate('/signup?plan=premium')}
+                className="w-full bg-green-500 text-white hover:bg-green-600 px-6 py-3 rounded-full font-medium transition-colors flex items-center justify-center gap-2"
+              >
+                Get Premium Now
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </motion.div>
           </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-b from-white to-soft-green/20">
-        <div className="container mx-auto px-4">
-          <motion.div
-            className="max-w-3xl mx-auto text-center"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent">
-              Ready to Transform Your Diet?
-            </h2>
-            <p className="text-lg text-gray-600 mb-8">
-              Join thousands of users who have discovered healthier alternatives to their favorite foods.
-            </p>
-            <button className="bg-gradient-to-r from-green-600 to-green-400 text-white px-8 py-4 rounded-full font-medium hover:opacity-90 transition-all duration-300 flex items-center gap-2 mx-auto shadow-lg hover:shadow-xl">
-              Get Started Now
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </motion.div>
         </div>
       </section>
     </div>
   );
 };
 
-const features = [
-  {
-    icon: Leaf,
-    title: "Smart Swaps",
-    description: "Get intelligent food alternatives based on your nutritional needs and preferences"
-  },
-  {
-    icon: Heart,
-    title: "Health First",
-    description: "Recommendations tailored to your specific health conditions and goals"
-  },
-  {
-    icon: Scale,
-    title: "Track Progress",
-    description: "Monitor your journey with detailed nutritional insights and progress tracking"
-  },
-  {
-    icon: Activity,
-    title: "Active Support",
-    description: "Receive ongoing guidance and adjustments as your needs change"
-  }
+const freePlanFeatures = [
+  "Daily meal tracking",
+  "Smart food swap suggestions",
+  "Water intake tracking",
+  "Basic progress monitoring"
 ];
 
-const conditions = [
-  {
-    category: "Health Condition",
-    name: "Diabetes Management",
-    description: "Smart alternatives to help maintain healthy blood sugar levels",
-    swaps: [
-      "Replace white rice with cauliflower rice",
-      "Swap regular pasta for zucchini noodles",
-      "Choose sweet potatoes over white potatoes"
-    ]
-  },
-  {
-    category: "Fitness Goal",
-    name: "Muscle Gain",
-    description: "Protein-rich alternatives to support muscle growth",
-    swaps: [
-      "Replace regular yogurt with Greek yogurt",
-      "Swap bread for quinoa",
-      "Choose lean meats over processed options"
-    ]
-  },
-  {
-    category: "Dietary Need",
-    name: "Heart Health",
-    description: "Heart-friendly alternatives for your favorite foods",
-    swaps: [
-      "Replace butter with avocado",
-      "Swap red meat for fatty fish",
-      "Choose whole grains over refined grains"
-    ]
-  }
+const premiumPlanFeatures = [
+  "All Free Plan Features",
+  "Personalized meal suggestions",
+  "Weekly meal planning",
+  "Advanced nutrition insights",
+  "Premium recipe collection"
 ];
 
 export default Index;
