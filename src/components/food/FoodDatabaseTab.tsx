@@ -1,10 +1,10 @@
-
 import { useState } from "react";
 import { Food } from "./types";
 import { FoodSearchBar } from "./FoodSearchBar";
 import { FoodFilters } from "./FoodFilters";
 import { BarcodeScanner } from "./BarcodeScanner";
 import { FoodList } from "./FoodList";
+import { FoodScraper } from "./FoodScraper";
 import { useToast } from "@/components/ui/use-toast";
 import { BrowserMultiFormatReader } from '@zxing/library';
 
@@ -18,6 +18,19 @@ export const FoodDatabaseTab = ({ foods, onSelect }: FoodDatabaseTabProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isScanning, setIsScanning] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [showScraper, setShowScraper] = useState(false);
+  const [selectedSupermarket, setSelectedSupermarket] = useState<string>("all");
+  const [selectedCategory, setSelectedCategory] = useState<string>("All Categories");
+  const [nutritionFilters, setNutritionFilters] = useState({
+    minCalories: "",
+    maxCalories: "",
+    minProtein: "",
+    maxProtein: "",
+    minCarbs: "",
+    maxCarbs: "",
+    minFat: "",
+    maxFat: "",
+  });
 
   const handleBarcodeScanner = async () => {
     setIsScanning(true);
@@ -77,13 +90,23 @@ export const FoodDatabaseTab = ({ foods, onSelect }: FoodDatabaseTabProps) => {
 
   return (
     <div className="space-y-4">
-      <FoodSearchBar
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        onFilterClick={() => setShowFilters(!showFilters)}
-        onBarcodeClick={handleBarcodeScanner}
-        isScanning={isScanning}
-      />
+      <div className="flex justify-between items-center">
+        <FoodSearchBar
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          onFilterClick={() => setShowFilters(!showFilters)}
+          onBarcodeClick={handleBarcodeScanner}
+          isScanning={isScanning}
+        />
+        <Button 
+          variant="outline"
+          onClick={() => setShowScraper(!showScraper)}
+        >
+          Import Foods
+        </Button>
+      </div>
+
+      {showScraper && <FoodScraper />}
 
       {showFilters && (
         <FoodFilters
