@@ -12,48 +12,72 @@ export type Database = {
       nutritional_info: {
         Row: {
           calcium: number
+          calcium_unit: string | null
           carbohydrates: number
+          carbohydrates_unit: string | null
           created_at: string
           fats: number
+          fats_unit: string | null
           food_item: string
           id: string
           kcal: number
+          kcal_unit: string | null
           protein: number
+          protein_unit: string | null
           provider: Database["public"]["Enums"]["provider_type"]
           salt: number
+          salt_unit: string | null
           saturates: number
+          saturates_unit: string | null
           serving_size: string
           sugar: number
+          sugar_unit: string | null
         }
         Insert: {
           calcium: number
+          calcium_unit?: string | null
           carbohydrates: number
+          carbohydrates_unit?: string | null
           created_at?: string
           fats: number
+          fats_unit?: string | null
           food_item: string
           id?: string
           kcal: number
+          kcal_unit?: string | null
           protein: number
+          protein_unit?: string | null
           provider: Database["public"]["Enums"]["provider_type"]
           salt: number
+          salt_unit?: string | null
           saturates: number
+          saturates_unit?: string | null
           serving_size: string
           sugar: number
+          sugar_unit?: string | null
         }
         Update: {
           calcium?: number
+          calcium_unit?: string | null
           carbohydrates?: number
+          carbohydrates_unit?: string | null
           created_at?: string
           fats?: number
+          fats_unit?: string | null
           food_item?: string
           id?: string
           kcal?: number
+          kcal_unit?: string | null
           protein?: number
+          protein_unit?: string | null
           provider?: Database["public"]["Enums"]["provider_type"]
           salt?: number
+          salt_unit?: string | null
           saturates?: number
+          saturates_unit?: string | null
           serving_size?: string
           sugar?: number
+          sugar_unit?: string | null
         }
         Relationships: []
       }
