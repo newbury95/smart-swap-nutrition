@@ -1,6 +1,6 @@
 
 import { motion } from "framer-motion";
-import { ArrowRight, LogIn } from "lucide-react";
+import { ArrowRight, LogIn, Dumbbell, Apple } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Index = () => {
@@ -47,6 +47,40 @@ const Index = () => {
             </button>
           </div>
         </motion.div>
+
+        {/* Feature Tiles */}
+        <motion.div
+          className="grid md:grid-cols-2 gap-8 mt-16 max-w-4xl mx-auto"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        >
+          <motion.div
+            className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow"
+            whileHover={{ y: -5 }}
+          >
+            <div className="p-3 bg-green-100 rounded-xl w-fit mb-4">
+              <Dumbbell className="w-6 h-6 text-green-600" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2">Workout Integration</h3>
+            <p className="text-gray-600">
+              Sync your workouts and track your progress with our premium health metrics integration.
+            </p>
+          </motion.div>
+
+          <motion.div
+            className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow"
+            whileHover={{ y: -5 }}
+          >
+            <div className="p-3 bg-green-100 rounded-xl w-fit mb-4">
+              <Apple className="w-6 h-6 text-green-600" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2">Health App Sync</h3>
+            <p className="text-gray-600">
+              Connect with Apple Health or Samsung Health to automatically track your daily activities.
+            </p>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* Sponsor Banner */}
@@ -62,9 +96,18 @@ const Index = () => {
                 className="text-gray-600 hover:text-gray-800 font-medium transition-colors"
                 whileHover={{ scale: 1.05 }}
               >
-                Francis Fitness
+                Francis Fitness (PT)
               </motion.a>
-              {["Gymshark", "Myprotein", "Maxinutrition"].map((brand) => (
+              <motion.a
+                href="https://www.musclefood.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-600 hover:text-gray-800 font-medium transition-colors"
+                whileHover={{ scale: 1.05 }}
+              >
+                Musclefood
+              </motion.a>
+              {["Gymshark", "Myprotein"].map((brand) => (
                 <motion.a
                   key={brand}
                   href="#"
