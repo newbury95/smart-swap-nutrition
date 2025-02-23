@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Calendar } from "@/components/ui/calendar";
@@ -147,7 +148,9 @@ const FoodDiary = () => {
               </motion.div>
             ))}
 
-            <div className="text-center mt-8">
+            <HealthMetrics />
+            
+            <div className="text-center mt-4">
               <Button 
                 onClick={handleComplete}
                 className="w-auto"
@@ -155,8 +158,6 @@ const FoodDiary = () => {
                 Complete Day
               </Button>
             </div>
-
-            <HealthMetrics />
           </div>
         </div>
       </main>
