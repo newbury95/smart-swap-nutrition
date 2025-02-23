@@ -7,14 +7,24 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+const parseNumericField = (value: string): number => {
+  // Remove any whitespace and convert commas to dots
+  const cleanValue = value.trim().replace(',', '.');
+  const number = parseFloat(cleanValue);
+  
+  if (isNaN(number)) {
+    throw new Error(`Invalid numeric value: ${value}`);
+  }
+  
+  return number;
+};
+
 serve(async (req) => {
-  // Handle CORS
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
-    // Get the CSV file from form data
     const formData = await req.formData()
     const file = formData.get('file')
 
@@ -25,7 +35,6 @@ serve(async (req) => {
       )
     }
 
-    // Check if it's a CSV file
     if (!file.name.toLowerCase().endsWith('.csv')) {
       return new Response(
         JSON.stringify({ error: 'File must be a CSV' }),
@@ -33,7 +42,6 @@ serve(async (req) => {
       )
     }
 
-    // Read the file content
     const text = await file.text()
     const lines = text.split('\n')
     if (lines.length < 2) {
@@ -43,7 +51,6 @@ serve(async (req) => {
       )
     }
 
-    // Parse headers and validate
     const headers = lines[0].trim().split(',')
     const requiredColumns = [
       'food_item',
@@ -59,7 +66,6 @@ serve(async (req) => {
       'provider'
     ]
 
-    // Validate headers
     const missingColumns = requiredColumns.filter(col => !headers.includes(col))
     if (missingColumns.length > 0) {
       return new Response(
@@ -73,60 +79,67 @@ serve(async (req) => {
       )
     }
 
-    // Initialize Supabase client
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Parse and validate data rows
     const data = []
     const errors = []
+    const numericColumns = ['kcal', 'protein', 'fats', 'saturates', 'carbohydrates', 'sugar', 'salt', 'calcium']
+    const validProviders = ['Tesco', 'Sainsburys', 'Asda', 'Morrisons', 'Waitrose', 'Coop', 'M&S', 'Ocado']
     
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i].trim()
-      if (!line) continue // Skip empty lines
+      if (!line) continue
       
-      const values = line.split(',')
-      if (values.length !== headers.length) {
-        errors.push(`Row ${i}: Invalid number of columns`)
-        continue
-      }
-
-      const row: any = {}
-      headers.forEach((header, index) => {
-        row[header] = values[index]
-      })
-
-      // Validate provider enum value
-      const validProviders = ['Tesco', 'Sainsburys', 'Asda', 'Morrisons', 'Waitrose', 'Coop', 'M&S', 'Ocado']
-      if (!validProviders.includes(row.provider)) {
-        errors.push(`Row ${i}: Invalid provider "${row.provider}". Must be one of: ${validProviders.join(', ')}`)
-        return
-      }
-
-      // Convert numeric fields
-      const numericFields = ['kcal', 'protein', 'fats', 'saturates', 'carbohydrates', 'sugar', 'salt', 'calcium']
-      numericFields.forEach(field => {
-        row[field] = parseFloat(row[field])
-        if (isNaN(row[field])) {
-          errors.push(`Row ${i}: Invalid number for ${field}`)
+      try {
+        const values = line.split(',')
+        if (values.length !== headers.length) {
+          errors.push(`Row ${i}: Invalid number of columns`)
+          continue
         }
-      })
 
-      if (errors.length === 0) {
+        const row: Record<string, any> = {}
+        
+        headers.forEach((header, index) => {
+          const value = values[index].trim()
+          
+          if (numericColumns.includes(header)) {
+            try {
+              row[header] = parseNumericField(value)
+            } catch (error) {
+              throw new Error(`Row ${i}, column ${header}: ${error.message}`)
+            }
+          } else if (header === 'provider') {
+            if (!validProviders.includes(value)) {
+              throw new Error(`Row ${i}: Invalid provider "${value}". Must be one of: ${validProviders.join(', ')}`)
+            }
+            row[header] = value
+          } else {
+            row[header] = value
+          }
+        })
+
         data.push(row)
+      } catch (error) {
+        errors.push(error.message)
       }
     }
 
     if (errors.length > 0) {
       return new Response(
-        JSON.stringify({ error: 'Validation errors', errors }),
+        JSON.stringify({ 
+          error: 'Validation errors', 
+          errors,
+          validFormat: `The CSV should have these exact headers: ${requiredColumns.join(', ')}\n` +
+                      `Provider must be one of: ${validProviders.join(', ')}\n` +
+                      'All numeric columns must contain valid numbers (using either dots or commas as decimal separators)'
+        }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       )
     }
 
-    // Insert data into the database
     const { error: insertError } = await supabase
       .from('nutritional_info')
       .insert(data)
