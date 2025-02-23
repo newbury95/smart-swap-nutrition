@@ -49,7 +49,13 @@ const FoodDiary = () => {
   useEffect(() => {
     const checkAuth = async () => {
       console.log('FoodDiary: Checking authentication status');
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error('FoodDiary: Error checking session:', error);
+        navigate('/signup');
+        return;
+      }
       
       if (!session) {
         console.log('FoodDiary: No session found, redirecting to signup');
@@ -57,11 +63,23 @@ const FoodDiary = () => {
         return;
       }
       
-      console.log('FoodDiary: Session found, user is authenticated');
+      console.log('FoodDiary: Session found, user is authenticated:', session.user.id);
       setIsLoading(false);
     };
 
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('FoodDiary: Auth state changed:', event, 'Session:', session ? 'exists' : 'null');
+      if (!session) {
+        navigate('/signup');
+      }
+    });
+
     checkAuth();
+
+    return () => {
+      console.log('FoodDiary: Cleaning up auth subscription');
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   const getTotalNutrients = (mealList: Meal[]) => {

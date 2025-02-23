@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -27,6 +27,7 @@ const PersonalInfo = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<PersonalInfoForm>({
     firstName: "",
     lastName: "",
@@ -55,9 +56,11 @@ const PersonalInfo = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     console.log('Starting form submission with data:', formData);
 
     try {
+      // First sign up the user
       console.log('Attempting to sign up user with email:', formData.email);
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
@@ -81,13 +84,28 @@ const PersonalInfo = () => {
       }
 
       console.log('User created successfully:', authData.user.id);
-      console.log('Creating profile for user:', authData.user.id);
+
+      // Wait for the session to be established
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error('Error getting session:', sessionError);
+        throw sessionError;
+      }
+
+      if (!session) {
+        console.error('No session established after signup');
+        throw new Error("Failed to establish session");
+      }
+
+      console.log('Session established successfully:', session.user.id);
+      console.log('Creating profile for user:', session.user.id);
 
       // Then create their profile
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
-          id: authData.user.id,
+          id: session.user.id,
           first_name: formData.firstName,
           last_name: formData.lastName,
           email: formData.email,
@@ -110,17 +128,31 @@ const PersonalInfo = () => {
         description: `Your ${formData.isPremium ? 'premium' : 'free'} profile has been created.`,
       });
       
-      console.log('Navigating to diary page');
+      console.log('Navigating to diary page with established session');
       navigate("/diary");
     } catch (error) {
-      console.error('Detailed error creating profile:', error);
+      console.error('Detailed error during signup process:', error);
       toast({
         variant: "destructive",
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to create profile",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  // Verify session on component mount
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        console.log('User already has a session, redirecting to diary');
+        navigate('/diary');
+      }
+    };
+    checkSession();
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-soft-green/20 to-white">
@@ -162,9 +194,10 @@ const PersonalInfo = () => {
             <div className="mt-8 text-center">
               <button 
                 type="submit"
-                className="bg-gradient-to-r from-green-600 to-green-400 text-white px-8 py-4 rounded-full font-medium hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl"
+                disabled={isLoading}
+                className="bg-gradient-to-r from-green-600 to-green-400 text-white px-8 py-4 rounded-full font-medium hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Create Profile
+                {isLoading ? "Creating Profile..." : "Create Profile"}
               </button>
             </div>
           </form>

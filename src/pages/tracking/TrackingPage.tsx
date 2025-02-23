@@ -44,7 +44,13 @@ const TrackingPage = () => {
   useEffect(() => {
     const checkAuth = async () => {
       console.log('TrackingPage: Checking authentication status');
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error('TrackingPage: Error checking session:', error);
+        navigate('/signup');
+        return;
+      }
       
       if (!session) {
         console.log('TrackingPage: No session found, redirecting to signup');
@@ -52,11 +58,23 @@ const TrackingPage = () => {
         return;
       }
       
-      console.log('TrackingPage: Session found, user is authenticated');
+      console.log('TrackingPage: Session found, user is authenticated:', session.user.id);
       setIsLoading(false);
     };
 
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('TrackingPage: Auth state changed:', event, 'Session:', session ? 'exists' : 'null');
+      if (!session) {
+        navigate('/signup');
+      }
+    });
+
     checkAuth();
+
+    return () => {
+      console.log('TrackingPage: Cleaning up auth subscription');
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   const handleSubmit = (e: React.FormEvent) => {
