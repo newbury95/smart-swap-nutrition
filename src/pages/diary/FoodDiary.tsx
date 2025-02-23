@@ -1,7 +1,6 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Calendar } from "@/components/ui/calendar";
 import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -11,6 +10,8 @@ import { SponsorBanner } from "@/components/diary/SponsorBanner";
 import { Button } from "@/components/ui/button";
 import { FoodSwapSuggestions } from "@/components/diary/FoodSwapSuggestions";
 import { HealthMetrics } from "@/components/diary/HealthMetrics";
+import { Calendar } from "@/components/ui/calendar";
+import { supabase } from "@/integrations/supabase/client";
 
 type Meal = {
   id: string;
@@ -43,6 +44,23 @@ const FoodDiary = () => {
     snack: []
   });
   const [showSwaps, setShowSwaps] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({
+          variant: "destructive",
+          title: "Authentication required",
+          description: "Please sign in to access your food diary",
+        });
+        navigate('/signup');
+        return;
+      }
+    };
+
+    checkAuth();
+  }, [navigate, toast]);
 
   const getTotalNutrients = (mealList: Meal[]) => {
     return mealList.reduce((acc, meal) => ({
@@ -95,6 +113,12 @@ const FoodDiary = () => {
       description: "Here are some suggested food swaps based on your goals",
     });
   };
+
+  // Guard clause for when auth check is happening
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    return null; // Return null while checking auth to prevent flash of content
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 pb-32">
