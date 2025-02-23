@@ -1,5 +1,4 @@
 
-import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -7,7 +6,6 @@ import { PersonalInfoForm } from "./components/PersonalInfoForm";
 import { PaymentSection } from "./components/PaymentSection";
 import { PremiumDialog } from "./components/PremiumDialog";
 import { usePersonalInfoForm } from "./hooks/usePersonalInfoForm";
-import { supabase } from "@/integrations/supabase/client";
 
 const PersonalInfo = () => {
   const navigate = useNavigate();
@@ -21,18 +19,6 @@ const PersonalInfo = () => {
     handlePremiumToggle,
     handleSubmit
   } = usePersonalInfoForm();
-
-  // Verify session on component mount
-  useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        console.log('User already has a session, redirecting to diary');
-        navigate('/diary');
-      }
-    };
-    checkSession();
-  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-soft-green/20 to-white">

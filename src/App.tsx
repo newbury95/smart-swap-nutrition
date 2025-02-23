@@ -25,15 +25,17 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-const AuthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
+const SignUpRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, isLoading } = useAuth();
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
+  // If user is already authenticated and tries to access signup pages,
+  // redirect them to the diary
   if (session) {
-    console.log('Session found, redirecting to diary');
+    console.log('Session found in signup route, redirecting to diary');
     return <Navigate to="/diary" />;
   }
 
@@ -45,19 +47,11 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/" element={<Index />} />
       
-      {/* Auth routes */}
-      <Route path="/signup" element={
-        <AuthenticatedRoute>
-          <SignUp />
-        </AuthenticatedRoute>
-      } />
-      <Route path="/signup/personal-info" element={
-        <AuthenticatedRoute>
-          <PersonalInfo />
-        </AuthenticatedRoute>
-      } />
+      {/* Signup flow routes */}
+      <Route path="/signup" element={<SignUp />} />
+      <Route path="/signup/personal-info" element={<PersonalInfo />} />
       
-      {/* Protected routes */}
+      {/* Protected routes requiring authentication */}
       <Route path="/diary" element={
         <ProtectedRoute>
           <FoodDiary />
