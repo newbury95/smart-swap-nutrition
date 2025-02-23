@@ -44,56 +44,69 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
   const [isInitialized, setIsInitialized] = useState(false);
   
   useEffect(() => {
-    let authSubscription: { data: { subscription: { unsubscribe: () => void } } };
+    let mounted = true;
+    let authListener: { data: { subscription: { unsubscribe: () => void } } } | null = null;
 
     const initializeAuth = async () => {
       try {
         // Get initial session
         const { data: { session } } = await supabase.auth.getSession();
-        const isAuthed = !!session;
-        setIsAuthenticated(isAuthed);
-
-        // Set up auth state change listener
-        authSubscription = await supabase.auth.onAuthStateChange((_event, session) => {
+        console.log('Initial session check:', session ? 'Authenticated' : 'Not authenticated');
+        
+        if (mounted) {
           const isAuthed = !!session;
           setIsAuthenticated(isAuthed);
-
-          // Handle routing based on auth state
+          
+          // Initial routing
           if (isAuthed) {
+            console.log('User is authenticated, current path:', location.pathname);
             if (authRoutes.includes(location.pathname)) {
+              console.log('Redirecting to /diary');
               navigate('/diary');
             }
-          } else {
-            if (protectedRoutes.includes(location.pathname)) {
-              navigate('/signup');
-            }
-          }
-        });
-
-        // Initial routing
-        if (isAuthed) {
-          if (authRoutes.includes(location.pathname)) {
-            navigate('/diary');
-          }
-        } else {
-          if (protectedRoutes.includes(location.pathname)) {
+          } else if (protectedRoutes.includes(location.pathname)) {
+            console.log('User is not authenticated, redirecting to /signup');
             navigate('/signup');
           }
         }
 
+        // Set up auth state change listener
+        authListener = await supabase.auth.onAuthStateChange((_event, session) => {
+          console.log('Auth state changed:', _event, 'Session:', session ? 'exists' : 'null');
+          
+          if (!mounted) return;
+          
+          const isAuthed = !!session;
+          setIsAuthenticated(isAuthed);
+
+          if (isAuthed) {
+            if (authRoutes.includes(location.pathname)) {
+              console.log('Auth state change: redirecting to /diary');
+              navigate('/diary');
+            }
+          } else if (protectedRoutes.includes(location.pathname)) {
+            console.log('Auth state change: redirecting to /signup');
+            navigate('/signup');
+          }
+        });
+
         setIsInitialized(true);
       } catch (error) {
         console.error('Auth initialization error:', error);
-        setIsInitialized(true);
+        if (mounted) {
+          setIsInitialized(true);
+          setIsAuthenticated(false);
+        }
       }
     };
 
     initializeAuth();
 
     return () => {
-      // Clean up subscription on unmount
-      if (authSubscription?.data?.subscription) {
-        authSubscription.data.subscription.unsubscribe();
+      mounted = false;
+      if (authListener?.data?.subscription) {
+        console.log('Cleaning up auth subscription');
+        authListener.data.subscription.unsubscribe();
       }
     };
   }, [navigate, location.pathname]);
