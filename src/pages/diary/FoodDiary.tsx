@@ -35,10 +35,18 @@ const FoodDiary = () => {
     snack: []
   });
   const [showSwaps, setShowSwaps] = useState(false);
+  const [sidebarAdZone, setSidebarAdZone] = useState(() => {
+    const savedZone = localStorage.getItem('userAdPreference');
+    return savedZone || '1234567'; // Default zone ID
+  });
 
   useEffect(() => {
     loadMeals();
   }, [date]);
+
+  useEffect(() => {
+    localStorage.setItem('userAdPreference', sidebarAdZone);
+  }, [sidebarAdZone]);
 
   const loadMeals = async () => {
     try {
@@ -152,7 +160,12 @@ const FoodDiary = () => {
       </header>
 
       <div className="container mx-auto px-4 my-4">
-        <CriteoAd width={728} height={90} zoneId="YOUR_TOP_ZONE_ID" className="mx-auto" />
+        <CriteoAd 
+          width={728} 
+          height={90} 
+          zoneId="847249" // Liverpool FC Campaign Zone ID
+          className="mx-auto" 
+        />
       </div>
 
       <main className="container mx-auto px-4 py-8">
@@ -203,13 +216,23 @@ const FoodDiary = () => {
           </div>
 
           <div className="hidden lg:block">
-            <CriteoAd width={160} height={600} zoneId="YOUR_SIDE_ZONE_ID" className="sticky top-4" />
+            <CriteoAd 
+              width={160} 
+              height={600} 
+              zoneId={sidebarAdZone}
+              className="sticky top-4" 
+            />
           </div>
         </div>
       </main>
 
       <div className="container mx-auto px-4 mt-8">
-        <CriteoAd width={728} height={90} zoneId="YOUR_BOTTOM_ZONE_ID" className="mx-auto" />
+        <CriteoAd 
+          width={728} 
+          height={90} 
+          zoneId="847250" // TUI Holidays Campaign Zone ID
+          className="mx-auto" 
+        />
       </div>
 
       <SponsorBanner />
