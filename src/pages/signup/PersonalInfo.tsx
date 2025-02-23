@@ -19,7 +19,10 @@ const PersonalInfo = () => {
     setShowPremiumDialog,
     handleInputChange,
     handlePremiumToggle,
-    handleSubmit
+    handleSubmit,
+    handleUnitToggle,
+    convertHeight,
+    convertWeight
   } = usePersonalInfoForm();
 
   // Verify session on component mount
@@ -63,6 +66,9 @@ const PersonalInfo = () => {
               formData={formData}
               handleInputChange={handleInputChange}
               handlePremiumToggle={handlePremiumToggle}
+              handleUnitToggle={handleUnitToggle}
+              convertHeight={convertHeight}
+              convertWeight={convertWeight}
             />
 
             <PaymentSection
