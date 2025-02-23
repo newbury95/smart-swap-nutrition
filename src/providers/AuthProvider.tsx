@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .from('profiles')
         .select('id')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error checking profile:', error);
@@ -58,35 +58,52 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
+    let mounted = true;
     console.log('AuthProvider initialized');
     
-    supabase.auth.getSession().then(({ data: { session: initialSession }}) => {
-      console.log('Initial session:', initialSession?.user?.id);
-      setSession(initialSession);
-      
-      if (initialSession?.user) {
-        checkProfile(initialSession.user.id);
-      } else {
-        setHasProfile(null);
-        setCheckingProfile(false);
+    const initializeAuth = async () => {
+      try {
+        const { data: { session: initialSession }} = await supabase.auth.getSession();
+        console.log('Initial session:', initialSession?.user?.id);
+        
+        if (mounted) {
+          setSession(initialSession);
+          if (initialSession?.user) {
+            await checkProfile(initialSession.user.id);
+          } else {
+            setHasProfile(null);
+            setCheckingProfile(false);
+          }
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        if (mounted) {
+          setIsLoading(false);
+          setCheckingProfile(false);
+        }
       }
-      setIsLoading(false);
-    });
+    };
+
+    initializeAuth();
 
     const { data: { subscription }} = supabase.auth.onAuthStateChange(async (_event, session) => {
       console.log('Auth state changed:', session?.user?.id);
-      setSession(session);
-      
-      if (session?.user) {
+      if (mounted) {
+        setSession(session);
         setCheckingProfile(true);
-        await checkProfile(session.user.id);
-      } else {
-        setHasProfile(null);
-        setCheckingProfile(false);
+        
+        if (session?.user) {
+          await checkProfile(session.user.id);
+        } else {
+          setHasProfile(null);
+          setCheckingProfile(false);
+        }
       }
     });
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, []);
@@ -102,3 +119,4 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     </AuthContext.Provider>
   );
 };
+

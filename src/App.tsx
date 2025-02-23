@@ -13,6 +13,7 @@ import NotFound from './pages/NotFound';
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, isLoading, hasProfile, checkingProfile } = useAuth();
   
+  // Show loading spinner while checking auth state or profile
   if (isLoading || checkingProfile) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -21,15 +22,15 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
+  // Redirect to signup if not authenticated
   if (!session) {
     return <Navigate to="/signup" replace />;
   }
 
-  // Only redirect to personal-info if we know for sure there's no profile
-  if (hasProfile === false) {
-    if (window.location.pathname !== '/signup/personal-info') {
-      return <Navigate to="/signup/personal-info" replace />;
-    }
+  // Only redirect to personal-info if we know the user has no profile
+  // and they're not already on the personal-info page
+  if (hasProfile === false && window.location.pathname !== '/signup/personal-info') {
+    return <Navigate to="/signup/personal-info" replace />;
   }
 
   return <>{children}</>;
@@ -46,7 +47,13 @@ const AuthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
+  // If user is logged in, redirect them away from auth pages
   if (session) {
+    // If they have a profile, send them to diary, otherwise to personal info
+    const { hasProfile } = useAuth();
+    if (hasProfile === false) {
+      return <Navigate to="/signup/personal-info" replace />;
+    }
     return <Navigate to="/diary" replace />;
   }
 
@@ -111,3 +118,4 @@ const App = () => {
 };
 
 export default App;
+
