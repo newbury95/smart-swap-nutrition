@@ -3,11 +3,43 @@ import { Activity, Heart, Footprints } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useSupabase } from "@/hooks/useSupabase";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+
+type MetricType = 'activity' | 'heart-rate' | 'steps';
+
+interface HealthMetric {
+  metric_type: MetricType;
+  value: number;
+}
+
+const getLatestMetrics = async (): Promise<HealthMetric[]> => {
+  const { data, error } = await supabase
+    .from('health_metrics')
+    .select('metric_type, value')
+    .order('recorded_at', { ascending: false })
+    .limit(1)
+    .in('metric_type', ['activity', 'heart-rate', 'steps']);
+
+  if (error) throw error;
+  return data || [];
+};
 
 export const HealthMetrics = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isPremium } = useSupabase();
+
+  const { data: metrics } = useQuery({
+    queryKey: ['health-metrics'],
+    queryFn: getLatestMetrics,
+    enabled: isPremium,
+  });
+
+  const getMetricValue = (type: MetricType) => {
+    const metric = metrics?.find(m => m.metric_type === type);
+    return metric?.value || 0;
+  };
 
   const handleMetricClick = (metric: string) => {
     if (!isPremium) {
@@ -33,7 +65,7 @@ export const HealthMetrics = () => {
           </div>
           <div>
             <h4 className="text-sm font-medium text-gray-800">Activity</h4>
-            <p className="text-2xl font-semibold">0 kcal</p>
+            <p className="text-2xl font-semibold">{getMetricValue('activity')} kcal</p>
           </div>
         </div>
       </div>
@@ -48,7 +80,7 @@ export const HealthMetrics = () => {
           </div>
           <div>
             <h4 className="text-sm font-medium text-gray-800">Heart Rate</h4>
-            <p className="text-2xl font-semibold">-- bpm</p>
+            <p className="text-2xl font-semibold">{getMetricValue('heart-rate')} bpm</p>
           </div>
         </div>
       </div>
@@ -63,10 +95,11 @@ export const HealthMetrics = () => {
           </div>
           <div>
             <h4 className="text-sm font-medium text-gray-800">Steps</h4>
-            <p className="text-2xl font-semibold">0</p>
+            <p className="text-2xl font-semibold">{getMetricValue('steps')}</p>
           </div>
         </div>
       </div>
     </div>
   );
 };
+

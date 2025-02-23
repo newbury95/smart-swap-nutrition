@@ -20,6 +20,14 @@ export type CustomFood = {
   created_at: string;
 };
 
+export type HealthMetric = {
+  id: string;
+  metric_type: 'activity' | 'heart-rate' | 'steps';
+  value: number;
+  recorded_at: string;
+  source: string;
+};
+
 export const useSupabase = () => {
   const [isPremium, setIsPremium] = useState(false);
   const [customFoods, setCustomFoods] = useState<CustomFood[]>([]);
@@ -40,11 +48,11 @@ export const useSupabase = () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) {
       const { data } = await supabase
-        .from('premium_users')
-        .select('*')
+        .from('profiles')
+        .select('is_premium')
         .eq('id', session.user.id)
         .single();
-      setIsPremium(!!data);
+      setIsPremium(!!data?.is_premium);
     }
     setLoading(false);
   };
@@ -82,10 +90,42 @@ export const useSupabase = () => {
     return null;
   };
 
+  const addHealthMetric = async (metric: Omit<HealthMetric, 'id' | 'recorded_at'>) => {
+    if (!supabase) return null;
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) return null;
+
+    const { data, error } = await supabase
+      .from('health_metrics')
+      .insert([{ ...metric, user_id: session.user.id }])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  };
+
+  const getHealthMetrics = async (type: HealthMetric['metric_type']) => {
+    if (!supabase) return [];
+
+    const { data, error } = await supabase
+      .from('health_metrics')
+      .select('*')
+      .eq('metric_type', type)
+      .order('recorded_at', { ascending: false })
+      .limit(30);
+
+    if (error) throw error;
+    return data || [];
+  };
+
   return {
     isPremium,
     customFoods,
     loading,
     addCustomFood,
+    addHealthMetric,
+    getHealthMetrics,
   };
 };

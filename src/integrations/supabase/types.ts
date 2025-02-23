@@ -9,6 +9,33 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      health_metrics: {
+        Row: {
+          id: string
+          metric_type: Database["public"]["Enums"]["health_metric_type"]
+          recorded_at: string
+          source: string
+          user_id: string
+          value: number
+        }
+        Insert: {
+          id?: string
+          metric_type: Database["public"]["Enums"]["health_metric_type"]
+          recorded_at?: string
+          source?: string
+          user_id: string
+          value: number
+        }
+        Update: {
+          id?: string
+          metric_type?: Database["public"]["Enums"]["health_metric_type"]
+          recorded_at?: string
+          source?: string
+          user_id?: string
+          value?: number
+        }
+        Relationships: []
+      }
       nutritional_info: {
         Row: {
           barcode: string | null
@@ -147,6 +174,7 @@ export type Database = {
         | "Condiments"
         | "Frozen Foods"
         | "All Categories"
+      health_metric_type: "activity" | "heart-rate" | "steps"
       provider_type:
         | "Tesco"
         | "Sainsburys"
