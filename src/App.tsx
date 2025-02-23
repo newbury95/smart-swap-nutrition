@@ -44,26 +44,34 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
   const [isInitialized, setIsInitialized] = useState(false);
   
   useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log('Current session:', session); // Debug log
+      console.log('Current path:', location.pathname); // Debug log
+      return session;
+    };
+
     const initializeAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const session = await checkAuth();
         setIsAuthenticated(!!session);
         
-        // If user is authenticated and trying to access auth routes, redirect to diary
-        if (session && authRoutes.includes(location.pathname)) {
-          navigate('/diary');
-          return;
-        }
-
-        // If user is not authenticated and trying to access protected routes, redirect to signup
-        if (!session && protectedRoutes.includes(location.pathname)) {
-          navigate('/signup');
-          return;
+        if (session) {
+          console.log('User is authenticated'); // Debug log
+          if (authRoutes.includes(location.pathname)) {
+            navigate('/diary');
+          }
+        } else {
+          console.log('User is not authenticated'); // Debug log
+          if (protectedRoutes.includes(location.pathname)) {
+            navigate('/signup');
+          }
         }
 
         const {
           data: { subscription },
-        } = supabase.auth.onAuthStateChange((_event, session) => {
+        } = supabase.auth.onAuthStateChange(async (_event, session) => {
+          console.log('Auth state changed:', session ? 'authenticated' : 'unauthenticated'); // Debug log
           const isAuthed = !!session;
           setIsAuthenticated(isAuthed);
           
