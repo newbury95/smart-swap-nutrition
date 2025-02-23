@@ -30,7 +30,6 @@ export type Database = {
           salt_unit: string
           saturates: number
           saturates_unit: string
-          search_text: unknown | null
           serving_size: string
           sugar: number
           sugar_unit: string
@@ -55,7 +54,6 @@ export type Database = {
           salt_unit?: string
           saturates: number
           saturates_unit?: string
-          search_text?: unknown | null
           serving_size: string
           sugar: number
           sugar_unit?: string
@@ -80,7 +78,6 @@ export type Database = {
           salt_unit?: string
           saturates?: number
           saturates_unit?: string
-          search_text?: unknown | null
           serving_size?: string
           sugar?: number
           sugar_unit?: string

@@ -10,122 +10,79 @@ import FoodDiary from './pages/diary/FoodDiary';
 import TrackingPage from './pages/tracking/TrackingPage';
 import NotFound from './pages/NotFound';
 
-const LoadingSpinner = () => (
-  <div className="flex items-center justify-center min-h-screen">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
-  </div>
-);
-
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { session, isLoading, hasProfile, checkingProfile } = useAuth();
-  console.log('ProtectedRoute:', { 
-    sessionExists: !!session, 
-    isLoading, 
-    hasProfile, 
-    checkingProfile,
-    currentPath: window.location.pathname 
-  });
-  
-  if (isLoading || checkingProfile) {
-    console.log('ProtectedRoute: Still loading...');
-    return <LoadingSpinner />;
+  const { session, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <div>Loading...</div>;
   }
 
   if (!session) {
-    console.log('ProtectedRoute: No session, redirecting to signup');
-    return <Navigate to="/signup" replace />;
-  }
-
-  // Only redirect to personal-info if not in the signup flow
-  if (!hasProfile && !window.location.pathname.startsWith('/signup')) {
-    console.log('ProtectedRoute: No profile, redirecting to personal info');
-    return <Navigate to="/signup/personal-info" replace />;
+    console.log('No session in protected route, redirecting to signup');
+    return <Navigate to="/signup" />;
   }
 
   return <>{children}</>;
 };
 
-const PublicRoute = ({ children }: { children: React.ReactNode }) => {
-  const { session, isLoading, hasProfile, checkingProfile } = useAuth();
-  console.log('PublicRoute:', {
-    sessionExists: !!session,
-    isLoading,
-    hasProfile,
-    checkingProfile,
-    currentPath: window.location.pathname
-  });
+const AuthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { session, isLoading } = useAuth();
 
-  if (isLoading || checkingProfile) {
-    return <LoadingSpinner />;
+  if (isLoading) {
+    return <div>Loading...</div>;
   }
 
-  // If user is authenticated and has a profile, redirect them to diary
-  if (session && hasProfile) {
-    console.log('PublicRoute: User authenticated with profile, redirecting to diary');
-    return <Navigate to="/diary" replace />;
+  if (session) {
+    console.log('Session found, redirecting to diary');
+    return <Navigate to="/diary" />;
   }
 
-  return <>{children}</>;
-};
-
-const SignupFlow = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
 const AppRoutes = () => {
-  console.log('AppRoutes: Current path:', window.location.pathname);
   return (
     <Routes>
       <Route path="/" element={<Index />} />
       
-      <Route
-        path="/signup"
-        element={
-          <PublicRoute>
-            <SignUp />
-          </PublicRoute>
-        }
-      />
+      {/* Auth routes */}
+      <Route path="/signup" element={
+        <AuthenticatedRoute>
+          <SignUp />
+        </AuthenticatedRoute>
+      } />
+      <Route path="/signup/personal-info" element={
+        <AuthenticatedRoute>
+          <PersonalInfo />
+        </AuthenticatedRoute>
+      } />
       
-      <Route
-        path="/signup/personal-info"
-        element={
-          <SignupFlow>
-            <PersonalInfo />
-          </SignupFlow>
-        }
-      />
-      
-      <Route
-        path="/diary"
-        element={
-          <ProtectedRoute>
-            <FoodDiary />
-          </ProtectedRoute>
-        }
-      />
-      
-      <Route
-        path="/tracking"
-        element={
-          <ProtectedRoute>
-            <TrackingPage />
-          </ProtectedRoute>
-        }
-      />
+      {/* Protected routes */}
+      <Route path="/diary" element={
+        <ProtectedRoute>
+          <FoodDiary />
+        </ProtectedRoute>
+      } />
+      <Route path="/tracking" element={
+        <ProtectedRoute>
+          <TrackingPage />
+        </ProtectedRoute>
+      } />
       
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };
 
-const App = () => (
-  <Router>
-    <AuthProvider>
-      <AppRoutes />
-      <Toaster />
-    </AuthProvider>
-  </Router>
-);
+const App = () => {
+  return (
+    <Router>
+      <AuthProvider>
+        <AppRoutes />
+        <Toaster />
+      </AuthProvider>
+    </Router>
+  );
+};
 
 export default App;

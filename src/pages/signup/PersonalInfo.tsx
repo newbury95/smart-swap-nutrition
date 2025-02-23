@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
@@ -7,11 +8,9 @@ import { PaymentSection } from "./components/PaymentSection";
 import { PremiumDialog } from "./components/PremiumDialog";
 import { usePersonalInfoForm } from "./hooks/usePersonalInfoForm";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/providers/AuthProvider";
 
 const PersonalInfo = () => {
   const navigate = useNavigate();
-  const { session } = useAuth();
   const {
     formData,
     setFormData,
@@ -20,36 +19,20 @@ const PersonalInfo = () => {
     setShowPremiumDialog,
     handleInputChange,
     handlePremiumToggle,
-    handleSubmit,
-    handleUnitToggle,
-    convertHeight,
-    convertWeight
+    handleSubmit
   } = usePersonalInfoForm();
 
+  // Verify session on component mount
   useEffect(() => {
-    if (!session?.user) {
-      navigate('/signup');
-      return;
-    }
-
-    const checkProfile = async () => {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', session.user.id)
-        .single();
-      
-      if (profile) {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        console.log('User already has a session, redirecting to diary');
         navigate('/diary');
       }
     };
-
-    checkProfile();
-  }, [session, navigate]);
-
-  if (!session) {
-    return null;
-  }
+    checkSession();
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-soft-green/20 to-white">
@@ -80,9 +63,6 @@ const PersonalInfo = () => {
               formData={formData}
               handleInputChange={handleInputChange}
               handlePremiumToggle={handlePremiumToggle}
-              handleUnitToggle={handleUnitToggle}
-              convertHeight={convertHeight}
-              convertWeight={convertWeight}
             />
 
             <PaymentSection

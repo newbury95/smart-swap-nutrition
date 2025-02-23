@@ -2,9 +2,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { PersonalInfoForm } from "../types/PersonalInfo.types";
-import { convertHeight, convertWeight } from "../utils/unitConversions";
-import { createUserProfile } from "../services/signupService";
 
 export const usePersonalInfoForm = () => {
   const navigate = useNavigate();
@@ -18,9 +17,7 @@ export const usePersonalInfoForm = () => {
     nickname: "",
     dateOfBirth: "",
     height: "",
-    heightUnit: "cm",
     weight: "",
-    weightUnit: "kg",
     isPremium: false,
   });
 
@@ -32,28 +29,8 @@ export const usePersonalInfoForm = () => {
     }));
   };
 
-  const handleUnitToggle = (type: "height" | "weight") => {
-    if (type === "height") {
-      const newUnit = formData.heightUnit === "cm" ? "ft" : "cm";
-      const newHeight = formData.height ? convertHeight(formData.height, formData.heightUnit) : "0";
-      setFormData(prev => ({
-        ...prev,
-        heightUnit: newUnit,
-        height: newHeight
-      }));
-    } else {
-      const newUnit = formData.weightUnit === "kg" ? "st" : "kg";
-      const newWeight = formData.weight ? convertWeight(formData.weight, formData.weightUnit) : "0";
-      setFormData(prev => ({
-        ...prev,
-        weightUnit: newUnit,
-        weight: newWeight
-      }));
-    }
-  };
-
   const handlePremiumToggle = (checked: boolean) => {
-    if (!checked && formData.isPremium) {
+    if (!checked && !showPremiumDialog) {
       setShowPremiumDialog(true);
       return;
     }
@@ -66,18 +43,84 @@ export const usePersonalInfoForm = () => {
     console.log('Starting form submission with data:', formData);
 
     try {
-      // Validate required fields
-      const requiredFields = ['firstName', 'lastName', 'email', 'nickname', 'dateOfBirth', 'height', 'weight'];
-      for (const field of requiredFields) {
-        if (!formData[field as keyof PersonalInfoForm]) {
-          throw new Error(`${field} is required`);
-        }
+      // First check if user exists
+      const { data: existingUser } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('email', formData.email)
+        .single();
+
+      if (existingUser) {
+        throw new Error('A user with this email already exists');
       }
 
-      // Create user profile
-      const user = await createUserProfile(formData);
-      console.log('User profile created successfully:', user);
-      
+      // Create auth user with email and password
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: "tempPassword123",
+        options: {
+          data: {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+          }
+        }
+      });
+
+      if (signUpError) {
+        console.error('Error during signup:', signUpError);
+        throw signUpError;
+      }
+
+      if (!signUpData.user) {
+        throw new Error('No user data returned from signup');
+      }
+
+      console.log('User created successfully:', signUpData.user.id);
+
+      // Create profile
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: signUpData.user.id,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          nickname: formData.nickname,
+          date_of_birth: formData.dateOfBirth,
+          height: parseFloat(formData.height),
+          weight: parseFloat(formData.weight),
+          is_premium: formData.isPremium
+        });
+
+      if (profileError) {
+        console.error('Error creating profile:', profileError);
+        throw profileError;
+      }
+
+      // Explicitly sign in with password after signup
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: "tempPassword123"
+      });
+
+      if (signInError) {
+        console.error('Error signing in after signup:', signInError);
+        throw signInError;
+      }
+
+      if (!signInData.session) {
+        throw new Error('Failed to establish session after sign in');
+      }
+
+      console.log('Session established successfully:', signInData.session.user.id);
+
+      // Verify session is active
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Session verification failed');
+      }
+
+      console.log('Session verified, navigating to diary');
       toast({
         title: "Success!",
         description: `Your ${formData.isPremium ? 'premium' : 'free'} profile has been created.`,
@@ -106,9 +149,7 @@ export const usePersonalInfoForm = () => {
     setShowPremiumDialog,
     handleInputChange,
     handlePremiumToggle,
-    handleUnitToggle,
-    handleSubmit,
-    convertHeight,
-    convertWeight
+    handleSubmit
   };
 };
+

@@ -3,7 +3,6 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, Activity } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
 
 type GoalType = "weight-loss" | "muscle-gain" | "endurance" | "general-fitness";
 
@@ -43,22 +42,7 @@ const goalOptions: GoalOption[] = [
 
 const SignUp = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [selectedGoal, setSelectedGoal] = useState<GoalType | null>(null);
-
-  const handleContinue = () => {
-    if (!selectedGoal) {
-      toast({
-        variant: "destructive",
-        title: "Please select a goal",
-        description: "You need to select a goal before continuing",
-      });
-      return;
-    }
-
-    localStorage.setItem('selectedGoal', selectedGoal);
-    navigate('/signup/personal-info');
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-soft-green/20 to-white">
@@ -107,20 +91,20 @@ const SignUp = () => {
             ))}
           </div>
 
-          {selectedGoal && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="mt-8 max-w-md mx-auto"
-            >
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: selectedGoal ? 1 : 0 }}
+            className="mt-12 text-center"
+          >
+            {selectedGoal && (
               <button 
-                className="w-full bg-gradient-to-r from-green-600 to-green-400 text-white px-8 py-4 rounded-full font-medium transition-all duration-300 shadow-lg hover:shadow-xl hover:opacity-90"
-                onClick={handleContinue}
+                className="bg-gradient-to-r from-green-600 to-green-400 text-white px-8 py-4 rounded-full font-medium hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl"
+                onClick={() => navigate('/signup/personal-info')}
               >
                 Continue
               </button>
-            </motion.div>
-          )}
+            )}
+          </motion.div>
         </motion.div>
       </div>
     </div>
