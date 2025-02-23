@@ -31,7 +31,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <LoadingSpinner />;
   }
 
-  if (!session && window.location.pathname !== '/signup/personal-info') {
+  if (!session) {
     console.log('ProtectedRoute: No session, redirecting to signup');
     return <Navigate to="/signup" replace />;
   }
@@ -44,26 +44,14 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-const AuthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
+const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, isLoading, hasProfile } = useAuth();
-  console.log('AuthenticatedRoute:', { 
-    sessionExists: !!session, 
-    isLoading, 
-    hasProfile,
-    currentPath: window.location.pathname 
-  });
 
   if (isLoading) {
-    console.log('AuthenticatedRoute: Still loading...');
     return <LoadingSpinner />;
   }
 
-  if (session) {
-    if (hasProfile === false) {
-      console.log('AuthenticatedRoute: Session exists but no profile, redirecting to personal info');
-      return <Navigate to="/signup/personal-info" replace />;
-    }
-    console.log('AuthenticatedRoute: Session and profile exist, redirecting to diary');
+  if (session && hasProfile) {
     return <Navigate to="/diary" replace />;
   }
 
@@ -79,9 +67,9 @@ const AppRoutes = () => {
       <Route
         path="/signup"
         element={
-          <AuthenticatedRoute>
+          <PublicRoute>
             <SignUp />
-          </AuthenticatedRoute>
+          </PublicRoute>
         }
       />
       
@@ -123,4 +111,3 @@ const App = () => (
 );
 
 export default App;
-
