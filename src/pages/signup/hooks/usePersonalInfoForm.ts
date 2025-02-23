@@ -54,8 +54,8 @@ export const usePersonalInfoForm = () => {
         throw new Error('A user with this email already exists');
       }
 
-      // Create auth user
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      // Create auth user with email and password
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: formData.email,
         password: "tempPassword123",
         options: {
@@ -66,23 +66,22 @@ export const usePersonalInfoForm = () => {
         }
       });
 
-      if (authError) {
-        console.error('Auth error during signup:', authError);
-        throw authError;
+      if (signUpError) {
+        console.error('Error during signup:', signUpError);
+        throw signUpError;
       }
 
-      if (!authData.user) {
-        console.error('No user data returned from signup');
-        throw new Error("No user data returned");
+      if (!signUpData.user) {
+        throw new Error('No user data returned from signup');
       }
 
-      console.log('User created successfully:', authData.user.id);
+      console.log('User created successfully:', signUpData.user.id);
 
       // Create profile
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
-          id: authData.user.id,
+          id: signUpData.user.id,
           first_name: formData.firstName,
           last_name: formData.lastName,
           email: formData.email,
@@ -98,26 +97,30 @@ export const usePersonalInfoForm = () => {
         throw profileError;
       }
 
-      // Update session
-      const { data: sessionData } = await supabase.auth.getSession();
-      
-      if (!sessionData.session) {
-        // If no session, try to establish one
-        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-          email: formData.email,
-          password: "tempPassword123"
-        });
+      // Explicitly sign in with password after signup
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: "tempPassword123"
+      });
 
-        if (signInError) {
-          throw signInError;
-        }
-
-        if (!signInData.session) {
-          throw new Error('Failed to establish session');
-        }
+      if (signInError) {
+        console.error('Error signing in after signup:', signInError);
+        throw signInError;
       }
 
-      console.log('Profile created and session established successfully');
+      if (!signInData.session) {
+        throw new Error('Failed to establish session after sign in');
+      }
+
+      console.log('Session established successfully:', signInData.session.user.id);
+
+      // Verify session is active
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Session verification failed');
+      }
+
+      console.log('Session verified, navigating to diary');
       toast({
         title: "Success!",
         description: `Your ${formData.isPremium ? 'premium' : 'free'} profile has been created.`,
@@ -149,3 +152,4 @@ export const usePersonalInfoForm = () => {
     handleSubmit
   };
 };
+

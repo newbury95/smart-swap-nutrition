@@ -25,8 +25,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         const { data: { session: initialSession } } = await supabase.auth.getSession();
         if (mounted) {
-          setSession(initialSession);
-          console.log('Initial auth state:', initialSession ? 'Authenticated' : 'Not authenticated');
+          if (initialSession) {
+            console.log('Initial session found:', initialSession.user.id);
+            setSession(initialSession);
+          } else {
+            console.log('No initial session found');
+          }
           setIsLoading(false);
         }
       } catch (error) {
@@ -39,14 +43,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     getInitialSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      console.log('Auth state changed:', _event, 'Session:', session?.user?.id);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, currentSession) => {
+      console.log('Auth state changed. Event:', _event, 'Session:', currentSession?.user?.id ?? 'none');
       if (mounted) {
-        setSession(session);
+        setSession(currentSession);
         
-        if (!session && !window.location.pathname.includes('/signup')) {
-          console.log('No session, redirecting to signup');
+        if (!currentSession && !window.location.pathname.includes('/signup')) {
+          console.log('No session detected, redirecting to signup');
           navigate('/signup');
+        } else if (currentSession && window.location.pathname.includes('/signup')) {
+          console.log('Session detected on signup page, redirecting to diary');
+          navigate('/diary');
         }
       }
     });
