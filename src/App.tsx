@@ -25,8 +25,11 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/signup" replace />;
   }
 
-  if (hasProfile === false && window.location.pathname !== '/signup/personal-info') {
-    return <Navigate to="/signup/personal-info" replace />;
+  // Only redirect to personal-info if we know for sure there's no profile
+  if (hasProfile === false) {
+    if (window.location.pathname !== '/signup/personal-info') {
+      return <Navigate to="/signup/personal-info" replace />;
+    }
   }
 
   return <>{children}</>;
@@ -43,7 +46,7 @@ const AuthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  if (session && window.location.pathname === '/signup') {
+  if (session) {
     return <Navigate to="/diary" replace />;
   }
 
@@ -55,29 +58,41 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/" element={<Index />} />
       
-      <Route path="/signup" element={
-        <AuthenticatedRoute>
-          <SignUp />
-        </AuthenticatedRoute>
-      } />
+      <Route
+        path="/signup"
+        element={
+          <AuthenticatedRoute>
+            <SignUp />
+          </AuthenticatedRoute>
+        }
+      />
       
-      <Route path="/signup/personal-info" element={
-        <ProtectedRoute>
-          <PersonalInfo />
-        </ProtectedRoute>
-      } />
+      <Route
+        path="/signup/personal-info"
+        element={
+          <ProtectedRoute>
+            <PersonalInfo />
+          </ProtectedRoute>
+        }
+      />
       
-      <Route path="/diary" element={
-        <ProtectedRoute>
-          <FoodDiary />
-        </ProtectedRoute>
-      } />
+      <Route
+        path="/diary"
+        element={
+          <ProtectedRoute>
+            <FoodDiary />
+          </ProtectedRoute>
+        }
+      />
       
-      <Route path="/tracking" element={
-        <ProtectedRoute>
-          <TrackingPage />
-        </ProtectedRoute>
-      } />
+      <Route
+        path="/tracking"
+        element={
+          <ProtectedRoute>
+            <TrackingPage />
+          </ProtectedRoute>
+        }
+      />
       
       <Route path="*" element={<NotFound />} />
     </Routes>

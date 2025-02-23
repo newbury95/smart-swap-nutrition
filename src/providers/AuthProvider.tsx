@@ -29,11 +29,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const checkProfile = async (userId: string) => {
     try {
-      const { data: profile, error } = await supabase
+      console.log('Checking profile for user:', userId);
+      const { data, error } = await supabase
         .from('profiles')
         .select('id')
         .eq('id', userId)
-        .maybeSingle();
+        .single();
 
       if (error) {
         console.error('Error checking profile:', error);
@@ -46,9 +47,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return;
       }
 
-      setHasProfile(!!profile);
+      console.log('Profile check result:', data);
+      setHasProfile(!!data);
     } catch (error) {
-      console.error('Error checking profile:', error);
+      console.error('Error in checkProfile:', error);
       setHasProfile(false);
     } finally {
       setCheckingProfile(false);
@@ -56,8 +58,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
+    console.log('AuthProvider initialized');
+    
     supabase.auth.getSession().then(({ data: { session: initialSession }}) => {
+      console.log('Initial session:', initialSession?.user?.id);
       setSession(initialSession);
+      
       if (initialSession?.user) {
         checkProfile(initialSession.user.id);
       } else {
@@ -68,7 +74,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     const { data: { subscription }} = supabase.auth.onAuthStateChange(async (_event, session) => {
+      console.log('Auth state changed:', session?.user?.id);
       setSession(session);
+      
       if (session?.user) {
         setCheckingProfile(true);
         await checkProfile(session.user.id);
