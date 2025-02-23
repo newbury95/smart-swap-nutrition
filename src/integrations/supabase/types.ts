@@ -9,6 +9,51 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      foods: {
+        Row: {
+          barcode: string | null
+          brand: string
+          calories: number
+          carbs: number
+          category: Database["public"]["Enums"]["food_category_type"]
+          created_at: string
+          fat: number
+          id: string
+          name: string
+          protein: number
+          serving_size: string
+          supermarket: Database["public"]["Enums"]["supermarket_type"]
+        }
+        Insert: {
+          barcode?: string | null
+          brand: string
+          calories: number
+          carbs: number
+          category: Database["public"]["Enums"]["food_category_type"]
+          created_at?: string
+          fat: number
+          id?: string
+          name: string
+          protein: number
+          serving_size: string
+          supermarket: Database["public"]["Enums"]["supermarket_type"]
+        }
+        Update: {
+          barcode?: string | null
+          brand?: string
+          calories?: number
+          carbs?: number
+          category?: Database["public"]["Enums"]["food_category_type"]
+          created_at?: string
+          fat?: number
+          id?: string
+          name?: string
+          protein?: number
+          serving_size?: string
+          supermarket?: Database["public"]["Enums"]["supermarket_type"]
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -48,6 +93,45 @@ export type Database = {
         }
         Relationships: []
       }
+      Tesco: {
+        Row: {
+          "Calcium (mg)": string | null
+          "Calories (KCal)": string | null
+          "Carbohydrates (g)": string | null
+          Description: string | null
+          "Fat (g)": string | null
+          Name: string | null
+          "Protein (g)": string | null
+          "Salt (g)": string | null
+          "Saturates (g)": string | null
+          "Sugars (g)": string | null
+        }
+        Insert: {
+          "Calcium (mg)"?: string | null
+          "Calories (KCal)"?: string | null
+          "Carbohydrates (g)"?: string | null
+          Description?: string | null
+          "Fat (g)"?: string | null
+          Name?: string | null
+          "Protein (g)"?: string | null
+          "Salt (g)"?: string | null
+          "Saturates (g)"?: string | null
+          "Sugars (g)"?: string | null
+        }
+        Update: {
+          "Calcium (mg)"?: string | null
+          "Calories (KCal)"?: string | null
+          "Carbohydrates (g)"?: string | null
+          Description?: string | null
+          "Fat (g)"?: string | null
+          Name?: string | null
+          "Protein (g)"?: string | null
+          "Salt (g)"?: string | null
+          "Saturates (g)"?: string | null
+          "Sugars (g)"?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -56,7 +140,29 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      food_category_type:
+        | "Dairy & Eggs"
+        | "Fruits & Vegetables"
+        | "Meat & Fish"
+        | "Bread & Bakery"
+        | "Drinks"
+        | "Snacks"
+        | "Ready Meals"
+        | "Cereals"
+        | "Pasta & Rice"
+        | "Condiments"
+        | "Frozen Foods"
+        | "All Categories"
+      supermarket_type:
+        | "Tesco"
+        | "Sainsburys"
+        | "Asda"
+        | "Morrisons"
+        | "Waitrose"
+        | "Coop"
+        | "M&S"
+        | "Ocado"
+        | "All Supermarkets"
     }
     CompositeTypes: {
       [_ in never]: never
