@@ -33,6 +33,9 @@ const LoadingFallback = () => (
   </div>
 );
 
+// Define which routes require authentication
+const protectedRoutes = ['/diary', '/tracking'];
+
 const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -45,8 +48,8 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
         const { data: { session } } = await supabase.auth.getSession();
         setIsAuthenticated(!!session);
         
-        // Only redirect to signup if not on the index page or signup pages
-        if (!session && !location.pathname.includes('/signup') && location.pathname !== '/') {
+        // Only redirect to signup if on a protected route
+        if (!session && protectedRoutes.includes(location.pathname)) {
           navigate('/signup');
         }
 
@@ -54,7 +57,7 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
           data: { subscription },
         } = supabase.auth.onAuthStateChange((_event, session) => {
           setIsAuthenticated(!!session);
-          if (!session && !location.pathname.includes('/signup') && location.pathname !== '/') {
+          if (!session && protectedRoutes.includes(location.pathname)) {
             navigate('/signup');
           }
         });
@@ -68,9 +71,9 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
     };
 
     initializeAuth();
-  }, [navigate, location]);
+  }, [navigate, location.pathname]);
 
-  if (!isInitialized || isAuthenticated === null) {
+  if (!isInitialized) {
     return <LoadingFallback />;
   }
 
