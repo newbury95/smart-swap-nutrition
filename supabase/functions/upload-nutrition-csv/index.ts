@@ -15,11 +15,8 @@ const parseNumericWithUnit = (value: string): { value: number; unit: string | nu
     throw new Error('Empty value provided');
   }
   
-  // This regex will match:
-  // - Optional negative sign
-  // - Digits (with optional decimal point)
-  // - Optional units (letters, % symbol)
-  const match = cleanValue.match(/^(-?\d*\.?\d+)([a-zA-Z%]*)$/);
+  // This regex matches numbers (including decimals) possibly followed by units
+  const match = cleanValue.match(/^(-?\d*\.?\d+)\s*([a-zA-Z%]*)$/);
   
   if (!match) {
     throw new Error(`Invalid value format: "${value}". Expected format: number followed by optional unit`);
@@ -29,7 +26,6 @@ const parseNumericWithUnit = (value: string): { value: number; unit: string | nu
   const unit = match[2] || null;
   
   const parsedValue = parseFloat(numericPart);
-  
   if (isNaN(parsedValue)) {
     throw new Error(`Invalid numeric value: ${numericPart}`);
   }
@@ -139,9 +135,12 @@ serve(async (req) => {
             try {
               // Parse numeric value and unit
               const { value: numericValue, unit } = parseNumericWithUnit(value);
+              
+              // Store numeric value and unit separately
               row[header] = numericValue;
               row[`${header}_unit`] = unit;
-              console.log(`Row ${i}, ${header}: value = ${numericValue}, unit = ${unit}`);
+              
+              console.log(`Row ${i}, ${header}: Parsed ${value} into value=${numericValue}, unit=${unit}`);
             } catch (error) {
               throw new Error(`Row ${i}, column ${header}: ${error.message}`);
             }
@@ -158,7 +157,7 @@ serve(async (req) => {
         });
 
         data.push(row);
-        console.log(`Successfully processed row ${i}:`, row);
+        console.log(`Successfully processed row ${i}`);
       } catch (error) {
         console.error(`Error processing row ${i}:`, error);
         errors.push(error.message);
@@ -181,6 +180,8 @@ serve(async (req) => {
     // Insert the data row by row for better error tracking
     for (let i = 0; i < data.length; i++) {
       const row = data[i];
+      console.log(`Attempting to insert row ${i}:`, row);
+      
       const { error: insertError } = await supabase
         .from('nutritional_info')
         .insert([row]);
