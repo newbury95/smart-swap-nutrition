@@ -8,7 +8,6 @@ import SignUp from './pages/SignUp';
 import PersonalInfo from './pages/signup/PersonalInfo';
 import FoodDiary from './pages/diary/FoodDiary';
 import TrackingPage from './pages/tracking/TrackingPage';
-import FitnessGoals from './pages/goals/FitnessGoals';
 import NotFound from './pages/NotFound';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -67,11 +66,6 @@ const AppRoutes = () => {
       <Route path="/tracking" element={
         <ProtectedRoute>
           <TrackingPage />
-        </ProtectedRoute>
-      } />
-      <Route path="/goals" element={
-        <ProtectedRoute>
-          <FitnessGoals />
         </ProtectedRoute>
       } />
       

@@ -19,21 +19,32 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
-      setSession(initialSession);
-      setIsLoading(false);
-      console.log('Initial session state:', initialSession ? 'Authenticated' : 'Not authenticated');
-    });
+    let mounted = true;
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    async function getInitialSession() {
+      try {
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
+        if (mounted) {
+          setSession(initialSession);
+          console.log('Initial auth state:', initialSession ? 'Authenticated' : 'Not authenticated');
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error('Error getting initial session:', error);
+        if (mounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    getInitialSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       console.log('Auth state changed:', _event, 'Session:', session?.user?.id);
-      setSession(session);
-      
-      if (!session) {
-        // If no session and not on signup page, redirect to signup
-        if (!window.location.pathname.includes('/signup')) {
+      if (mounted) {
+        setSession(session);
+        
+        if (!session && !window.location.pathname.includes('/signup')) {
           console.log('No session, redirecting to signup');
           navigate('/signup');
         }
@@ -41,6 +52,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, [navigate]);

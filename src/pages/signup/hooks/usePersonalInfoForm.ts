@@ -43,9 +43,21 @@ export const usePersonalInfoForm = () => {
     console.log('Starting form submission with data:', formData);
 
     try {
+      // First check if user exists
+      const { data: existingUser } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('email', formData.email)
+        .single();
+
+      if (existingUser) {
+        throw new Error('A user with this email already exists');
+      }
+
+      // Create auth user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
-        password: "tempPassword123", // In a production app, you'd want to have the user set their own password
+        password: "tempPassword123",
         options: {
           data: {
             first_name: formData.firstName,
@@ -66,7 +78,7 @@ export const usePersonalInfoForm = () => {
 
       console.log('User created successfully:', authData.user.id);
 
-      // Create profile immediately after signup
+      // Create profile
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
@@ -86,23 +98,36 @@ export const usePersonalInfoForm = () => {
         throw profileError;
       }
 
-      console.log('Profile created successfully');
+      // Update session
+      const { data: sessionData } = await supabase.auth.getSession();
+      
+      if (!sessionData.session) {
+        // If no session, try to establish one
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: "tempPassword123"
+        });
+
+        if (signInError) {
+          throw signInError;
+        }
+
+        if (!signInData.session) {
+          throw new Error('Failed to establish session');
+        }
+      }
+
+      console.log('Profile created and session established successfully');
       toast({
         title: "Success!",
         description: `Your ${formData.isPremium ? 'premium' : 'free'} profile has been created.`,
       });
 
-      // Set session
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        console.log('Session established, redirecting to diary');
-        navigate('/diary');
-      } else {
-        console.log('No session after signup, staying on current page');
-      }
+      // Navigate to diary page
+      navigate('/diary');
 
     } catch (error) {
-      console.error('Detailed error during signup process:', error);
+      console.error('Error during signup process:', error);
       toast({
         variant: "destructive",
         title: "Error",
