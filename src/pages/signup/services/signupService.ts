@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { PersonalInfoForm } from "../types/PersonalInfo.types";
+import { convertHeight, convertWeight } from "../utils/unitConversions";
 
 export const createUserProfile = async (formData: PersonalInfoForm) => {
   // Check if user exists
