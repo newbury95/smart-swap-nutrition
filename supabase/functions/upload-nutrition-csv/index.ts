@@ -1,9 +1,10 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
@@ -15,12 +16,10 @@ const parseNumericWithUnit = (value: string): { value: number; unit: string | nu
     throw new Error('Empty value provided');
   }
 
-  // Handle special case of "<" values - we'll store the value after "<"
+  // Handle special case of "<" values
   if (cleanValue.startsWith('<')) {
     const withoutLessThan = cleanValue.substring(1);
-    // Recursively parse the remaining value
     const parsed = parseNumericWithUnit(withoutLessThan);
-    // Store a small value (assuming that's what "<0.5" means)
     return { value: 0.01, unit: parsed.unit };
   }
 
@@ -30,10 +29,10 @@ const parseNumericWithUnit = (value: string): { value: number; unit: string | nu
   }
 
   // Match number followed by optional unit, allowing for mg and g
-  const match = cleanValue.match(/^(-?\d*\.?\d+)\s*(mg|g|%)?$/i);
+  const match = cleanValue.match(/^(-?\d*\.?\d+)\s*(mg|g|kcal|%)?$/i);
 
   if (!match) {
-    throw new Error(`Invalid value format: "${value}". Expected format: number followed by optional unit (g, mg, or %)"`);
+    throw new Error(`Invalid value format: "${value}". Expected format: number followed by optional unit (g, mg, kcal, or %)"`);
   }
 
   const numericPart = match[1];
@@ -54,35 +53,33 @@ const parseNumericWithUnit = (value: string): { value: number; unit: string | nu
 };
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response('ok', { headers: corsHeaders });
   }
 
   try {
-    const formData = await req.formData();
-    const file = formData.get('file');
-
-    if (!file) {
-      return new Response(
-        JSON.stringify({ error: 'No file uploaded' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-      );
-    }
-
-    if (!file.name.toLowerCase().endsWith('.csv')) {
-      return new Response(
-        JSON.stringify({ error: 'File must be a CSV' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-      );
-    }
-
-    const text = await file.text();
-    const lines = text.split('\n');
+    const { csvContent } = await req.json();
     
+    if (!csvContent) {
+      return new Response(
+        JSON.stringify({ error: 'No CSV content provided' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Create Supabase client
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+    );
+
+    // Split CSV into lines and process headers
+    const lines = csvContent.split('\n');
     if (lines.length < 2) {
       return new Response(
-        JSON.stringify({ error: 'CSV file is empty or invalid' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+        JSON.stringify({ error: 'CSV must contain at least headers and one data row' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -101,41 +98,27 @@ serve(async (req) => {
       'provider'
     ];
 
+    // Validate headers
     const missingColumns = requiredColumns.filter(col => !headers.includes(col));
     if (missingColumns.length > 0) {
       return new Response(
         JSON.stringify({ 
-          error: 'Missing required columns', 
-          missingColumns,
-          requiredColumns,
-          providedColumns: headers
+          error: `Missing required columns: ${missingColumns.join(', ')}`,
+          headers: headers 
         }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
-
+    // Process data rows
     const data = [];
     const errors = [];
-    const numericColumns = [
-      'kcal',
-      'protein',
-      'fats',
-      'saturates',
-      'carbohydrates',
-      'sugar',
-      'salt',
-      'calcium'
-    ];
-    const validProviders = ['Tesco', 'Sainsburys', 'Asda', 'Morrisons', 'Waitrose', 'Coop', 'M&S', 'Ocado'];
-    
-    // Process each line of the CSV
+    const validProviders = ['Tesco', 'Sainsburys', 'Asda', 'Morrisons', 'Waitrose', 'Coop', 'M&S', 'Ocado', 'Generic'];
+
+    // Start from index 1 to skip headers
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i].trim();
+      // Skip empty lines
       if (!line) continue;
       
       try {
@@ -151,94 +134,80 @@ serve(async (req) => {
         
         // Process each column in the row
         headers.forEach((header, index) => {
-          const value = values[index].trim();
-          
-          if (numericColumns.includes(header)) {
-            try {
-              console.log(`Processing numeric column ${header} with value "${value}"`);
-              
-              // Parse numeric value and unit
-              const { value: numericValue, unit } = parseNumericWithUnit(value);
-              
-              console.log(`Successfully parsed ${header}: value=${numericValue}, unit=${unit}`);
-              
-              // Store numeric value and unit separately
-              row[header] = numericValue;
-              row[`${header}_unit`] = unit;
-            } catch (error) {
-              throw new Error(`Row ${i}, column ${header}: ${error.message}`);
-            }
-          } else if (header === 'serving_size') {
+          const value = values[index];
+
+          if (header === 'food_item' || header === 'serving_size') {
             row[header] = value;
           } else if (header === 'provider') {
             if (!validProviders.includes(value)) {
-              throw new Error(`Row ${i}: Invalid provider "${value}". Must be one of: ${validProviders.join(', ')}`);
+              throw new Error(`Invalid provider: ${value}. Must be one of: ${validProviders.join(', ')}`);
             }
             row[header] = value;
           } else {
-            row[header] = value;
+            // Handle numeric fields with units
+            try {
+              const { value: numericValue, unit } = parseNumericWithUnit(value);
+              row[header] = numericValue;
+              row[`${header}_unit`] = unit;
+            } catch (error) {
+              throw new Error(`Error parsing ${header}: ${error.message}`);
+            }
           }
         });
 
-        console.log(`Processed row ${i} data:`, row);
         data.push(row);
       } catch (error) {
-        console.error(`Error processing row ${i}:`, error);
-        errors.push(error.message);
+        errors.push(`Row ${i}: ${error.message}`);
       }
     }
 
     if (errors.length > 0) {
       return new Response(
         JSON.stringify({ 
-          error: 'Validation errors', 
-          errors,
-          validFormat: `The CSV should have these exact headers: ${requiredColumns.join(', ')}\n` +
-                      `Provider must be one of: ${validProviders.join(', ')}\n` +
-                      'All numeric values should be in format: number followed by optional unit (e.g., 100g, 5mg, 12)'
+          error: 'Validation errors found',
+          details: errors
         }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Insert the data row by row for better error tracking
-    for (let i = 0; i < data.length; i++) {
-      const row = data[i];
-      console.log(`Attempting to insert row ${i} into nutritional_info:`, JSON.stringify(row, null, 2));
-      
-      const { error: insertError } = await supabase
-        .from('nutritional_info')
-        .insert([row]);
+    // Insert data into Supabase
+    const { error: insertError } = await supabaseClient
+      .from('nutritional_info')
+      .insert(data);
 
-      if (insertError) {
-        console.error(`Error inserting row ${i}:`, insertError);
-        return new Response(
-          JSON.stringify({ 
-            error: 'Failed to insert data', 
-            details: insertError,
-            failedRow: row,
-            rowIndex: i
-          }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-        );
-      }
-      
-      console.log(`Successfully inserted row ${i}`);
+    if (insertError) {
+      console.error('Insert error:', insertError);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Error inserting data',
+          details: insertError.message
+        }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     return new Response(
       JSON.stringify({ 
-        message: 'CSV data uploaded successfully', 
-        rowsProcessed: data.length 
+        message: 'CSV data successfully imported',
+        rowsProcessed: data.length
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+      { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
     );
 
   } catch (error) {
-    console.error('Unexpected error:', error);
+    console.error('Error:', error);
     return new Response(
-      JSON.stringify({ error: 'An unexpected error occurred', details: error.message }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      JSON.stringify({ 
+        error: 'Internal server error',
+        details: error.message
+      }),
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
     );
   }
 });

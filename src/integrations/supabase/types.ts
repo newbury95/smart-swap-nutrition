@@ -150,6 +150,7 @@ export type Database = {
         | "Coop"
         | "M&S"
         | "Ocado"
+        | "Generic"
       supermarket_type:
         | "Tesco"
         | "Sainsburys"
