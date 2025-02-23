@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/providers/AuthProvider";
 
 type Meal = {
   id: string;
@@ -19,6 +20,7 @@ type MealType = "breakfast" | "lunch" | "dinner" | "snack";
 export const useFoodDiary = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { session, hasProfile } = useAuth();
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [meals, setMeals] = useState<Record<MealType, Meal[]>>({
     breakfast: [],
@@ -30,40 +32,20 @@ export const useFoodDiary = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      console.log('FoodDiary: Checking authentication status');
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
-      if (error) {
-        console.error('FoodDiary: Error checking session:', error);
-        navigate('/signup');
-        return;
-      }
-      
-      if (!session) {
-        console.log('FoodDiary: No session found, redirecting to signup');
-        navigate('/signup');
-        return;
-      }
-      
-      console.log('FoodDiary: Session found, user is authenticated:', session.user.id);
-      setIsLoading(false);
-    };
+    if (!session) {
+      console.log('No session in food diary, redirecting to signup');
+      navigate('/signup');
+      return;
+    }
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('FoodDiary: Auth state changed:', event, 'Session:', session ? 'exists' : 'null');
-      if (!session) {
-        navigate('/signup');
-      }
-    });
+    if (hasProfile === false) {
+      console.log('No profile found in food diary, redirecting to personal info');
+      navigate('/signup/personal-info');
+      return;
+    }
 
-    checkAuth();
-
-    return () => {
-      console.log('FoodDiary: Cleaning up auth subscription');
-      subscription.unsubscribe();
-    };
-  }, [navigate]);
+    setIsLoading(false);
+  }, [session, hasProfile, navigate]);
 
   const getTotalNutrients = (mealList: Meal[]) => {
     return mealList.reduce((acc, meal) => ({

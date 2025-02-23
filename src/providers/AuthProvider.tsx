@@ -7,19 +7,49 @@ import { supabase } from '@/integrations/supabase/client';
 interface AuthContextType {
   session: Session | null;
   isLoading: boolean;
+  hasProfile: boolean | null;
+  checkingProfile: boolean;
 }
 
-const AuthContext = createContext<AuthContextType>({ session: null, isLoading: true });
+const AuthContext = createContext<AuthContextType>({ 
+  session: null, 
+  isLoading: true,
+  hasProfile: null,
+  checkingProfile: true
+});
 
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasProfile, setHasProfile] = useState<boolean | null>(null);
+  const [checkingProfile, setCheckingProfile] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     let mounted = true;
+
+    async function checkProfile(userId: string) {
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .single();
+
+        if (mounted) {
+          setHasProfile(!!profile);
+          setCheckingProfile(false);
+        }
+      } catch (error) {
+        console.error('Error checking profile:', error);
+        if (mounted) {
+          setHasProfile(false);
+          setCheckingProfile(false);
+        }
+      }
+    }
 
     async function getInitialSession() {
       try {
@@ -28,6 +58,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           if (initialSession) {
             console.log('Initial session found:', initialSession.user.id);
             setSession(initialSession);
+            await checkProfile(initialSession.user.id);
+          } else {
+            setHasProfile(null);
+            setCheckingProfile(false);
           }
           setIsLoading(false);
         }
@@ -35,6 +69,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.error('Error getting initial session:', error);
         if (mounted) {
           setIsLoading(false);
+          setCheckingProfile(false);
         }
       }
     }
@@ -45,6 +80,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log('Auth state changed. Event:', _event, 'Session:', currentSession?.user?.id ?? 'none');
       if (mounted) {
         setSession(currentSession);
+        if (currentSession) {
+          await checkProfile(currentSession.user.id);
+        } else {
+          setHasProfile(null);
+          setCheckingProfile(false);
+        }
       }
     });
 
@@ -55,7 +96,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ session, isLoading }}>
+    <AuthContext.Provider value={{ session, isLoading, hasProfile, checkingProfile }}>
       {children}
     </AuthContext.Provider>
   );

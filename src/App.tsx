@@ -2,8 +2,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider, useAuth } from './providers/AuthProvider';
-import { supabase } from '@/integrations/supabase/client';
-import { useEffect, useState } from 'react';
 
 import Index from './pages/Index';
 import SignUp from './pages/SignUp';
@@ -13,26 +11,7 @@ import TrackingPage from './pages/tracking/TrackingPage';
 import NotFound from './pages/NotFound';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { session, isLoading } = useAuth();
-  const [hasProfile, setHasProfile] = useState<boolean | null>(null);
-  const [checkingProfile, setCheckingProfile] = useState(true);
-
-  useEffect(() => {
-    const checkProfile = async () => {
-      if (!session) return;
-      
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', session.user.id)
-        .single();
-
-      setHasProfile(!!profile);
-      setCheckingProfile(false);
-    };
-
-    checkProfile();
-  }, [session]);
+  const { session, isLoading, hasProfile, checkingProfile } = useAuth();
 
   if (isLoading || checkingProfile) {
     return <div>Loading...</div>;
