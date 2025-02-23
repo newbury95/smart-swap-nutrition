@@ -14,8 +14,7 @@ import { useSupabase } from "@/hooks/useSupabase";
 import { CustomFoodForm } from "./CustomFoodForm";
 import { PremiumFoodDialog } from "./PremiumFoodDialog";
 import { FoodDatabaseTab } from "./FoodDatabaseTab";
-import { type Food, type NutritionFilters } from "./types";
-import { mockFoods } from "./mockFoods";
+import { type Food } from "./types";
 
 interface FoodSelectorProps {
   onFoodSelect: (food: Food) => void;
@@ -25,19 +24,6 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
   const { isPremium, customFoods } = useSupabase();
   const [activeTab, setActiveTab] = useState("database");
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
-
-  const allFoods = [...mockFoods, ...customFoods.map(cf => ({
-    id: cf.id,
-    name: cf.name,
-    brand: cf.brand || "",
-    calories: cf.calories,
-    protein: cf.protein,
-    carbs: cf.carbs,
-    fat: cf.fat,
-    servingSize: cf.serving_size,
-    supermarket: "All Supermarkets" as const,
-    category: "All Categories" as const,
-  }))];
 
   const handleCustomFoodSelect = (customFood: any) => {
     if (!isPremium) {
@@ -81,7 +67,7 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
               </TabsList>
 
               <TabsContent value="database">
-                <FoodDatabaseTab foods={allFoods} onSelect={onFoodSelect} />
+                <FoodDatabaseTab onSelect={onFoodSelect} foods={[]} />
               </TabsContent>
 
               <TabsContent value="custom" className="space-y-4">

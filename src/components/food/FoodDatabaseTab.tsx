@@ -7,14 +7,15 @@ import { BarcodeScanner } from "./BarcodeScanner";
 import { FoodList } from "./FoodList";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
-import { BrowserMultiFormatReader } from '@zxing/library';
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface FoodDatabaseTabProps {
   foods: Food[];
   onSelect: (food: Food) => void;
 }
 
-export const FoodDatabaseTab = ({ foods, onSelect }: FoodDatabaseTabProps) => {
+export const FoodDatabaseTab = ({ onSelect }: FoodDatabaseTabProps) => {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [isScanning, setIsScanning] = useState(false);
@@ -32,60 +33,67 @@ export const FoodDatabaseTab = ({ foods, onSelect }: FoodDatabaseTabProps) => {
     maxFat: "",
   });
 
+  const { data: foods = [], isLoading } = useQuery({
+    queryKey: ['foods', searchQuery, selectedSupermarket, selectedCategory, nutritionFilters],
+    queryFn: async () => {
+      let query = supabase.from('nutritional_info').select('*');
+
+      // Apply search filter if query exists
+      if (searchQuery) {
+        query = query.ilike('food_item', `%${searchQuery}%`);
+      }
+
+      // Apply nutrition filters
+      if (nutritionFilters.minCalories) {
+        query = query.gte('kcal', parseFloat(nutritionFilters.minCalories));
+      }
+      if (nutritionFilters.maxCalories) {
+        query = query.lte('kcal', parseFloat(nutritionFilters.maxCalories));
+      }
+      if (nutritionFilters.minProtein) {
+        query = query.gte('protein', parseFloat(nutritionFilters.minProtein));
+      }
+      if (nutritionFilters.maxProtein) {
+        query = query.lte('protein', parseFloat(nutritionFilters.maxProtein));
+      }
+      if (nutritionFilters.minCarbs) {
+        query = query.gte('carbohydrates', parseFloat(nutritionFilters.minCarbs));
+      }
+      if (nutritionFilters.maxCarbs) {
+        query = query.lte('carbohydrates', parseFloat(nutritionFilters.maxCarbs));
+      }
+      if (nutritionFilters.minFat) {
+        query = query.gte('fats', parseFloat(nutritionFilters.minFat));
+      }
+      if (nutritionFilters.maxFat) {
+        query = query.lte('fats', parseFloat(nutritionFilters.maxFat));
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        throw error;
+      }
+
+      // Convert nutritional_info data to Food type
+      return data.map(item => ({
+        id: item.id,
+        name: item.food_item,
+        brand: "",
+        calories: Math.round(item.kcal),
+        protein: Number(item.protein),
+        carbs: Number(item.carbohydrates),
+        fat: Number(item.fats),
+        servingSize: item.serving_size,
+        barcode: item.barcode || undefined,
+        supermarket: "All Supermarkets",
+        category: "All Categories"
+      }));
+    }
+  });
+
   const handleBarcodeScanner = async () => {
     setIsScanning(true);
-    const codeReader = new BrowserMultiFormatReader();
-
-    try {
-      const videoInputDevices = await codeReader.listVideoInputDevices();
-      
-      if (videoInputDevices.length === 0) {
-        toast({
-          variant: "destructive",
-          title: "No camera found",
-          description: "Please ensure you have a camera connected and have granted permission.",
-        });
-        return;
-      }
-
-      const previewEl = document.createElement('video');
-      previewEl.className = 'w-full h-64 object-cover rounded-lg';
-      const previewContainer = document.getElementById('barcode-scanner-preview');
-      if (previewContainer) {
-        previewContainer.innerHTML = '';
-        previewContainer.appendChild(previewEl);
-      }
-
-      const result = await codeReader.decodeOnceFromConstraints(
-        { video: { facingMode: 'environment' } },
-        previewEl
-      );
-
-      const foodItem = foods.find(food => food.barcode === result.getText());
-      
-      if (foodItem) {
-        onSelect(foodItem);
-        toast({
-          title: "Food found!",
-          description: `Added ${foodItem.name} to your diary.`,
-        });
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Food not found",
-          description: "This barcode isn't in our database yet.",
-        });
-      }
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Scanning failed",
-        description: "Please try again or search manually.",
-      });
-    } finally {
-      setIsScanning(false);
-      codeReader.reset();
-    }
   };
 
   return (
@@ -117,7 +125,7 @@ export const FoodDatabaseTab = ({ foods, onSelect }: FoodDatabaseTabProps) => {
           onFoodFound={onSelect}
         />
       ) : (
-        <FoodList foods={foods} onSelect={onSelect} />
+        <FoodList foods={foods} onSelect={onSelect} isLoading={isLoading} />
       )}
     </div>
   );
