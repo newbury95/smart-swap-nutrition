@@ -47,7 +47,7 @@ export class FirecrawlService {
       const response = await this.firecrawlApp.crawlUrl(url, {
         limit: 100,
         scrapeOptions: {
-          extract: {
+          selectors: {
             name: '.product-name',
             brand: '.brand-name',
             calories: '.nutrition-calories',
@@ -65,7 +65,7 @@ export class FirecrawlService {
 
       // Transform the FirecrawlDocument array into ScrapedFood array
       const scrapedFoods = response.data.map(doc => {
-        const extracted = (doc as FirecrawlDocument).extracted as Record<keyof ScrapedFood, string>;
+        const extracted = (doc as FirecrawlDocument).extract as Record<keyof ScrapedFood, string>;
         return {
           name: extracted.name || '',
           brand: extracted.brand || '',
