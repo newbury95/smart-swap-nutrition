@@ -1,19 +1,9 @@
 
-import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
+import { type Meal } from "@/hooks/useSupabase";
 import { MealItem } from "./MealItem";
 import { MealSectionHeader } from "./MealSectionHeader";
 import { MealSectionSummary } from "./MealSectionSummary";
-
-type Meal = {
-  id: string;
-  name: string;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  time: string;
-};
 
 type MealType = "breakfast" | "lunch" | "dinner" | "snack";
 
@@ -49,3 +39,4 @@ export const MealSection = ({ type, title, meals, onAddFood, onDeleteFood }: Mea
     </div>
   );
 };
+

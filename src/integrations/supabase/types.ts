@@ -36,6 +36,48 @@ export type Database = {
         }
         Relationships: []
       }
+      meals: {
+        Row: {
+          calories: number
+          carbs: number
+          created_at: string
+          date: string
+          fat: number
+          food_name: string
+          id: string
+          meal_type: string
+          protein: number
+          serving_size: string | null
+          user_id: string
+        }
+        Insert: {
+          calories: number
+          carbs: number
+          created_at?: string
+          date?: string
+          fat: number
+          food_name: string
+          id?: string
+          meal_type: string
+          protein: number
+          serving_size?: string | null
+          user_id: string
+        }
+        Update: {
+          calories?: number
+          carbs?: number
+          created_at?: string
+          date?: string
+          fat?: number
+          food_name?: string
+          id?: string
+          meal_type?: string
+          protein?: number
+          serving_size?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       nutritional_info: {
         Row: {
           barcode: string | null

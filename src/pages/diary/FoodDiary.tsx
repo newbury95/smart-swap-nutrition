@@ -1,9 +1,10 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useSupabase, type Meal } from "@/hooks/useSupabase";
 import { MealSection } from "@/components/diary/MealSection";
 import { DailySummary } from "@/components/diary/DailySummary";
 import { SponsorBanner } from "@/components/diary/SponsorBanner";
@@ -11,16 +12,6 @@ import { Button } from "@/components/ui/button";
 import { FoodSwapSuggestions } from "@/components/diary/FoodSwapSuggestions";
 import { HealthMetrics } from "@/components/diary/HealthMetrics";
 import { Calendar } from "@/components/ui/calendar";
-
-type Meal = {
-  id: string;
-  name: string;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  time: string;
-};
 
 type MealType = "breakfast" | "lunch" | "dinner" | "snack";
 
@@ -35,7 +26,8 @@ const mockSwaps = [
 const FoodDiary = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const { getMeals, addMeal, deleteMeal } = useSupabase();
+  const [date, setDate] = useState<Date>(new Date());
   const [meals, setMeals] = useState<Record<MealType, Meal[]>>({
     breakfast: [],
     lunch: [],
@@ -43,6 +35,29 @@ const FoodDiary = () => {
     snack: []
   });
   const [showSwaps, setShowSwaps] = useState(false);
+
+  useEffect(() => {
+    loadMeals();
+  }, [date]);
+
+  const loadMeals = async () => {
+    try {
+      const fetchedMeals = await getMeals(date);
+      const categorizedMeals = fetchedMeals.reduce((acc, meal) => ({
+        ...acc,
+        [meal.meal_type]: [...(acc[meal.meal_type as MealType] || []), meal]
+      }), { breakfast: [], lunch: [], dinner: [], snack: [] } as Record<MealType, Meal[]>);
+      
+      setMeals(categorizedMeals);
+    } catch (error) {
+      console.error('Error loading meals:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to load meals",
+      });
+    }
+  };
 
   const getTotalNutrients = (mealList: Meal[]) => {
     return mealList.reduce((acc, meal) => ({
@@ -58,34 +73,60 @@ const FoodDiary = () => {
     return getTotalNutrients(allMeals);
   };
 
-  const handleAddFood = (type: MealType) => (food: any) => {
-    const newMeal: Meal = {
-      ...food,
-      id: Math.random().toString(36).substr(2, 9),
-      time: new Date().toLocaleTimeString(),
-    };
+  const handleAddFood = (type: MealType) => async (food: any) => {
+    try {
+      const meal = await addMeal({
+        food_name: food.name,
+        calories: food.calories,
+        protein: food.protein,
+        carbs: food.carbs,
+        fat: food.fat,
+        meal_type: type,
+        serving_size: food.servingSize,
+        date: date.toISOString().split('T')[0],
+      });
 
-    setMeals(prev => ({
-      ...prev,
-      [type]: [...prev[type], newMeal]
-    }));
+      if (meal) {
+        setMeals(prev => ({
+          ...prev,
+          [type]: [...prev[type], meal]
+        }));
 
-    toast({
-      title: "Food added",
-      description: `${food.name} added to ${type}`,
-    });
+        toast({
+          title: "Food added",
+          description: `${food.name} added to ${type}`,
+        });
+      }
+    } catch (error) {
+      console.error('Error adding meal:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to add food",
+      });
+    }
   };
 
-  const handleDeleteFood = (type: MealType, mealId: string) => {
-    setMeals(prev => ({
-      ...prev,
-      [type]: prev[type].filter(meal => meal.id !== mealId)
-    }));
+  const handleDeleteFood = async (type: MealType, mealId: string) => {
+    try {
+      await deleteMeal(mealId);
+      setMeals(prev => ({
+        ...prev,
+        [type]: prev[type].filter(meal => meal.id !== mealId)
+      }));
 
-    toast({
-      title: "Food removed",
-      description: "Item has been removed from your diary",
-    });
+      toast({
+        title: "Food removed",
+        description: "Item has been removed from your diary",
+      });
+    } catch (error) {
+      console.error('Error deleting meal:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to remove food",
+      });
+    }
   };
 
   const handleComplete = () => {
@@ -117,7 +158,7 @@ const FoodDiary = () => {
               <Calendar
                 mode="single"
                 selected={date}
-                onSelect={setDate}
+                onSelect={(newDate) => newDate && setDate(newDate)}
                 className="rounded-md"
               />
             </div>
@@ -175,3 +216,4 @@ const FoodDiary = () => {
 };
 
 export default FoodDiary;
+
