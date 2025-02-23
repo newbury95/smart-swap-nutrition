@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Food } from "./types";
+import { Food, Supermarket, FoodCategory } from "./types";
 import { FoodSearchBar } from "./FoodSearchBar";
 import { FoodFilters } from "./FoodFilters";
 import { BarcodeScanner } from "./BarcodeScanner";
@@ -75,7 +75,7 @@ export const FoodDatabaseTab = ({ onSelect }: FoodDatabaseTabProps) => {
         throw error;
       }
 
-      // Convert nutritional_info data to Food type
+      // Convert nutritional_info data to Food type with proper type casting
       return data.map(item => ({
         id: item.id,
         name: item.food_item,
@@ -86,8 +86,9 @@ export const FoodDatabaseTab = ({ onSelect }: FoodDatabaseTabProps) => {
         fat: Number(item.fats),
         servingSize: item.serving_size,
         barcode: item.barcode || undefined,
-        supermarket: "All Supermarkets",
-        category: "All Categories"
+        // Explicitly cast to the correct types
+        supermarket: "All Supermarkets" as Supermarket,
+        category: "All Categories" as FoodCategory
       }));
     }
   });
