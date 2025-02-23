@@ -21,22 +21,19 @@ export const useFoodDiary = () => {
   const [isLoadingMeals, setIsLoadingMeals] = useState(true);
 
   useEffect(() => {
-    if (isLoading || checkingProfile) {
-      return;
-    }
+    if (!isLoading && !checkingProfile) {
+      if (!session) {
+        navigate('/signup');
+        return;
+      }
 
-    // Handle authentication and profile checks
-    if (!session) {
-      navigate('/signup');
-      return;
-    }
+      if (hasProfile === false) {
+        navigate('/signup/personal-info');
+        return;
+      }
 
-    if (hasProfile === false) {
-      navigate('/signup/personal-info');
-      return;
+      setIsLoadingMeals(false);
     }
-
-    setIsLoadingMeals(false);
   }, [session, hasProfile, isLoading, checkingProfile, navigate]);
 
   const getTotalNutrients = (mealList: Meal[]) => {

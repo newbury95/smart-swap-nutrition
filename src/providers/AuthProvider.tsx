@@ -2,6 +2,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface AuthContextType {
   session: Session | null;
@@ -24,6 +25,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasProfile, setHasProfile] = useState<boolean | null>(null);
   const [checkingProfile, setCheckingProfile] = useState(true);
+  const { toast } = useToast();
 
   const checkProfile = async (userId: string) => {
     try {
@@ -35,6 +37,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (error) {
         console.error('Error checking profile:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to check user profile. Please try again.",
+        });
         setHasProfile(false);
         return;
       }
@@ -43,31 +50,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {
       console.error('Error checking profile:', error);
       setHasProfile(false);
+    } finally {
+      setCheckingProfile(false);
     }
   };
 
   useEffect(() => {
-    // Get initial session
     supabase.auth.getSession().then(({ data: { session: initialSession }}) => {
       setSession(initialSession);
-      
       if (initialSession?.user) {
         checkProfile(initialSession.user.id);
       } else {
         setHasProfile(null);
         setCheckingProfile(false);
       }
-      
       setIsLoading(false);
     });
 
-    // Listen for auth changes
-    const { data: { subscription }} = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription }} = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
-      
       if (session?.user) {
         setCheckingProfile(true);
-        checkProfile(session.user.id);
+        await checkProfile(session.user.id);
       } else {
         setHasProfile(null);
         setCheckingProfile(false);
@@ -84,7 +88,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       session, 
       isLoading, 
       hasProfile, 
-      checkingProfile: isLoading || checkingProfile 
+      checkingProfile 
     }}>
       {children}
     </AuthContext.Provider>

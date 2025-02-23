@@ -14,14 +14,18 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, isLoading, hasProfile, checkingProfile } = useAuth();
   
   if (isLoading || checkingProfile) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+      </div>
+    );
   }
 
   if (!session) {
     return <Navigate to="/signup" replace />;
   }
 
-  if (hasProfile === false) {
+  if (hasProfile === false && window.location.pathname !== '/signup/personal-info') {
     return <Navigate to="/signup/personal-info" replace />;
   }
 
@@ -32,7 +36,11 @@ const AuthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, isLoading } = useAuth();
 
   if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+      </div>
+    );
   }
 
   if (session && window.location.pathname === '/signup') {
@@ -47,24 +55,24 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/" element={<Index />} />
       
-      {/* Auth routes */}
       <Route path="/signup" element={
         <AuthenticatedRoute>
           <SignUp />
         </AuthenticatedRoute>
       } />
+      
       <Route path="/signup/personal-info" element={
-        <AuthenticatedRoute>
+        <ProtectedRoute>
           <PersonalInfo />
-        </AuthenticatedRoute>
+        </ProtectedRoute>
       } />
       
-      {/* Protected routes */}
       <Route path="/diary" element={
         <ProtectedRoute>
           <FoodDiary />
         </ProtectedRoute>
       } />
+      
       <Route path="/tracking" element={
         <ProtectedRoute>
           <TrackingPage />
