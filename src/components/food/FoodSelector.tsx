@@ -41,7 +41,7 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
   const { isPremium, customFoods } = useSupabase();
   const [searchQuery, setSearchQuery] = useState("");
   const [isScanning, setIsScanning] = useState(false);
-  const [selectedSupermarket, setSelectedSupermarket] = useState<Supermarket | "all">("all");
+  const [selectedSupermarket, setSelectedSupermarket] = useState<Supermarket>("All Supermarkets");
   const [selectedCategory, setSelectedCategory] = useState<FoodCategory>("All Categories");
   const [showFilters, setShowFilters] = useState(false);
   const [activeTab, setActiveTab] = useState("database");
@@ -56,7 +56,39 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
     minFat: "",
     maxFat: "",
   });
-  
+
+  const allFoods = [...mockFoods, ...customFoods.map(cf => ({
+    id: cf.id,
+    name: cf.name,
+    brand: cf.brand || "",
+    calories: cf.calories,
+    protein: cf.protein,
+    carbs: cf.carbs,
+    fat: cf.fat,
+    servingSize: cf.serving_size,
+    supermarket: "All Supermarkets" as Supermarket,
+    category: "All Categories" as FoodCategory
+  }))];
+
+  const filteredFoods = allFoods.filter(food => {
+    const matchesSearch = 
+      food.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      food.brand.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSupermarket = selectedSupermarket === "All Supermarkets" || food.supermarket === selectedSupermarket;
+    const matchesCategory = selectedCategory === "All Categories" || food.category === selectedCategory;
+    const matchesNutrition = 
+      (!nutritionFilters.minCalories || food.calories >= Number(nutritionFilters.minCalories)) &&
+      (!nutritionFilters.maxCalories || food.calories <= Number(nutritionFilters.maxCalories)) &&
+      (!nutritionFilters.minProtein || food.protein >= Number(nutritionFilters.minProtein)) &&
+      (!nutritionFilters.maxProtein || food.protein <= Number(nutritionFilters.maxProtein)) &&
+      (!nutritionFilters.minCarbs || food.carbs >= Number(nutritionFilters.minCarbs)) &&
+      (!nutritionFilters.maxCarbs || food.carbs <= Number(nutritionFilters.maxCarbs)) &&
+      (!nutritionFilters.minFat || food.fat >= Number(nutritionFilters.minFat)) &&
+      (!nutritionFilters.maxFat || food.fat <= Number(nutritionFilters.maxFat));
+
+    return matchesSearch && matchesSupermarket && matchesCategory && matchesNutrition;
+  });
+
   const handleBarcodeScanner = async () => {
     setIsScanning(true);
     const codeReader = new BrowserMultiFormatReader();
@@ -86,7 +118,7 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
         previewEl
       );
 
-      const foodItem = mockFoods.find(food => food.barcode === result.getText());
+      const foodItem = allFoods.find(food => food.barcode === result.getText());
       
       if (foodItem) {
         onFoodSelect(foodItem);
@@ -112,25 +144,6 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
       codeReader.reset();
     }
   };
-
-  const filteredFoods = mockFoods.filter(food => {
-    const matchesSearch = 
-      food.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      food.brand.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesSupermarket = selectedSupermarket === "all" || food.supermarket === selectedSupermarket;
-    const matchesCategory = selectedCategory === "All Categories" || food.category === selectedCategory;
-    const matchesNutrition = 
-      (!nutritionFilters.minCalories || food.calories >= Number(nutritionFilters.minCalories)) &&
-      (!nutritionFilters.maxCalories || food.calories <= Number(nutritionFilters.maxCalories)) &&
-      (!nutritionFilters.minProtein || food.protein >= Number(nutritionFilters.minProtein)) &&
-      (!nutritionFilters.maxProtein || food.protein <= Number(nutritionFilters.maxProtein)) &&
-      (!nutritionFilters.minCarbs || food.carbs >= Number(nutritionFilters.minCarbs)) &&
-      (!nutritionFilters.maxCarbs || food.carbs <= Number(nutritionFilters.maxCarbs)) &&
-      (!nutritionFilters.minFat || food.fat >= Number(nutritionFilters.minFat)) &&
-      (!nutritionFilters.maxFat || food.fat <= Number(nutritionFilters.maxFat));
-
-    return matchesSearch && matchesSupermarket && matchesCategory && matchesNutrition;
-  });
 
   const handleCustomFoodSelect = (customFood: any) => {
     if (!isPremium) {
@@ -255,7 +268,6 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
               Maybe Later
             </Button>
             <Button onClick={() => {
-              // Add navigation to premium upgrade page
               setShowPremiumDialog(false);
             }}>
               Upgrade Now

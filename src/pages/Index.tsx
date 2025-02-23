@@ -1,6 +1,6 @@
 
 import { motion } from "framer-motion";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Check, LogIn } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Index = () => {
@@ -8,8 +8,22 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-soft-green/20 to-white">
+      {/* Top Banner */}
+      <header className="border-b bg-white">
+        <div className="container mx-auto px-4 h-16 flex justify-between items-center">
+          <h1 className="text-xl font-semibold text-green-600">NutriTrack</h1>
+          <button
+            onClick={() => navigate('/login')}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
+          >
+            <span>Log In</span>
+            <LogIn className="w-4 h-4" />
+          </button>
+        </div>
+      </header>
+
       {/* Hero Section */}
-      <section className="container mx-auto px-4 pt-12 pb-16">
+      <section className="container mx-auto px-4 pt-12 pb-6">
         <motion.div 
           className="text-center max-w-4xl mx-auto"
           initial={{ opacity: 0, y: 20 }}
@@ -19,7 +33,7 @@ const Index = () => {
           <h1 className="text-5xl md:text-6xl font-bold mb-6 tracking-tight text-green-800">
             Transform Your Diet,<br />Achieve Your Goals
           </h1>
-          <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+          <p className="text-lg text-gray-600 mb-2 leading-relaxed">
             Get personalized meal suggestions and healthy food swaps tailored to your
             specific health, diet, or fitness goals.
           </p>
@@ -111,3 +125,4 @@ const premiumPlanFeatures = [
 ];
 
 export default Index;
+
