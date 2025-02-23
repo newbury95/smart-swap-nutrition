@@ -45,7 +45,8 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
         const { data: { session } } = await supabase.auth.getSession();
         setIsAuthenticated(!!session);
         
-        if (!session && !location.pathname.includes('/signup')) {
+        // Only redirect to signup if not on the index page or signup pages
+        if (!session && !location.pathname.includes('/signup') && location.pathname !== '/') {
           navigate('/signup');
         }
 
@@ -53,7 +54,7 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
           data: { subscription },
         } = supabase.auth.onAuthStateChange((_event, session) => {
           setIsAuthenticated(!!session);
-          if (!session && !location.pathname.includes('/signup')) {
+          if (!session && !location.pathname.includes('/signup') && location.pathname !== '/') {
             navigate('/signup');
           }
         });
@@ -69,14 +70,13 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
     initializeAuth();
   }, [navigate, location]);
 
-  // Show loading spinner while initializing
   if (!isInitialized || isAuthenticated === null) {
     return <LoadingFallback />;
   }
 
   return (
     <>
-      {isAuthenticated && <Header />}
+      {isAuthenticated && location.pathname !== '/' && <Header />}
       {children}
     </>
   );

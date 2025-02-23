@@ -13,10 +13,10 @@ const Index = () => {
         <div className="container mx-auto px-4 h-16 flex justify-between items-center">
           <h1 className="text-xl font-semibold text-green-600">NutriTrack</h1>
           <button
-            onClick={() => navigate('/login')}
+            onClick={() => navigate('/signup')}
             className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
           >
-            <span>Log In</span>
+            <span>Sign Up</span>
             <LogIn className="w-4 h-4" />
           </button>
         </div>
@@ -125,4 +125,3 @@ const premiumPlanFeatures = [
 ];
 
 export default Index;
-

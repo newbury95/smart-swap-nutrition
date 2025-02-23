@@ -54,7 +54,7 @@ export type Database = {
           category: Database["public"]["Enums"]["food_category_type"]
           created_at: string
           fat: number
-          id: string
+          "Food Item": string
           name: string
           protein: number
           serving_size: string
@@ -68,7 +68,7 @@ export type Database = {
           category: Database["public"]["Enums"]["food_category_type"]
           created_at?: string
           fat: number
-          id?: string
+          "Food Item": string
           name: string
           protein: number
           serving_size: string
@@ -82,7 +82,7 @@ export type Database = {
           category?: Database["public"]["Enums"]["food_category_type"]
           created_at?: string
           fat?: number
-          id?: string
+          "Food Item"?: string
           name?: string
           protein?: number
           serving_size?: string
