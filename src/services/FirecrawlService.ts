@@ -35,6 +35,27 @@ export class FirecrawlService {
     return localStorage.getItem(this.API_KEY_STORAGE_KEY);
   }
 
+  private static delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  private static async retryWithDelay<T>(
+    fn: () => Promise<T>,
+    retries = 3,
+    delayMs = 60000 // 1 minute delay for rate limits
+  ): Promise<T> {
+    try {
+      return await fn();
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('429') && retries > 0) {
+        console.log(`Rate limit hit. Waiting ${delayMs / 1000} seconds before retry...`);
+        await this.delay(delayMs);
+        return this.retryWithDelay(fn, retries - 1, delayMs);
+      }
+      throw error;
+    }
+  }
+
   static async scrapeSupermarket(url: string): Promise<ScrapedFood[]> {
     const apiKey = this.getApiKey();
     if (!apiKey) {
@@ -49,32 +70,34 @@ export class FirecrawlService {
       console.log('Starting scrape with options:', {
         url,
         scrapeOptions: {
-          extract: {
-            name: { selector: '.product-name', type: 'text' },
-            brand: { selector: '.brand-name', type: 'text' },
-            calories: { selector: '.nutrition-calories', type: 'text' },
-            protein: { selector: '.nutrition-protein', type: 'text' },
-            carbs: { selector: '.nutrition-carbs', type: 'text' },
-            fat: { selector: '.nutrition-fat', type: 'text' },
-            servingSize: { selector: '.serving-size', type: 'text' }
+          selectors: {
+            name: '.product-name',
+            brand: '.brand-name',
+            calories: '.nutrition-calories',
+            protein: '.nutrition-protein',
+            carbs: '.nutrition-carbs',
+            fat: '.nutrition-fat',
+            servingSize: '.serving-size'
           }
         }
       });
 
-      const response = await this.firecrawlApp.crawlUrl(url, {
-        limit: 100,
-        scrapeOptions: {
-          extract: {
-            name: { selector: '.product-name', type: 'text' },
-            brand: { selector: '.brand-name', type: 'text' },
-            calories: { selector: '.nutrition-calories', type: 'text' },
-            protein: { selector: '.nutrition-protein', type: 'text' },
-            carbs: { selector: '.nutrition-carbs', type: 'text' },
-            fat: { selector: '.nutrition-fat', type: 'text' },
-            servingSize: { selector: '.serving-size', type: 'text' }
+      const response = await this.retryWithDelay(() => 
+        this.firecrawlApp!.crawlUrl(url, {
+          limit: 100,
+          scrapeOptions: {
+            selectors: {
+              name: '.product-name',
+              brand: '.brand-name',
+              calories: '.nutrition-calories',
+              protein: '.nutrition-protein',
+              carbs: '.nutrition-carbs',
+              fat: '.nutrition-fat',
+              servingSize: '.serving-size'
+            }
           }
-        }
-      });
+        })
+      );
 
       if (!response.success) {
         throw new Error('Failed to scrape website');
@@ -84,17 +107,17 @@ export class FirecrawlService {
 
       // Transform the FirecrawlDocument array into ScrapedFood array
       const scrapedFoods = response.data.map(doc => {
-        const extracted = (doc as FirecrawlDocument).extract as Record<keyof Omit<ScrapedFood, 'supermarket'>, { value: string }>;
+        const extracted = (doc as FirecrawlDocument).selectors as Record<keyof Omit<ScrapedFood, 'supermarket'>, string>;
         console.log('Extracted data for document:', extracted);
         
         return {
-          name: extracted.name?.value || '',
-          brand: extracted.brand?.value || '',
-          calories: extracted.calories?.value || '',
-          protein: extracted.protein?.value || '',
-          carbs: extracted.carbs?.value || '',
-          fat: extracted.fat?.value || '',
-          servingSize: extracted.servingSize?.value || '',
+          name: extracted.name || '',
+          brand: extracted.brand || '',
+          calories: extracted.calories || '',
+          protein: extracted.protein || '',
+          carbs: extracted.carbs || '',
+          fat: extracted.fat || '',
+          servingSize: extracted.servingSize || '',
           supermarket: new URL(url).hostname.replace('www.', '').split('.')[0]
         };
       });
@@ -152,6 +175,10 @@ export class FirecrawlService {
     for (const supermarket of this.UK_SUPERMARKETS) {
       try {
         console.log(`Starting to scrape ${supermarket.name}...`);
+        // Add a 2-second delay between supermarket scrapes to avoid overwhelming the API
+        if (allFoods.length > 0) {
+          await this.delay(2000);
+        }
         const scrapedFoods = await this.scrapeSupermarket(supermarket.url);
         const foods = scrapedFoods.map(food => this.transformToFood(food));
         allFoods = [...allFoods, ...foods];
