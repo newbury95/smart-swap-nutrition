@@ -7,35 +7,50 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Helper function to parse numeric values with units
+// Helper function to parse numeric values with units and special cases
 const parseNumericWithUnit = (value: string): { value: number; unit: string | null } => {
-  // Remove any whitespace and handle empty values
+  // Remove any whitespace
   const cleanValue = value.trim();
   if (!cleanValue) {
     throw new Error('Empty value provided');
   }
-  
-  // First, try to see if it's just a plain number
+
+  // Handle special case of "<" values - we'll store the value after "<"
+  if (cleanValue.startsWith('<')) {
+    const withoutLessThan = cleanValue.substring(1);
+    // Recursively parse the remaining value
+    const parsed = parseNumericWithUnit(withoutLessThan);
+    // Store a small value (assuming that's what "<0.5" means)
+    return { value: 0.01, unit: parsed.unit };
+  }
+
+  // First try to parse as plain number
   if (!isNaN(Number(cleanValue))) {
     return { value: Number(cleanValue), unit: null };
   }
-  
-  // If not a plain number, try to parse number with unit
-  const match = cleanValue.match(/^(-?\d*\.?\d+)\s*([a-zA-Z%]*)$/);
-  
+
+  // Match number followed by optional unit, allowing for mg and g
+  const match = cleanValue.match(/^(-?\d*\.?\d+)\s*(mg|g|%)?$/i);
+
   if (!match) {
-    throw new Error(`Invalid value format: "${value}". Expected format: number followed by optional unit`);
+    throw new Error(`Invalid value format: "${value}". Expected format: number followed by optional unit (g, mg, or %)"`);
   }
-  
+
   const numericPart = match[1];
-  const unit = match[2] || null;
-  
-  const parsedValue = parseFloat(numericPart);
+  let unit = (match[2] || '').toLowerCase();
+  let parsedValue = parseFloat(numericPart);
+
+  // Convert mg to g if needed
+  if (unit === 'mg') {
+    parsedValue = parsedValue / 1000;
+    unit = 'g';
+  }
+
   if (isNaN(parsedValue)) {
     throw new Error(`Invalid numeric value: ${numericPart}`);
   }
-  
-  return { value: parsedValue, unit };
+
+  return { value: parsedValue, unit: unit || null };
 };
 
 serve(async (req) => {
@@ -71,7 +86,7 @@ serve(async (req) => {
       );
     }
 
-    const headers = lines[0].trim().split(',');
+    const headers = lines[0].trim().split(',').map(h => h.trim());
     const requiredColumns = [
       'food_item',
       'kcal',
@@ -124,7 +139,7 @@ serve(async (req) => {
       if (!line) continue;
       
       try {
-        const values = line.split(',');
+        const values = line.split(',').map(v => v.trim());
         if (values.length !== headers.length) {
           errors.push(`Row ${i}: Invalid number of columns`);
           continue;
@@ -132,7 +147,6 @@ serve(async (req) => {
 
         const row: Record<string, any> = {};
         
-        // Log the raw values for debugging
         console.log(`Processing row ${i}, raw values:`, values);
         
         // Process each column in the row
@@ -228,4 +242,3 @@ serve(async (req) => {
     );
   }
 });
-
