@@ -36,7 +36,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/signup" replace />;
   }
 
-  if (hasProfile === false && window.location.pathname !== '/signup/personal-info') {
+  // Only redirect to personal-info if the user has no profile and isn't already on the personal-info page
+  if (!hasProfile && window.location.pathname !== '/signup/personal-info') {
     console.log('ProtectedRoute: No profile, redirecting to personal info');
     return <Navigate to="/signup/personal-info" replace />;
   }
@@ -45,14 +46,29 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
-  const { session, isLoading, hasProfile } = useAuth();
+  const { session, isLoading, hasProfile, checkingProfile } = useAuth();
+  console.log('PublicRoute:', {
+    sessionExists: !!session,
+    isLoading,
+    hasProfile,
+    checkingProfile,
+    currentPath: window.location.pathname
+  });
 
-  if (isLoading) {
+  if (isLoading || checkingProfile) {
     return <LoadingSpinner />;
   }
 
+  // If user is authenticated and has a profile, redirect them to diary
   if (session && hasProfile) {
+    console.log('PublicRoute: User authenticated with profile, redirecting to diary');
     return <Navigate to="/diary" replace />;
+  }
+
+  // If user is authenticated but has no profile, redirect them to personal info
+  if (session && !hasProfile && window.location.pathname !== '/signup/personal-info') {
+    console.log('PublicRoute: User authenticated without profile, redirecting to personal info');
+    return <Navigate to="/signup/personal-info" replace />;
   }
 
   return <>{children}</>;
@@ -75,7 +91,11 @@ const AppRoutes = () => {
       
       <Route
         path="/signup/personal-info"
-        element={<PersonalInfo />}
+        element={
+          <ProtectedRoute>
+            <PersonalInfo />
+          </ProtectedRoute>
+        }
       />
       
       <Route
