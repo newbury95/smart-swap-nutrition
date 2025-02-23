@@ -13,6 +13,7 @@ export const FoodScraper = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [apiKey, setApiKey] = useState(FirecrawlService.getApiKey() || '');
+  const [isScraping, setIsScraping] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,6 +50,39 @@ export const FoodScraper = () => {
     }
   };
 
+  const handleScrapeAllUK = async () => {
+    if (!apiKey) {
+      toast({
+        title: "Error",
+        description: "Please enter your Firecrawl API key",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsScraping(true);
+    setProgress(0);
+
+    try {
+      FirecrawlService.saveApiKey(apiKey);
+      const foods = await FirecrawlService.scrapeAllUKSupermarkets();
+      
+      toast({
+        title: "Success",
+        description: `Successfully scraped ${foods.length} food items from UK supermarkets`
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to scrape UK supermarkets",
+        variant: "destructive"
+      });
+    } finally {
+      setIsScraping(false);
+      setProgress(100);
+    }
+  };
+
   return (
     <Card className="p-6 space-y-4">
       <h2 className="text-2xl font-bold">Import Supermarket Foods</h2>
@@ -77,13 +111,25 @@ export const FoodScraper = () => {
           />
         </div>
 
-        {isLoading && (
+        {(isLoading || isScraping) && (
           <Progress value={progress} />
         )}
 
-        <Button type="submit" disabled={isLoading} className="w-full">
-          {isLoading ? "Scraping..." : "Start Scraping"}
-        </Button>
+        <div className="flex gap-4">
+          <Button type="submit" disabled={isLoading || isScraping} className="flex-1">
+            {isLoading ? "Scraping..." : "Scrape URL"}
+          </Button>
+          
+          <Button 
+            type="button" 
+            onClick={handleScrapeAllUK}
+            disabled={isLoading || isScraping}
+            variant="secondary"
+            className="flex-1"
+          >
+            {isScraping ? "Scraping UK..." : "Scrape All UK"}
+          </Button>
+        </div>
       </form>
     </Card>
   );
