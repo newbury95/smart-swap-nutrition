@@ -67,7 +67,7 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
               </TabsList>
 
               <TabsContent value="database">
-                <FoodDatabaseTab onSelect={onFoodSelect} foods={[]} />
+                <FoodDatabaseTab onSelect={onFoodSelect} />
               </TabsContent>
 
               <TabsContent value="custom" className="space-y-4">
@@ -99,3 +99,4 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
     </>
   );
 };
+
