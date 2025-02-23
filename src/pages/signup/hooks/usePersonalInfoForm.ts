@@ -44,20 +44,23 @@ export const usePersonalInfoForm = () => {
 
     try {
       // First check if user exists
-      const { data: existingUser } = await supabase
+      const { data: existingProfile } = await supabase
         .from('profiles')
         .select('id')
         .eq('email', formData.email)
         .single();
 
-      if (existingUser) {
+      if (existingProfile) {
         throw new Error('A user with this email already exists');
       }
+
+      // Generate a random password for the initial signup
+      const password = Math.random().toString(36).slice(-12);
 
       // Create auth user with email and password
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: formData.email,
-        password: "tempPassword123",
+        password,
         options: {
           data: {
             first_name: formData.firstName,
@@ -94,13 +97,15 @@ export const usePersonalInfoForm = () => {
 
       if (profileError) {
         console.error('Error creating profile:', profileError);
-        throw profileError;
+        // If profile creation fails, we should clean up the auth user
+        await supabase.auth.signOut();
+        throw new Error('Failed to create user profile. Please try again.');
       }
 
-      // Explicitly sign in with password after signup
+      // Sign in the user
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email: formData.email,
-        password: "tempPassword123"
+        password
       });
 
       if (signInError) {
@@ -114,13 +119,6 @@ export const usePersonalInfoForm = () => {
 
       console.log('Session established successfully:', signInData.session.user.id);
 
-      // Verify session is active
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('Session verification failed');
-      }
-
-      console.log('Session verified, navigating to diary');
       toast({
         title: "Success!",
         description: `Your ${formData.isPremium ? 'premium' : 'free'} profile has been created.`,
@@ -152,4 +150,3 @@ export const usePersonalInfoForm = () => {
     handleSubmit
   };
 };
-

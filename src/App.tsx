@@ -11,7 +11,7 @@ import TrackingPage from './pages/tracking/TrackingPage';
 import NotFound from './pages/NotFound';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { session, isLoading } = useAuth();
+  const { session, isLoading, userProfile } = useAuth();
 
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-screen">
@@ -19,15 +19,23 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     </div>;
   }
 
+  // If no session, redirect to signup
   if (!session) {
+    console.log('No session, redirecting to signup');
     return <Navigate to="/signup" replace />;
+  }
+
+  // If no profile, redirect to personal info
+  if (!userProfile) {
+    console.log('No user profile, redirecting to personal info');
+    return <Navigate to="/signup/personal-info" replace />;
   }
 
   return <>{children}</>;
 };
 
 const SignUpFlow = ({ children }: { children: React.ReactNode }) => {
-  const { session, isLoading } = useAuth();
+  const { session, isLoading, userProfile } = useAuth();
 
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-screen">
@@ -35,8 +43,16 @@ const SignUpFlow = ({ children }: { children: React.ReactNode }) => {
     </div>;
   }
 
-  if (session) {
+  // If user has completed signup (has session and profile), redirect to diary
+  if (session && userProfile) {
+    console.log('User has completed signup, redirecting to diary');
     return <Navigate to="/diary" replace />;
+  }
+
+  // If user has session but no profile, allow access only to personal-info
+  if (session && !userProfile && window.location.pathname !== '/signup/personal-info') {
+    console.log('User has session but no profile, redirecting to personal info');
+    return <Navigate to="/signup/personal-info" replace />;
   }
 
   return <>{children}</>;
