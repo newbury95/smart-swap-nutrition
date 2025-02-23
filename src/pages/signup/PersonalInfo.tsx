@@ -13,9 +13,9 @@ interface PersonalInfoForm {
   lastName: string;
   email: string;
   nickname: string;
-  height: number;
-  weight: number;
-  isMetric: boolean;
+  dateOfBirth: string;
+  height: string;
+  weight: string;
   isPremium: boolean;
   cardNumber?: string;
   expiryDate?: string;
@@ -31,9 +31,9 @@ const PersonalInfo = () => {
     lastName: "",
     email: "",
     nickname: "",
-    height: 0,
-    weight: 0,
-    isMetric: true,
+    dateOfBirth: "",
+    height: "",
+    weight: "",
     isPremium: false,
   });
 

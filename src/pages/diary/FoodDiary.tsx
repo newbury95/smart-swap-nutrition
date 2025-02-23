@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Calendar } from "@/components/ui/calendar";
@@ -97,7 +96,7 @@ const FoodDiary = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-32">
       <header className="bg-white border-b">
         <div className="container mx-auto px-4 py-4">
           <button 
@@ -126,15 +125,6 @@ const FoodDiary = () => {
           </div>
 
           <div className="space-y-6">
-            <div className="flex justify-end mb-4">
-              <Button 
-                onClick={handleComplete}
-                className="w-auto"
-              >
-                Complete Day
-              </Button>
-            </div>
-
             {[
               { type: "breakfast", title: "Breakfast" },
               { type: "lunch", title: "Lunch" },
@@ -157,6 +147,15 @@ const FoodDiary = () => {
               </motion.div>
             ))}
 
+            <div className="text-center mt-8">
+              <Button 
+                onClick={handleComplete}
+                className="w-auto"
+              >
+                Complete Day
+              </Button>
+            </div>
+
             <HealthMetrics />
           </div>
         </div>
@@ -175,4 +174,3 @@ const FoodDiary = () => {
 };
 
 export default FoodDiary;
-

@@ -1,25 +1,48 @@
+
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft, Heart, Activity, Leaf } from "lucide-react";
+import { ChevronLeft, Activity } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-type GoalType = "health" | "fitness" | "dietary";
+type GoalType = "weight-loss" | "muscle-gain" | "endurance" | "general-fitness";
 
 interface GoalOption {
   id: GoalType;
   title: string;
   description: string;
-  examples: string[];
   icon: JSX.Element;
 }
+
+const goalOptions: GoalOption[] = [
+  {
+    id: "weight-loss",
+    title: "Weight Loss",
+    description: "Sustainable nutrition plans for healthy weight management",
+    icon: <Activity className="w-6 h-6" />
+  },
+  {
+    id: "muscle-gain",
+    title: "Muscle Gain",
+    description: "Protein-rich meal plans for building lean muscle mass",
+    icon: <Activity className="w-6 h-6" />
+  },
+  {
+    id: "endurance",
+    title: "Endurance Training",
+    description: "Nutrition support for enhanced athletic performance",
+    icon: <Activity className="w-6 h-6" />
+  },
+  {
+    id: "general-fitness",
+    title: "General Fitness",
+    description: "Balanced nutrition for overall health and wellness",
+    icon: <Activity className="w-6 h-6" />
+  }
+];
 
 const SignUp = () => {
   const navigate = useNavigate();
   const [selectedGoal, setSelectedGoal] = useState<GoalType | null>(null);
-
-  const handleSelectGoal = (goalType: GoalType) => {
-    setSelectedGoal(goalType);
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-soft-green/20 to-white">
@@ -45,40 +68,25 @@ const SignUp = () => {
             Select your primary focus and we'll customize your nutrition plan accordingly
           </p>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 gap-6">
             {goalOptions.map((goal) => (
               <motion.div
                 key={goal.id}
-                className={`relative p-8 rounded-3xl backdrop-blur-sm border-2 transition-all duration-300 cursor-pointer overflow-hidden group
+                className={`relative p-6 rounded-3xl backdrop-blur-sm border-2 transition-all duration-300 cursor-pointer
                   ${selectedGoal === goal.id 
                     ? 'bg-green-50/80 border-green-400 shadow-xl' 
                     : 'bg-white/80 border-gray-100 hover:border-green-200 hover:shadow-lg'}`}
-                onClick={() => handleSelectGoal(goal.id)}
+                onClick={() => setSelectedGoal(goal.id)}
                 whileHover={{ scale: 1.02, y: -5 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <div className={`absolute inset-0 transition-opacity duration-300 opacity-0 group-hover:opacity-10 bg-cover bg-center
-                  ${goal.id === 'health' && 'bg-[url("/images/health-bg.jpg")]'}
-                  ${goal.id === 'fitness' && 'bg-[url("/images/fitness-bg.jpg")]'}
-                  ${goal.id === 'dietary' && 'bg-[url("/images/dietary-bg.jpg")]'}`}
-                />
-                <div className="relative z-10">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-3 rounded-2xl bg-green-50 text-green-600">
-                      {goal.icon}
-                    </div>
-                    <h3 className="text-xl font-semibold">{goal.title}</h3>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-3 rounded-2xl bg-green-50 text-green-600">
+                    {goal.icon}
                   </div>
-                  <p className="text-gray-600 mb-6 text-sm">{goal.description}</p>
-                  <ul className="space-y-3">
-                    {goal.examples.map((example, idx) => (
-                      <li key={idx} className="text-sm text-gray-600 flex items-center gap-2 group-hover:translate-x-1 transition-transform">
-                        <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
-                        {example}
-                      </li>
-                    ))}
-                  </ul>
+                  <h3 className="text-xl font-semibold">{goal.title}</h3>
                 </div>
+                <p className="text-gray-600 text-sm">{goal.description}</p>
               </motion.div>
             ))}
           </div>
@@ -91,7 +99,7 @@ const SignUp = () => {
             {selectedGoal && (
               <button 
                 className="bg-gradient-to-r from-green-600 to-green-400 text-white px-8 py-4 rounded-full font-medium hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl"
-                onClick={() => navigate(`/goals/${selectedGoal}`)}
+                onClick={() => navigate('/signup/personal-info')}
               >
                 Continue
               </button>
@@ -102,44 +110,5 @@ const SignUp = () => {
     </div>
   );
 };
-
-const goalOptions: GoalOption[] = [
-  {
-    id: "health",
-    title: "Health Condition",
-    description: "Get personalized alternatives that support your health needs",
-    examples: [
-      "Diabetes Management",
-      "Heart Health",
-      "Digestive Issues",
-      "Food Allergies"
-    ],
-    icon: <Heart className="w-6 h-6" />
-  },
-  {
-    id: "fitness",
-    title: "Fitness Goal",
-    description: "Optimize your nutrition to achieve your fitness objectives",
-    examples: [
-      "Muscle Gain",
-      "Weight Loss",
-      "Athletic Performance",
-      "Energy Boost"
-    ],
-    icon: <Activity className="w-6 h-6" />
-  },
-  {
-    id: "dietary",
-    title: "Dietary Need",
-    description: "Find alternatives that align with your dietary preferences",
-    examples: [
-      "Vegetarian/Vegan",
-      "Gluten-Free",
-      "Low-Carb",
-      "Mediterranean"
-    ],
-    icon: <Leaf className="w-6 h-6" />
-  }
-];
 
 export default SignUp;

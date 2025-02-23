@@ -7,6 +7,9 @@ interface PersonalInfoFormProps {
     lastName: string;
     email: string;
     nickname: string;
+    dateOfBirth: string;
+    height: string;
+    weight: string;
     isPremium: boolean;
   };
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -45,32 +48,75 @@ export const PersonalInfoForm = ({ formData, handleInputChange, handlePremiumTog
         </div>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Email
-        </label>
-        <input
-          type="email"
-          name="email"
-          required
-          value={formData.email}
-          onChange={handleInputChange}
-          className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-400 focus:border-transparent"
-        />
+      <div className="grid md:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Email
+          </label>
+          <input
+            type="email"
+            name="email"
+            required
+            value={formData.email}
+            onChange={handleInputChange}
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-400 focus:border-transparent"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Nickname
+          </label>
+          <input
+            type="text"
+            name="nickname"
+            required
+            value={formData.nickname}
+            onChange={handleInputChange}
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-400 focus:border-transparent"
+          />
+        </div>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Nickname
-        </label>
-        <input
-          type="text"
-          name="nickname"
-          required
-          value={formData.nickname}
-          onChange={handleInputChange}
-          className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-400 focus:border-transparent"
-        />
+      <div className="grid md:grid-cols-3 gap-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Date of Birth
+          </label>
+          <input
+            type="date"
+            name="dateOfBirth"
+            required
+            value={formData.dateOfBirth}
+            onChange={handleInputChange}
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-400 focus:border-transparent"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Starting Height (cm)
+          </label>
+          <input
+            type="number"
+            name="height"
+            required
+            value={formData.height}
+            onChange={handleInputChange}
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-400 focus:border-transparent"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Starting Weight (kg)
+          </label>
+          <input
+            type="number"
+            name="weight"
+            required
+            value={formData.weight}
+            onChange={handleInputChange}
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-400 focus:border-transparent"
+          />
+        </div>
       </div>
 
       <div className="border-t border-gray-200 pt-6 mb-6">
