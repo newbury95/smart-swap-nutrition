@@ -1,6 +1,6 @@
 
 import { motion } from "framer-motion";
-import { ArrowRight, Check, LogIn } from "lucide-react";
+import { ArrowRight, LogIn } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Index = () => {
@@ -16,112 +16,70 @@ const Index = () => {
             onClick={() => navigate('/signup')}
             className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
           >
-            <span>Sign Up</span>
+            <span>Sign In</span>
             <LogIn className="w-4 h-4" />
           </button>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 pt-12 pb-6">
+      <section className="container mx-auto px-4 py-12">
         <motion.div 
-          className="text-center max-w-4xl mx-auto"
+          className="text-center max-w-3xl mx-auto"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 tracking-tight text-green-800">
-            Transform Your Diet,<br />Achieve Your Goals
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-green-800">
+            Track Your Nutrition Journey
           </h1>
-          <p className="text-lg text-gray-600 mb-2 leading-relaxed">
-            Get personalized meal suggestions and healthy food swaps tailored to your
-            specific health, diet, or fitness goals.
+          <p className="text-lg text-gray-600 mb-8">
+            Join our community of health enthusiasts and achieve your fitness goals
+            with personalized nutrition tracking.
           </p>
+          <div className="flex justify-center gap-4">
+            <button
+              onClick={() => navigate('/signup')}
+              className="bg-green-600 text-white px-8 py-3 rounded-full hover:bg-green-700 transition-colors flex items-center gap-2"
+            >
+              Get Started
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
         </motion.div>
       </section>
 
-      {/* Plans Section */}
-      <section className="py-24 bg-gradient-to-b from-white to-soft-green/20">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            {/* Free Plan */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100"
-            >
-              <h2 className="text-2xl font-bold mb-6">Free Plan Features</h2>
-              <ul className="space-y-4 mb-8">
-                {freePlanFeatures.map((feature) => (
-                  <li key={feature} className="flex items-start gap-3">
-                    <Check className="w-5 h-5 text-green-500 mt-1 shrink-0" />
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
-              <p className="text-gray-600 mb-6">Perfect for getting started with healthy eating</p>
-              <button 
-                onClick={() => navigate('/signup')}
-                className="w-full bg-white border-2 border-green-500 text-green-500 hover:bg-green-50 px-6 py-3 rounded-full font-medium transition-colors flex items-center justify-center gap-2"
+      {/* Sponsor Banner */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-gray-500">Our partners:</p>
+            <div className="flex items-center gap-8">
+              <motion.a
+                href="https://www.instagram.com/francis_fitness_official"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-600 hover:text-gray-800 font-medium transition-colors"
+                whileHover={{ scale: 1.05 }}
               >
-                Try for Free
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </motion.div>
-
-            {/* Premium Plan */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="bg-green-50 rounded-2xl p-8 shadow-lg border border-green-100"
-            >
-              <div className="flex justify-between items-start mb-6">
-                <h2 className="text-2xl font-bold">Premium Plan</h2>
-                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-                  £7.99/month
-                </span>
-              </div>
-              <ul className="space-y-4 mb-8">
-                {premiumPlanFeatures.map((feature) => (
-                  <li key={feature} className="flex items-start gap-3">
-                    <Check className="w-5 h-5 text-green-500 mt-1 shrink-0" />
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
-              <p className="text-gray-600 mb-6">For those serious about their health goals</p>
-              <button 
-                onClick={() => navigate('/signup?plan=premium')}
-                className="w-full bg-green-500 text-white hover:bg-green-600 px-6 py-3 rounded-full font-medium transition-colors flex items-center justify-center gap-2"
-              >
-                Get Premium Now
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </motion.div>
+                Francis Fitness
+              </motion.a>
+              {["Gymshark", "Myprotein", "Maxinutrition"].map((brand) => (
+                <motion.a
+                  key={brand}
+                  href="#"
+                  className="text-gray-600 hover:text-gray-800 font-medium transition-colors"
+                  whileHover={{ scale: 1.05 }}
+                >
+                  {brand}
+                </motion.a>
+              ))}
+            </div>
           </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 };
-
-const freePlanFeatures = [
-  "Daily meal tracking",
-  "Smart food swap suggestions",
-  "Water intake tracking",
-  "Basic progress monitoring"
-];
-
-const premiumPlanFeatures = [
-  "All Free Plan Features",
-  "Personalized meal suggestions",
-  "Weekly meal planning",
-  "Advanced nutrition insights",
-  "Premium recipe collection"
-];
 
 export default Index;
