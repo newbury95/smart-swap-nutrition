@@ -21,25 +21,17 @@ export const useFoodDiary = () => {
   const [isLoadingMeals, setIsLoadingMeals] = useState(true);
 
   useEffect(() => {
-    console.log('[FoodDiary] Auth state:', {
-      hasSession: !!session,
-      hasProfile,
-      isLoading,
-      checkingProfile
-    });
-
     if (isLoading || checkingProfile) {
       return;
     }
 
+    // Handle authentication and profile checks
     if (!session) {
-      console.log('[FoodDiary] No session, redirecting to signup');
       navigate('/signup');
       return;
     }
 
     if (hasProfile === false) {
-      console.log('[FoodDiary] No profile found, redirecting to personal info');
       navigate('/signup/personal-info');
       return;
     }
@@ -62,7 +54,6 @@ export const useFoodDiary = () => {
   };
 
   const handleAddFood = (type: MealType) => (food: any) => {
-    console.log('[FoodDiary] Adding food to', type, ':', food);
     const newMeal: Meal = {
       ...food,
       id: Math.random().toString(36).substr(2, 9),
@@ -81,7 +72,6 @@ export const useFoodDiary = () => {
   };
 
   const handleDeleteFood = (type: MealType, mealId: string) => {
-    console.log('[FoodDiary] Deleting food from', type, 'with id:', mealId);
     setMeals(prev => ({
       ...prev,
       [type]: prev[type].filter(meal => meal.id !== mealId)
@@ -94,7 +84,6 @@ export const useFoodDiary = () => {
   };
 
   const handleComplete = () => {
-    console.log('[FoodDiary] Completing daily food diary');
     setShowSwaps(true);
     toast({
       title: "Daily food diary completed",

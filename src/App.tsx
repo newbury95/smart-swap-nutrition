@@ -12,19 +12,17 @@ import NotFound from './pages/NotFound';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, isLoading, hasProfile, checkingProfile } = useAuth();
-
+  
   if (isLoading || checkingProfile) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
   if (!session) {
-    console.log('No session in protected route, redirecting to signup');
-    return <Navigate to="/signup" />;
+    return <Navigate to="/signup" replace />;
   }
 
   if (hasProfile === false) {
-    console.log('No profile found, redirecting to personal info');
-    return <Navigate to="/signup/personal-info" />;
+    return <Navigate to="/signup/personal-info" replace />;
   }
 
   return <>{children}</>;
@@ -34,7 +32,11 @@ const AuthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, isLoading } = useAuth();
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
+
+  if (session && window.location.pathname === '/signup') {
+    return <Navigate to="/diary" replace />;
   }
 
   return <>{children}</>;
