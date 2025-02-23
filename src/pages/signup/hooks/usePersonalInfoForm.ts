@@ -2,8 +2,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { PersonalInfoForm } from "../types/PersonalInfo.types";
+import { convertHeight, convertWeight } from "../utils/unitConversions";
+import { createUserProfile } from "../services/signupService";
 
 export const usePersonalInfoForm = () => {
   const navigate = useNavigate();
@@ -22,26 +23,6 @@ export const usePersonalInfoForm = () => {
     weightUnit: "kg",
     isPremium: false,
   });
-
-  const convertHeight = (value: string, from: "cm" | "ft"): string => {
-    if (!value) return "";
-    const numValue = parseFloat(value);
-    if (from === "cm") {
-      return (numValue / 30.48).toFixed(2); // Convert cm to feet
-    } else {
-      return Math.round(numValue * 30.48).toString(); // Convert feet to cm
-    }
-  };
-
-  const convertWeight = (value: string, from: "kg" | "st"): string => {
-    if (!value) return "";
-    const numValue = parseFloat(value);
-    if (from === "kg") {
-      return (numValue / 6.35029318).toFixed(2); // Convert kg to stone
-    } else {
-      return (numValue * 6.35029318).toFixed(1); // Convert stone to kg
-    }
-  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
@@ -85,78 +66,8 @@ export const usePersonalInfoForm = () => {
     console.log('Starting form submission with data:', formData);
 
     try {
-      // First check if user exists
-      const { data: existingUser } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('email', formData.email)
-        .single();
-
-      if (existingUser) {
-        throw new Error('A user with this email already exists');
-      }
-
-      // Convert units to metric for storage if necessary
-      const heightInCm = formData.heightUnit === "ft" 
-        ? parseFloat(convertHeight(formData.height, "ft"))
-        : parseFloat(formData.height);
+      await createUserProfile(formData);
       
-      const weightInKg = formData.weightUnit === "st"
-        ? parseFloat(convertWeight(formData.weight, "st"))
-        : parseFloat(formData.weight);
-
-      // Create auth user with email and temp password
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: "tempPassword123", // We'll implement password reset flow later
-        options: {
-          data: {
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-          }
-        }
-      });
-
-      if (signUpError) {
-        console.error('Error during signup:', signUpError);
-        throw signUpError;
-      }
-
-      if (!signUpData.user) {
-        throw new Error('No user data returned from signup');
-      }
-
-      // Create profile
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: signUpData.user.id,
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          email: formData.email,
-          nickname: formData.nickname,
-          date_of_birth: formData.dateOfBirth,
-          height: heightInCm,
-          weight: weightInKg,
-          is_premium: formData.isPremium
-        });
-
-      if (profileError) {
-        console.error('Error creating profile:', profileError);
-        throw profileError;
-      }
-
-      // Sign in to establish session
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: formData.email,
-        password: "tempPassword123"
-      });
-
-      if (signInError) {
-        console.error('Error signing in after signup:', signInError);
-        throw signInError;
-      }
-
       toast({
         title: "Success!",
         description: `Your ${formData.isPremium ? 'premium' : 'free'} profile has been created.`,
@@ -190,4 +101,3 @@ export const usePersonalInfoForm = () => {
     convertWeight
   };
 };
-
