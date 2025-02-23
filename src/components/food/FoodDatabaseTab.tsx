@@ -8,6 +8,7 @@ import { FoodList } from "./FoodList";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { BrowserMultiFormatReader } from '@zxing/library';
+import { useMealSection } from "@/components/diary/hooks/useMealSection";
 
 interface FoodDatabaseTabProps {
   foods: Food[];
@@ -16,6 +17,7 @@ interface FoodDatabaseTabProps {
 
 export const FoodDatabaseTab = ({ foods, onSelect }: FoodDatabaseTabProps) => {
   const { toast } = useToast();
+  const { searchFoods } = useMealSection();
   const [searchQuery, setSearchQuery] = useState("");
   const [isScanning, setIsScanning] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -97,6 +99,7 @@ export const FoodDatabaseTab = ({ foods, onSelect }: FoodDatabaseTabProps) => {
           onFilterClick={() => setShowFilters(!showFilters)}
           onBarcodeClick={handleBarcodeScanner}
           isScanning={isScanning}
+          onSearch={searchFoods}
         />
       </div>
 
