@@ -16,7 +16,8 @@ export const CustomFoodForm = ({ onSuccess }: { onSuccess: () => void }) => {
     protein: "",
     carbs: "",
     fat: "",
-    serving_size: "",
+    serving_size_amount: "",
+    serving_size_unit: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -24,6 +25,8 @@ export const CustomFoodForm = ({ onSuccess }: { onSuccess: () => void }) => {
     setLoading(true);
 
     try {
+      const servingSize = `${formData.serving_size_amount}${formData.serving_size_unit}`;
+      
       await addCustomFood({
         name: formData.name,
         brand: formData.brand,
@@ -31,7 +34,7 @@ export const CustomFoodForm = ({ onSuccess }: { onSuccess: () => void }) => {
         protein: parseFloat(formData.protein),
         carbs: parseFloat(formData.carbs),
         fat: parseFloat(formData.fat),
-        serving_size: formData.serving_size,
+        serving_size: servingSize,
       });
 
       toast({
@@ -47,7 +50,8 @@ export const CustomFoodForm = ({ onSuccess }: { onSuccess: () => void }) => {
         protein: "",
         carbs: "",
         fat: "",
-        serving_size: "",
+        serving_size_amount: "",
+        serving_size_unit: "",
       });
     } catch (error) {
       toast({
@@ -106,12 +110,22 @@ export const CustomFoodForm = ({ onSuccess }: { onSuccess: () => void }) => {
           required
         />
       </div>
-      <Input
-        placeholder="Serving size (e.g., 100g)"
-        value={formData.serving_size}
-        onChange={(e) => setFormData({ ...formData, serving_size: e.target.value })}
-        required
-      />
+      <div className="grid grid-cols-2 gap-2">
+        <Input
+          type="number"
+          step="0.1"
+          placeholder="Serving size amount"
+          value={formData.serving_size_amount}
+          onChange={(e) => setFormData({ ...formData, serving_size_amount: e.target.value })}
+          required
+        />
+        <Input
+          placeholder="Unit (e.g., g, slice, piece)"
+          value={formData.serving_size_unit}
+          onChange={(e) => setFormData({ ...formData, serving_size_unit: e.target.value })}
+          required
+        />
+      </div>
       <Button type="submit" disabled={loading}>
         {loading ? "Adding..." : "Add Custom Food"}
       </Button>
