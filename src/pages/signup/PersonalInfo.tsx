@@ -66,6 +66,7 @@ const PersonalInfo = () => {
         email: formData.email,
         password: "tempPassword123", // You should add a password field to your form
         options: {
+          emailRedirectTo: window.location.origin + '/diary',
           data: {
             first_name: formData.firstName,
             last_name: formData.lastName,
@@ -85,51 +86,61 @@ const PersonalInfo = () => {
 
       console.log('User created successfully:', authData.user.id);
 
-      // Wait for the session to be established
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError) {
-        console.error('Error getting session:', sessionError);
-        throw sessionError;
-      }
+      // Set up listener for auth state changes
+      const authListener = supabase.auth.onAuthStateChange(async (event, session) => {
+        console.log('Auth state changed:', event, 'Session:', session?.user?.id);
+        
+        if (event === 'SIGNED_IN' && session) {
+          console.log('User signed in, creating profile...');
+          
+          try {
+            const { error: profileError } = await supabase
+              .from('profiles')
+              .insert({
+                id: session.user.id,
+                first_name: formData.firstName,
+                last_name: formData.lastName,
+                email: formData.email,
+                nickname: formData.nickname,
+                date_of_birth: formData.dateOfBirth,
+                height: parseFloat(formData.height),
+                weight: parseFloat(formData.weight),
+                is_premium: formData.isPremium
+              });
 
-      if (!session) {
-        console.error('No session established after signup');
-        throw new Error("Failed to establish session");
-      }
+            if (profileError) {
+              console.error('Error creating profile:', profileError);
+              throw profileError;
+            }
 
-      console.log('Session established successfully:', session.user.id);
-      console.log('Creating profile for user:', session.user.id);
+            console.log('Profile created successfully');
+            toast({
+              title: "Success!",
+              description: `Your ${formData.isPremium ? 'premium' : 'free'} profile has been created.`,
+            });
 
-      // Then create their profile
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: session.user.id,
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          email: formData.email,
-          nickname: formData.nickname,
-          date_of_birth: formData.dateOfBirth,
-          height: parseFloat(formData.height),
-          weight: parseFloat(formData.weight),
-          is_premium: formData.isPremium
-        });
-
-      if (profileError) {
-        console.error('Error creating profile:', profileError);
-        throw profileError;
-      }
-
-      console.log('Profile created successfully');
-      
-      toast({
-        title: "Success!",
-        description: `Your ${formData.isPremium ? 'premium' : 'free'} profile has been created.`,
+            // Clean up listener and navigate
+            authListener.subscription.unsubscribe();
+            navigate("/diary");
+          } catch (error) {
+            console.error('Error in profile creation:', error);
+            toast({
+              variant: "destructive",
+              title: "Error",
+              description: error instanceof Error ? error.message : "Failed to create profile",
+            });
+          }
+        }
       });
-      
-      console.log('Navigating to diary page with established session');
-      navigate("/diary");
+
+      // Wait for a short time to ensure the listener is set up
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      toast({
+        title: "Account created!",
+        description: "Please wait while we set up your profile...",
+      });
+
     } catch (error) {
       console.error('Detailed error during signup process:', error);
       toast({
