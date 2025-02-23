@@ -9,6 +9,42 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      "Blue one": {
+        Row: {
+          Calcium: string | null
+          Carbohydrates: string | null
+          Fat: string | null
+          "Food Item": string
+          KCAL: number | null
+          Protein: string | null
+          Salt: string | null
+          Saturates: string | null
+          Sugar: string | null
+        }
+        Insert: {
+          Calcium?: string | null
+          Carbohydrates?: string | null
+          Fat?: string | null
+          "Food Item": string
+          KCAL?: number | null
+          Protein?: string | null
+          Salt?: string | null
+          Saturates?: string | null
+          Sugar?: string | null
+        }
+        Update: {
+          Calcium?: string | null
+          Carbohydrates?: string | null
+          Fat?: string | null
+          "Food Item"?: string
+          KCAL?: number | null
+          Protein?: string | null
+          Salt?: string | null
+          Saturates?: string | null
+          Sugar?: string | null
+        }
+        Relationships: []
+      }
       foods: {
         Row: {
           barcode: string | null
@@ -90,42 +126,6 @@ export type Database = {
           last_name?: string
           nickname?: string
           weight?: number
-        }
-        Relationships: []
-      }
-      Tesco: {
-        Row: {
-          Calcium: string | null
-          Carbohydrates: string | null
-          Fat: string | null
-          "Food Item": string
-          KCAL: number | null
-          Protein: string | null
-          Salt: string | null
-          Saturates: string | null
-          Sugar: string | null
-        }
-        Insert: {
-          Calcium?: string | null
-          Carbohydrates?: string | null
-          Fat?: string | null
-          "Food Item": string
-          KCAL?: number | null
-          Protein?: string | null
-          Salt?: string | null
-          Saturates?: string | null
-          Sugar?: string | null
-        }
-        Update: {
-          Calcium?: string | null
-          Carbohydrates?: string | null
-          Fat?: string | null
-          "Food Item"?: string
-          KCAL?: number | null
-          Protein?: string | null
-          Salt?: string | null
-          Saturates?: string | null
-          Sugar?: string | null
         }
         Relationships: []
       }

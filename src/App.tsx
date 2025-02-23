@@ -19,10 +19,10 @@ const TrackingPage = lazy(() => import("./pages/tracking/TrackingPage"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 60 * 1000, // 1 minute
-      gcTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 60 * 1000,
+      gcTime: 5 * 60 * 1000,
       retry: 1,
-      refetchOnWindowFocus: false, // Disable automatic refetching when window gains focus
+      refetchOnWindowFocus: false,
     },
   },
 });
@@ -69,6 +69,7 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
     initializeAuth();
   }, [navigate, location]);
 
+  // Show loading spinner while initializing
   if (!isInitialized || isAuthenticated === null) {
     return <LoadingFallback />;
   }
