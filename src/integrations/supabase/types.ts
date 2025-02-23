@@ -9,6 +9,54 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      nutritional_info: {
+        Row: {
+          calcium: number
+          carbohydrates: number
+          created_at: string
+          fats: number
+          food_item: string
+          id: string
+          kcal: number
+          protein: number
+          provider: Database["public"]["Enums"]["provider_type"]
+          salt: number
+          saturates: number
+          serving_size: string
+          sugar: number
+        }
+        Insert: {
+          calcium: number
+          carbohydrates: number
+          created_at?: string
+          fats: number
+          food_item: string
+          id?: string
+          kcal: number
+          protein: number
+          provider: Database["public"]["Enums"]["provider_type"]
+          salt: number
+          saturates: number
+          serving_size: string
+          sugar: number
+        }
+        Update: {
+          calcium?: number
+          carbohydrates?: number
+          created_at?: string
+          fats?: number
+          food_item?: string
+          id?: string
+          kcal?: number
+          protein?: number
+          provider?: Database["public"]["Enums"]["provider_type"]
+          salt?: number
+          saturates?: number
+          serving_size?: string
+          sugar?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -69,6 +117,15 @@ export type Database = {
         | "Condiments"
         | "Frozen Foods"
         | "All Categories"
+      provider_type:
+        | "Tesco"
+        | "Sainsburys"
+        | "Asda"
+        | "Morrisons"
+        | "Waitrose"
+        | "Coop"
+        | "M&S"
+        | "Ocado"
       supermarket_type:
         | "Tesco"
         | "Sainsburys"
