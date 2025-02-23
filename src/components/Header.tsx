@@ -5,8 +5,9 @@ import { Button } from "./ui/button";
 import { useSupabase } from "@/hooks/useSupabase";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "react-router-dom";
+import { memo } from "react";
 
-const Header = () => {
+const Header = memo(() => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
@@ -25,7 +26,6 @@ const Header = () => {
     }
   };
 
-  // Don't render anything while loading
   if (loading) {
     return null;
   }
@@ -71,6 +71,8 @@ const Header = () => {
       </div>
     </header>
   );
-};
+});
+
+Header.displayName = 'Header';
 
 export default Header;
