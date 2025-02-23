@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { PersonalInfoForm } from "./components/PersonalInfoForm";
 import { PaymentSection } from "./components/PaymentSection";
 import { PremiumDialog } from "./components/PremiumDialog";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PersonalInfoForm {
   firstName: string;
@@ -52,13 +53,59 @@ const PersonalInfo = () => {
     setFormData(prev => ({ ...prev, isPremium: checked }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Success!",
-      description: `Your ${formData.isPremium ? 'premium' : 'free'} profile has been created.`,
-    });
-    navigate("/diary");
+
+    try {
+      // First sign up the user
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: "tempPassword123", // You should add a password field to your form
+        options: {
+          data: {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+          }
+        }
+      });
+
+      if (authError) throw authError;
+
+      if (!authData.user) {
+        throw new Error("No user data returned");
+      }
+
+      // Then create their profile
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: authData.user.id,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          nickname: formData.nickname,
+          date_of_birth: formData.dateOfBirth,
+          height: parseFloat(formData.height),
+          weight: parseFloat(formData.weight),
+          is_premium: formData.isPremium
+        });
+
+      if (profileError) throw profileError;
+
+      toast({
+        title: "Success!",
+        description: `Your ${formData.isPremium ? 'premium' : 'free'} profile has been created.`,
+      });
+      
+      navigate("/diary");
+    } catch (error) {
+      console.error('Error creating profile:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to create profile",
+      });
+    }
   };
 
   return (
