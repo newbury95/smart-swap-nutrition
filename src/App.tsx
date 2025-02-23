@@ -21,6 +21,7 @@ const queryClient = new QueryClient({
       staleTime: 60 * 1000, // 1 minute
       gcTime: 5 * 60 * 1000, // 5 minutes
       retry: 1,
+      refetchOnWindowFocus: false, // Disable automatic refetching when window gains focus
     },
   },
 });
@@ -35,33 +36,46 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
   
   useEffect(() => {
-    const supabase = (window as any).supabase;
-    if (!supabase) return;
+    const initializeAuth = async () => {
+      try {
+        const supabase = (window as any).supabase;
+        if (!supabase) {
+          console.error('Supabase client not initialized');
+          setIsInitialized(true);
+          return;
+        }
 
-    // Check current auth status
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setIsAuthenticated(!!session);
-      if (!session && !location.pathname.includes('/signup')) {
-        navigate('/signup');
+        const { data: { session } } = await supabase.auth.getSession();
+        setIsAuthenticated(!!session);
+        
+        if (!session && !location.pathname.includes('/signup')) {
+          navigate('/signup');
+        }
+
+        const {
+          data: { subscription },
+        } = supabase.auth.onAuthStateChange((_event, session) => {
+          setIsAuthenticated(!!session);
+          if (!session && !location.pathname.includes('/signup')) {
+            navigate('/signup');
+          }
+        });
+
+        setIsInitialized(true);
+        return () => subscription.unsubscribe();
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        setIsInitialized(true);
       }
-    });
+    };
 
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsAuthenticated(!!session);
-      if (!session && !location.pathname.includes('/signup')) {
-        navigate('/signup');
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    initializeAuth();
   }, [navigate, location]);
 
-  if (isAuthenticated === null) {
+  if (!isInitialized || isAuthenticated === null) {
     return <LoadingFallback />;
   }
 

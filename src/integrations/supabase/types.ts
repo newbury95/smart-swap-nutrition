@@ -93,45 +93,6 @@ export type Database = {
         }
         Relationships: []
       }
-      Tesco: {
-        Row: {
-          "Calcium (mg)": string | null
-          "Calories (KCal)": string | null
-          "Carbohydrates (g)": string | null
-          Description: string | null
-          "Fat (g)": string | null
-          Name: string | null
-          "Protein (g)": string | null
-          "Salt (g)": string | null
-          "Saturates (g)": string | null
-          "Sugars (g)": string | null
-        }
-        Insert: {
-          "Calcium (mg)"?: string | null
-          "Calories (KCal)"?: string | null
-          "Carbohydrates (g)"?: string | null
-          Description?: string | null
-          "Fat (g)"?: string | null
-          Name?: string | null
-          "Protein (g)"?: string | null
-          "Salt (g)"?: string | null
-          "Saturates (g)"?: string | null
-          "Sugars (g)"?: string | null
-        }
-        Update: {
-          "Calcium (mg)"?: string | null
-          "Calories (KCal)"?: string | null
-          "Carbohydrates (g)"?: string | null
-          Description?: string | null
-          "Fat (g)"?: string | null
-          Name?: string | null
-          "Protein (g)"?: string | null
-          "Salt (g)"?: string | null
-          "Saturates (g)"?: string | null
-          "Sugars (g)"?: string | null
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
