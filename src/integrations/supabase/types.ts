@@ -11,6 +11,7 @@ export type Database = {
     Tables: {
       nutritional_info: {
         Row: {
+          barcode: string | null
           calcium: number
           calcium_unit: string | null
           carbohydrates: number
@@ -34,6 +35,7 @@ export type Database = {
           sugar_unit: string | null
         }
         Insert: {
+          barcode?: string | null
           calcium: number
           calcium_unit?: string | null
           carbohydrates: number
@@ -57,6 +59,7 @@ export type Database = {
           sugar_unit?: string | null
         }
         Update: {
+          barcode?: string | null
           calcium?: number
           calcium_unit?: string | null
           carbohydrates?: number
