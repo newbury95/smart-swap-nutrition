@@ -13,74 +13,74 @@ export type Database = {
         Row: {
           barcode: string | null
           calcium: number
-          calcium_unit: string | null
+          calcium_unit: string
           carbohydrates: number
-          carbohydrates_unit: string | null
+          carbohydrates_unit: string
           created_at: string
           fats: number
-          fats_unit: string | null
+          fats_unit: string
           food_item: string
           id: string
           kcal: number
-          kcal_unit: string | null
+          kcal_unit: string
           protein: number
-          protein_unit: string | null
+          protein_unit: string
           provider: Database["public"]["Enums"]["provider_type"]
           salt: number
-          salt_unit: string | null
+          salt_unit: string
           saturates: number
-          saturates_unit: string | null
+          saturates_unit: string
           serving_size: string
           sugar: number
-          sugar_unit: string | null
+          sugar_unit: string
         }
         Insert: {
           barcode?: string | null
           calcium: number
-          calcium_unit?: string | null
+          calcium_unit?: string
           carbohydrates: number
-          carbohydrates_unit?: string | null
+          carbohydrates_unit?: string
           created_at?: string
           fats: number
-          fats_unit?: string | null
+          fats_unit?: string
           food_item: string
           id?: string
           kcal: number
-          kcal_unit?: string | null
+          kcal_unit?: string
           protein: number
-          protein_unit?: string | null
+          protein_unit?: string
           provider: Database["public"]["Enums"]["provider_type"]
           salt: number
-          salt_unit?: string | null
+          salt_unit?: string
           saturates: number
-          saturates_unit?: string | null
+          saturates_unit?: string
           serving_size: string
           sugar: number
-          sugar_unit?: string | null
+          sugar_unit?: string
         }
         Update: {
           barcode?: string | null
           calcium?: number
-          calcium_unit?: string | null
+          calcium_unit?: string
           carbohydrates?: number
-          carbohydrates_unit?: string | null
+          carbohydrates_unit?: string
           created_at?: string
           fats?: number
-          fats_unit?: string | null
+          fats_unit?: string
           food_item?: string
           id?: string
           kcal?: number
-          kcal_unit?: string | null
+          kcal_unit?: string
           protein?: number
-          protein_unit?: string | null
+          protein_unit?: string
           provider?: Database["public"]["Enums"]["provider_type"]
           salt?: number
-          salt_unit?: string | null
+          salt_unit?: string
           saturates?: number
-          saturates_unit?: string | null
+          saturates_unit?: string
           serving_size?: string
           sugar?: number
-          sugar_unit?: string | null
+          sugar_unit?: string
         }
         Relationships: []
       }
