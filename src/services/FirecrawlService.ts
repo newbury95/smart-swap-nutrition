@@ -39,7 +39,7 @@ export class FirecrawlService {
       const response = await this.firecrawlApp.crawlUrl(url, {
         limit: 100,
         scrapeOptions: {
-          extract: {
+          selectors: {
             name: '.product-name',
             brand: '.brand-name',
             calories: '.nutrition-calories',
@@ -57,15 +57,15 @@ export class FirecrawlService {
 
       // Transform the FirecrawlDocument array into ScrapedFood array
       const scrapedFoods = response.data.map(doc => {
-        const extracted = doc.extracted as Record<keyof ScrapedFood, string>;
+        const extractedData = doc.extract as Record<keyof ScrapedFood, string>;
         return {
-          name: extracted.name || '',
-          brand: extracted.brand || '',
-          calories: extracted.calories || '',
-          protein: extracted.protein || '',
-          carbs: extracted.carbs || '',
-          fat: extracted.fat || '',
-          servingSize: extracted.servingSize || '',
+          name: extractedData.name || '',
+          brand: extractedData.brand || '',
+          calories: extractedData.calories || '',
+          protein: extractedData.protein || '',
+          carbs: extractedData.carbs || '',
+          fat: extractedData.fat || '',
+          servingSize: extractedData.servingSize || '',
           supermarket: new URL(url).hostname
         };
       });
