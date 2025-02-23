@@ -25,7 +25,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasProfile, setHasProfile] = useState<boolean | null>(null);
   const [checkingProfile, setCheckingProfile] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     let mounted = true;
@@ -65,16 +64,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     async function getInitialSession() {
       try {
         console.log('[AuthProvider] Getting initial session...');
-        const { data: { session: initialSession }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) {
-          console.error('[AuthProvider] Error getting session:', sessionError);
-          if (mounted) {
-            setIsLoading(false);
-            setCheckingProfile(false);
-          }
-          return;
-        }
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
 
         if (mounted) {
           if (initialSession) {

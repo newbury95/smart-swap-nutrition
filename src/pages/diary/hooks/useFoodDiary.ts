@@ -4,18 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/providers/AuthProvider";
-
-type Meal = {
-  id: string;
-  name: string;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  time: string;
-};
-
-type MealType = "breakfast" | "lunch" | "dinner" | "snack";
+import { Meal, MealType } from "../types";
 
 export const useFoodDiary = () => {
   const navigate = useNavigate();
@@ -39,24 +28,21 @@ export const useFoodDiary = () => {
       checkingProfile
     });
 
-    if (isLoading || checkingProfile) {
-      console.log('[FoodDiary] Still loading auth state...');
-      return;
-    }
+    if (!isLoading && !checkingProfile) {
+      if (!session) {
+        console.log('[FoodDiary] No session, redirecting to signup');
+        navigate('/signup');
+        return;
+      }
 
-    if (!session) {
-      console.log('[FoodDiary] No session, redirecting to signup');
-      navigate('/signup');
-      return;
-    }
+      if (hasProfile === false) {
+        console.log('[FoodDiary] No profile found, redirecting to personal info');
+        navigate('/signup/personal-info');
+        return;
+      }
 
-    if (hasProfile === false) {
-      console.log('[FoodDiary] No profile found, redirecting to personal info');
-      navigate('/signup/personal-info');
-      return;
+      setIsLoadingMeals(false);
     }
-
-    setIsLoadingMeals(false);
   }, [session, hasProfile, isLoading, checkingProfile, navigate]);
 
   const getTotalNutrients = (mealList: Meal[]) => {
@@ -120,7 +106,7 @@ export const useFoodDiary = () => {
     meals,
     showSwaps,
     setShowSwaps,
-    isLoading: isLoadingMeals,
+    isLoading: isLoadingMeals || isLoading || checkingProfile,
     handleAddFood,
     handleDeleteFood,
     handleComplete,
