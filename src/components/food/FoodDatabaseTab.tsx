@@ -112,7 +112,10 @@ export const FoodDatabaseTab = ({ foods, onSelect }: FoodDatabaseTabProps) => {
       )}
 
       {isScanning ? (
-        <BarcodeScanner onCancel={() => setIsScanning(false)} />
+        <BarcodeScanner 
+          onCancel={() => setIsScanning(false)} 
+          onFoodFound={onSelect}
+        />
       ) : (
         <FoodList foods={foods} onSelect={onSelect} />
       )}
