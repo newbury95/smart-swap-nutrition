@@ -14,12 +14,14 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, isLoading } = useAuth();
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+    </div>;
   }
 
   if (!session) {
     console.log('No session in protected route, redirecting to signup');
-    return <Navigate to="/signup" />;
+    return <Navigate to="/signup" replace />;
   }
 
   return <>{children}</>;
@@ -29,27 +31,43 @@ const SignUpRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, isLoading } = useAuth();
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+    </div>;
   }
 
-  // If user is already authenticated and tries to access signup pages,
-  // redirect them to the diary
   if (session) {
     console.log('Session found in signup route, redirecting to diary');
-    return <Navigate to="/diary" />;
+    return <Navigate to="/diary" replace />;
   }
 
   return <>{children}</>;
 };
 
 const AppRoutes = () => {
+  const { isLoading } = useAuth();
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+    </div>;
+  }
+
   return (
     <Routes>
       <Route path="/" element={<Index />} />
       
       {/* Signup flow routes */}
-      <Route path="/signup" element={<SignUp />} />
-      <Route path="/signup/personal-info" element={<PersonalInfo />} />
+      <Route path="/signup" element={
+        <SignUpRoute>
+          <SignUp />
+        </SignUpRoute>
+      } />
+      <Route path="/signup/personal-info" element={
+        <SignUpRoute>
+          <PersonalInfo />
+        </SignUpRoute>
+      } />
       
       {/* Protected routes requiring authentication */}
       <Route path="/diary" element={
