@@ -13,6 +13,7 @@ const PersonalInfo = () => {
   const navigate = useNavigate();
   const {
     formData,
+    setFormData,
     isLoading,
     showPremiumDialog,
     setShowPremiumDialog,
