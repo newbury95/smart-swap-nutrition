@@ -25,28 +25,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     let mounted = true;
 
-    async function getInitialSession() {
+    // Helper function to fetch user profile
+    const fetchUserProfile = async (userId: string) => {
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .maybeSingle();
+        
+        if (mounted) {
+          setUserProfile(profile);
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      }
+    };
+
+    // Initial session check
+    const initializeAuth = async () => {
       try {
         const { data: { session: initialSession } } = await supabase.auth.getSession();
         
         if (mounted) {
-          if (initialSession) {
+          if (initialSession?.user) {
             console.log('Initial session found:', initialSession.user.id);
             setSession(initialSession);
-            
-            // Fetch user profile
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', initialSession.user.id)
-              .maybeSingle();
-            
-            if (profile) {
-              console.log('User profile found');
-              setUserProfile(profile);
-            } else {
-              console.log('No user profile found');
-            }
+            await fetchUserProfile(initialSession.user.id);
           } else {
             console.log('No initial session found');
           }
@@ -58,30 +63,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setIsLoading(false);
         }
       }
-    }
+    };
 
-    getInitialSession();
+    initializeAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (mounted) {
-        console.log('Auth state changed. New session:', session?.user?.id ?? 'none');
-        setSession(session);
-        
-        if (session?.user) {
-          // Fetch user profile when auth state changes
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .maybeSingle();
-          
-          setUserProfile(profile);
-        } else {
-          setUserProfile(null);
-        }
-        
-        setIsLoading(false);
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
+      if (!mounted) return;
+
+      console.log('Auth state changed. New session:', newSession?.user?.id ?? 'none');
+      setSession(newSession);
+
+      if (newSession?.user) {
+        await fetchUserProfile(newSession.user.id);
+      } else {
+        setUserProfile(null);
       }
+
+      setIsLoading(false);
     });
 
     return () => {
