@@ -32,6 +32,7 @@ export const usePersonalInfoForm = () => {
   const handlePremiumToggle = (checked: boolean) => {
     if (!checked && !showPremiumDialog) {
       setShowPremiumDialog(true);
+      return;
     }
     setFormData(prev => ({ ...prev, isPremium: checked }));
   };
@@ -42,12 +43,10 @@ export const usePersonalInfoForm = () => {
     console.log('Starting form submission with data:', formData);
 
     try {
-      console.log('Attempting to sign up user with email:', formData.email);
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
-        password: "tempPassword123",
+        password: "tempPassword123", // In a production app, you'd want to have the user set their own password
         options: {
-          emailRedirectTo: window.location.origin + '/diary',
           data: {
             first_name: formData.firstName,
             last_name: formData.lastName,
@@ -67,57 +66,40 @@ export const usePersonalInfoForm = () => {
 
       console.log('User created successfully:', authData.user.id);
 
-      const { data: { subscription } } = await supabase.auth.onAuthStateChange(async (event, session) => {
-        console.log('Auth state changed:', event, 'Session:', session?.user?.id);
-        
-        if (event === 'SIGNED_IN' && session) {
-          console.log('User signed in, creating profile...');
-          
-          try {
-            const { error: profileError } = await supabase
-              .from('profiles')
-              .insert({
-                id: session.user.id,
-                first_name: formData.firstName,
-                last_name: formData.lastName,
-                email: formData.email,
-                nickname: formData.nickname,
-                date_of_birth: formData.dateOfBirth,
-                height: parseFloat(formData.height),
-                weight: parseFloat(formData.weight),
-                is_premium: formData.isPremium
-              });
+      // Create profile immediately after signup
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: authData.user.id,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          nickname: formData.nickname,
+          date_of_birth: formData.dateOfBirth,
+          height: parseFloat(formData.height),
+          weight: parseFloat(formData.weight),
+          is_premium: formData.isPremium
+        });
 
-            if (profileError) {
-              console.error('Error creating profile:', profileError);
-              throw profileError;
-            }
+      if (profileError) {
+        console.error('Error creating profile:', profileError);
+        throw profileError;
+      }
 
-            console.log('Profile created successfully');
-            toast({
-              title: "Success!",
-              description: `Your ${formData.isPremium ? 'premium' : 'free'} profile has been created.`,
-            });
-
-            subscription.unsubscribe();
-            navigate("/diary");
-          } catch (error) {
-            console.error('Error in profile creation:', error);
-            toast({
-              variant: "destructive",
-              title: "Error",
-              description: error instanceof Error ? error.message : "Failed to create profile",
-            });
-          }
-        }
-      });
-
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
+      console.log('Profile created successfully');
       toast({
-        title: "Account created!",
-        description: "Please wait while we set up your profile...",
+        title: "Success!",
+        description: `Your ${formData.isPremium ? 'premium' : 'free'} profile has been created.`,
       });
+
+      // Set session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        console.log('Session established, redirecting to diary');
+        navigate('/diary');
+      } else {
+        console.log('No session after signup, staying on current page');
+      }
 
     } catch (error) {
       console.error('Detailed error during signup process:', error);
@@ -133,6 +115,7 @@ export const usePersonalInfoForm = () => {
 
   return {
     formData,
+    setFormData,
     isLoading,
     showPremiumDialog,
     setShowPremiumDialog,
