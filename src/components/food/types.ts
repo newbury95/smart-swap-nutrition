@@ -1,5 +1,4 @@
-
-export type Supermarket = "Tesco" | "Sainsburys" | "Asda" | "Morrisons" | "Waitrose" | "Coop" | "M&S" | "Ocado" | "All Supermarkets";
+export type Supermarket = "Waitrose" | "Coop" | "M&S" | "All Supermarkets";
 
 export type FoodCategory = 
   | "Dairy & Eggs"
