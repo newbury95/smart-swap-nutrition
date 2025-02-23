@@ -20,14 +20,13 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (!session) {
-    console.log('No session in protected route, redirecting to signup');
     return <Navigate to="/signup" replace />;
   }
 
   return <>{children}</>;
 };
 
-const SignUpRoute = ({ children }: { children: React.ReactNode }) => {
+const SignUpFlow = ({ children }: { children: React.ReactNode }) => {
   const { session, isLoading } = useAuth();
 
   if (isLoading) {
@@ -37,7 +36,6 @@ const SignUpRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (session) {
-    console.log('Session found in signup route, redirecting to diary');
     return <Navigate to="/diary" replace />;
   }
 
@@ -45,31 +43,24 @@ const SignUpRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const AppRoutes = () => {
-  const { isLoading } = useAuth();
-
-  if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
-    </div>;
-  }
-
   return (
     <Routes>
+      {/* Public routes */}
       <Route path="/" element={<Index />} />
       
-      {/* Signup flow routes */}
+      {/* Signup flow */}
       <Route path="/signup" element={
-        <SignUpRoute>
+        <SignUpFlow>
           <SignUp />
-        </SignUpRoute>
+        </SignUpFlow>
       } />
       <Route path="/signup/personal-info" element={
-        <SignUpRoute>
+        <SignUpFlow>
           <PersonalInfo />
-        </SignUpRoute>
+        </SignUpFlow>
       } />
       
-      {/* Protected routes requiring authentication */}
+      {/* Protected routes */}
       <Route path="/diary" element={
         <ProtectedRoute>
           <FoodDiary />
