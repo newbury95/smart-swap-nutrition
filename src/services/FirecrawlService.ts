@@ -1,5 +1,6 @@
 
 import FirecrawlApp, { type FirecrawlDocument } from '@mendable/firecrawl-js';
+import { createClient } from '@supabase/supabase-js';
 import type { Food, FoodCategory, Supermarket } from '@/components/food/types';
 
 interface ScrapedFood {
@@ -48,14 +49,14 @@ export class FirecrawlService {
       const response = await this.firecrawlApp.crawlUrl(url, {
         limit: 100,
         scrapeOptions: {
-          extract: {
-            name: { selector: '.product-name', type: 'text' },
-            brand: { selector: '.brand-name', type: 'text' },
-            calories: { selector: '.nutrition-calories', type: 'text' },
-            protein: { selector: '.nutrition-protein', type: 'text' },
-            carbs: { selector: '.nutrition-carbs', type: 'text' },
-            fat: { selector: '.nutrition-fat', type: 'text' },
-            servingSize: { selector: '.serving-size', type: 'text' }
+          selectors: {
+            name: '.product-name',
+            brand: '.brand-name',
+            calories: '.nutrition-calories',
+            protein: '.nutrition-protein',
+            carbs: '.nutrition-carbs',
+            fat: '.nutrition-fat',
+            servingSize: '.serving-size'
           }
         }
       });
@@ -66,18 +67,37 @@ export class FirecrawlService {
 
       // Transform the FirecrawlDocument array into ScrapedFood array
       const scrapedFoods = response.data.map(doc => {
-        const extracted = (doc as FirecrawlDocument).extract as Record<keyof Omit<ScrapedFood, 'supermarket'>, { value: string }>;
+        const extracted = (doc as FirecrawlDocument).selectors as Record<keyof Omit<ScrapedFood, 'supermarket'>, string>;
         return {
-          name: extracted.name?.value || '',
-          brand: extracted.brand?.value || '',
-          calories: extracted.calories?.value || '',
-          protein: extracted.protein?.value || '',
-          carbs: extracted.carbs?.value || '',
-          fat: extracted.fat?.value || '',
-          servingSize: extracted.servingSize?.value || '',
+          name: extracted.name || '',
+          brand: extracted.brand || '',
+          calories: extracted.calories || '',
+          protein: extracted.protein || '',
+          carbs: extracted.carbs || '',
+          fat: extracted.fat || '',
+          servingSize: extracted.servingSize || '',
           supermarket: new URL(url).hostname.replace('www.', '').split('.')[0]
         };
       });
+
+      // Store the scraped foods in Supabase if available
+      const supabaseUrl = (window as any).ENV?.VITE_SUPABASE_URL;
+      const supabaseKey = (window as any).ENV?.VITE_SUPABASE_ANON_KEY;
+
+      if (supabaseUrl && supabaseKey) {
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        const foods = scrapedFoods.map(food => this.transformToFood(food));
+        
+        const { error } = await supabase
+          .from('foods')
+          .insert(foods);
+
+        if (error) {
+          console.error('Error storing foods in Supabase:', error);
+        } else {
+          console.log(`Successfully stored ${foods.length} foods in Supabase`);
+        }
+      }
 
       console.log(`Scraped ${scrapedFoods.length} foods from ${url}`);
       return scrapedFoods;
@@ -127,4 +147,3 @@ export class FirecrawlService {
     return allFoods;
   }
 }
-
