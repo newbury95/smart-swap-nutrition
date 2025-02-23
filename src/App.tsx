@@ -44,46 +44,44 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
   const [isInitialized, setIsInitialized] = useState(false);
   
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      console.log('Current session:', session); // Debug log
-      console.log('Current path:', location.pathname); // Debug log
-      return session;
-    };
+    let authSubscription: { data: { subscription: { unsubscribe: () => void } } };
 
     const initializeAuth = async () => {
       try {
-        const session = await checkAuth();
-        setIsAuthenticated(!!session);
-        
-        if (session) {
-          console.log('User is authenticated'); // Debug log
+        // Get initial session
+        const { data: { session } } = await supabase.auth.getSession();
+        const isAuthed = !!session;
+        setIsAuthenticated(isAuthed);
+
+        // Set up auth state change listener
+        authSubscription = await supabase.auth.onAuthStateChange((_event, session) => {
+          const isAuthed = !!session;
+          setIsAuthenticated(isAuthed);
+
+          // Handle routing based on auth state
+          if (isAuthed) {
+            if (authRoutes.includes(location.pathname)) {
+              navigate('/diary');
+            }
+          } else {
+            if (protectedRoutes.includes(location.pathname)) {
+              navigate('/signup');
+            }
+          }
+        });
+
+        // Initial routing
+        if (isAuthed) {
           if (authRoutes.includes(location.pathname)) {
             navigate('/diary');
           }
         } else {
-          console.log('User is not authenticated'); // Debug log
           if (protectedRoutes.includes(location.pathname)) {
             navigate('/signup');
           }
         }
 
-        const {
-          data: { subscription },
-        } = supabase.auth.onAuthStateChange(async (_event, session) => {
-          console.log('Auth state changed:', session ? 'authenticated' : 'unauthenticated'); // Debug log
-          const isAuthed = !!session;
-          setIsAuthenticated(isAuthed);
-          
-          if (isAuthed && authRoutes.includes(location.pathname)) {
-            navigate('/diary');
-          } else if (!isAuthed && protectedRoutes.includes(location.pathname)) {
-            navigate('/signup');
-          }
-        });
-
         setIsInitialized(true);
-        return () => subscription.unsubscribe();
       } catch (error) {
         console.error('Auth initialization error:', error);
         setIsInitialized(true);
@@ -91,6 +89,13 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
     };
 
     initializeAuth();
+
+    return () => {
+      // Clean up subscription on unmount
+      if (authSubscription?.data?.subscription) {
+        authSubscription.data.subscription.unsubscribe();
+      }
+    };
   }, [navigate, location.pathname]);
 
   // Show loading state while checking auth
@@ -130,3 +135,4 @@ const App = () => (
 );
 
 export default App;
+
