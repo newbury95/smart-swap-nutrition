@@ -3,6 +3,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, Activity } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 type GoalType = "weight-loss" | "muscle-gain" | "endurance" | "general-fitness";
 
@@ -42,7 +43,23 @@ const goalOptions: GoalOption[] = [
 
 const SignUp = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [selectedGoal, setSelectedGoal] = useState<GoalType | null>(null);
+
+  const handleContinue = () => {
+    if (!selectedGoal) {
+      toast({
+        variant: "destructive",
+        title: "Please select a goal",
+        description: "You need to select a goal before continuing",
+      });
+      return;
+    }
+
+    // Store the selected goal in localStorage
+    localStorage.setItem('selectedGoal', selectedGoal);
+    navigate('/signup/personal-info');
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-soft-green/20 to-white">
@@ -99,7 +116,7 @@ const SignUp = () => {
             {selectedGoal && (
               <button 
                 className="bg-gradient-to-r from-green-600 to-green-400 text-white px-8 py-4 rounded-full font-medium hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl"
-                onClick={() => navigate('/signup/personal-info')}
+                onClick={handleContinue}
               >
                 Continue
               </button>
@@ -112,3 +129,4 @@ const SignUp = () => {
 };
 
 export default SignUp;
+

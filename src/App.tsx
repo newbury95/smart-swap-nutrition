@@ -31,7 +31,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <LoadingSpinner />;
   }
 
-  if (!session) {
+  if (!session && window.location.pathname !== '/signup/personal-info') {
     console.log('ProtectedRoute: No session, redirecting to signup');
     return <Navigate to="/signup" replace />;
   }
@@ -87,11 +87,7 @@ const AppRoutes = () => {
       
       <Route
         path="/signup/personal-info"
-        element={
-          <ProtectedRoute>
-            <PersonalInfo />
-          </ProtectedRoute>
-        }
+        element={<PersonalInfo />}
       />
       
       <Route
@@ -127,3 +123,4 @@ const App = () => (
 );
 
 export default App;
+
