@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { ChevronLeft, Activity } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/providers/AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
 
 type GoalType = "weight-loss" | "muscle-gain" | "endurance" | "general-fitness";
 
@@ -44,9 +46,13 @@ const goalOptions: GoalOption[] = [
 const SignUp = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { signUp } = useAuth();
   const [selectedGoal, setSelectedGoal] = useState<GoalType | null>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (!selectedGoal) {
       toast({
         variant: "destructive",
@@ -56,9 +62,25 @@ const SignUp = () => {
       return;
     }
 
-    // Store the selected goal in localStorage
-    localStorage.setItem('selectedGoal', selectedGoal);
-    navigate('/signup/personal-info');
+    if (!email || !password) {
+      toast({
+        variant: "destructive",
+        title: "Missing credentials",
+        description: "Please enter your email and password",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await signUp(email, password);
+      localStorage.setItem('selectedGoal', selectedGoal);
+      navigate('/signup/personal-info');
+    } catch (error) {
+      console.error('SignUp error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -108,20 +130,39 @@ const SignUp = () => {
             ))}
           </div>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: selectedGoal ? 1 : 0 }}
-            className="mt-12 text-center"
-          >
-            {selectedGoal && (
+          {selectedGoal && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="mt-8 max-w-md mx-auto space-y-4"
+            >
+              <div>
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full p-3 rounded-lg border border-gray-300"
+                />
+              </div>
+              <div>
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full p-3 rounded-lg border border-gray-300"
+                />
+              </div>
               <button 
-                className="bg-gradient-to-r from-green-600 to-green-400 text-white px-8 py-4 rounded-full font-medium hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl"
+                className={`w-full bg-gradient-to-r from-green-600 to-green-400 text-white px-8 py-4 rounded-full font-medium transition-all duration-300 shadow-lg hover:shadow-xl ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'}`}
                 onClick={handleContinue}
+                disabled={isSubmitting}
               >
-                Continue
+                {isSubmitting ? 'Creating account...' : 'Continue'}
               </button>
-            )}
-          </motion.div>
+            </motion.div>
+          )}
         </motion.div>
       </div>
     </div>
@@ -129,4 +170,3 @@ const SignUp = () => {
 };
 
 export default SignUp;
-

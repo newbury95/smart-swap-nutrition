@@ -9,13 +9,15 @@ interface AuthContextType {
   isLoading: boolean;
   hasProfile: boolean | null;
   checkingProfile: boolean;
+  signUp: (email: string, password: string) => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType>({ 
-  session: null, 
+const AuthContext = createContext<AuthContextType>({
+  session: null,
   isLoading: true,
   hasProfile: null,
-  checkingProfile: true
+  checkingProfile: true,
+  signUp: async () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -34,9 +36,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .from('profiles')
         .select('id')
         .eq('id', userId)
-        .maybeSingle();
+        .single();
 
-      if (error) {
+      if (error && error.code !== 'PGRST116') { // PGRST116 is the "not found" error code
         console.error('AuthProvider: Error checking profile:', error);
         toast({
           variant: "destructive",
@@ -56,6 +58,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } finally {
       console.log('AuthProvider: Finished checking profile');
       setCheckingProfile(false);
+    }
+  };
+
+  const signUp = async (email: string, password: string) => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Please check your email to verify your account",
+      });
+
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+      throw error;
     }
   };
 
@@ -128,7 +154,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       session,
       isLoading,
       hasProfile,
-      checkingProfile
+      checkingProfile,
+      signUp
     }}>
       {children}
     </AuthContext.Provider>
