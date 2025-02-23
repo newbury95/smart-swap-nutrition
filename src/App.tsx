@@ -21,13 +21,13 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   // If no session, redirect to signup
   if (!session) {
-    console.log('No session, redirecting to signup');
+    console.log('No session found, redirecting to signup');
     return <Navigate to="/signup" replace />;
   }
 
   // If no profile, redirect to personal info
   if (!userProfile) {
-    console.log('No user profile, redirecting to personal info');
+    console.log('No profile found, redirecting to personal info');
     return <Navigate to="/signup/personal-info" replace />;
   }
 
