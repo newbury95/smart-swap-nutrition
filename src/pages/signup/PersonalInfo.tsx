@@ -87,7 +87,7 @@ const PersonalInfo = () => {
       console.log('User created successfully:', authData.user.id);
 
       // Set up listener for auth state changes
-      const authListener = supabase.auth.onAuthStateChange(async (event, session) => {
+      const { data: { subscription } } = await supabase.auth.onAuthStateChange(async (event, session) => {
         console.log('Auth state changed:', event, 'Session:', session?.user?.id);
         
         if (event === 'SIGNED_IN' && session) {
@@ -120,7 +120,7 @@ const PersonalInfo = () => {
             });
 
             // Clean up listener and navigate
-            authListener.subscription.unsubscribe();
+            subscription.unsubscribe();
             navigate("/diary");
           } catch (error) {
             console.error('Error in profile creation:', error);
@@ -228,3 +228,4 @@ const PersonalInfo = () => {
 };
 
 export default PersonalInfo;
+
