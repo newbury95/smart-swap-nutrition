@@ -1,6 +1,5 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -26,71 +25,68 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [hasProfile, setHasProfile] = useState<boolean | null>(null);
   const [checkingProfile, setCheckingProfile] = useState(true);
 
+  const checkProfile = async (userId: string) => {
+    try {
+      console.log('[AuthProvider] Checking profile for user:', userId);
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle();
+
+      if (error) {
+        console.error('[AuthProvider] Error checking profile:', error);
+        setHasProfile(false);
+        return;
+      }
+
+      console.log('[AuthProvider] Profile check result:', profile);
+      setHasProfile(!!profile);
+    } catch (error) {
+      console.error('[AuthProvider] Exception checking profile:', error);
+      setHasProfile(false);
+    } finally {
+      setCheckingProfile(false);
+    }
+  };
+
   useEffect(() => {
     let mounted = true;
 
-    async function checkProfile(userId: string) {
-      try {
-        console.log('[AuthProvider] Checking profile for user:', userId);
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', userId)
-          .maybeSingle();
-
-        if (error) {
-          console.error('[AuthProvider] Error checking profile:', error);
-          if (mounted) {
-            setHasProfile(false);
-            setCheckingProfile(false);
-          }
-          return;
-        }
-
-        console.log('[AuthProvider] Profile check result:', profile);
-        if (mounted) {
-          setHasProfile(!!profile);
-          setCheckingProfile(false);
-        }
-      } catch (error) {
-        console.error('[AuthProvider] Exception checking profile:', error);
-        if (mounted) {
-          setHasProfile(false);
-          setCheckingProfile(false);
-        }
-      }
-    }
-
-    async function getInitialSession() {
+    const getInitialSession = async () => {
       try {
         console.log('[AuthProvider] Getting initial session...');
         const { data: { session: initialSession } } = await supabase.auth.getSession();
 
         if (mounted) {
+          setSession(initialSession);
           if (initialSession) {
             console.log('[AuthProvider] Initial session found:', initialSession.user.id);
-            setSession(initialSession);
             await checkProfile(initialSession.user.id);
           } else {
             console.log('[AuthProvider] No initial session found');
             setHasProfile(null);
             setCheckingProfile(false);
           }
-          setIsLoading(false);
         }
       } catch (error) {
         console.error('[AuthProvider] Exception getting initial session:', error);
         if (mounted) {
-          setIsLoading(false);
+          setHasProfile(null);
           setCheckingProfile(false);
         }
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
-    }
+    };
 
     getInitialSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, currentSession) => {
       console.log('[AuthProvider] Auth state changed. Event:', _event, 'Session:', currentSession?.user?.id ?? 'none');
+      
       if (mounted) {
         setSession(currentSession);
         if (currentSession) {

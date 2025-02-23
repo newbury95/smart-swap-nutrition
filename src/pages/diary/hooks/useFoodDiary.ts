@@ -28,21 +28,23 @@ export const useFoodDiary = () => {
       checkingProfile
     });
 
-    if (!isLoading && !checkingProfile) {
-      if (!session) {
-        console.log('[FoodDiary] No session, redirecting to signup');
-        navigate('/signup');
-        return;
-      }
-
-      if (hasProfile === false) {
-        console.log('[FoodDiary] No profile found, redirecting to personal info');
-        navigate('/signup/personal-info');
-        return;
-      }
-
-      setIsLoadingMeals(false);
+    if (isLoading || checkingProfile) {
+      return;
     }
+
+    if (!session) {
+      console.log('[FoodDiary] No session, redirecting to signup');
+      navigate('/signup');
+      return;
+    }
+
+    if (hasProfile === false) {
+      console.log('[FoodDiary] No profile found, redirecting to personal info');
+      navigate('/signup/personal-info');
+      return;
+    }
+
+    setIsLoadingMeals(false);
   }, [session, hasProfile, isLoading, checkingProfile, navigate]);
 
   const getTotalNutrients = (mealList: Meal[]) => {
