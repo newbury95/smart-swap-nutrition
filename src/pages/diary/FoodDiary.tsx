@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { FoodSwapSuggestions } from "@/components/diary/FoodSwapSuggestions";
 import { HealthMetrics } from "@/components/diary/HealthMetrics";
 import { Calendar } from "@/components/ui/calendar";
-import { LoadingSpinner } from "./components/LoadingSpinner";
 import { useFoodDiary } from "./hooks/useFoodDiary";
 import { MealType } from "./types";
 
@@ -29,16 +28,11 @@ const FoodDiary = () => {
     meals,
     showSwaps,
     setShowSwaps,
-    isLoading,
     handleAddFood,
     handleDeleteFood,
     handleComplete,
     getAllMealsNutrients
   } = useFoodDiary();
-
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
 
   return (
     <div className="min-h-screen bg-gray-50 pb-32">

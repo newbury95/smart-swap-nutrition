@@ -1,7 +1,5 @@
 
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 type Meal = {
@@ -17,7 +15,6 @@ type Meal = {
 type MealType = "breakfast" | "lunch" | "dinner" | "snack";
 
 export const useFoodDiary = () => {
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [meals, setMeals] = useState<Record<MealType, Meal[]>>({
@@ -27,43 +24,6 @@ export const useFoodDiary = () => {
     snack: []
   });
   const [showSwaps, setShowSwaps] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      console.log('FoodDiary: Checking authentication status');
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
-      if (error) {
-        console.error('FoodDiary: Error checking session:', error);
-        navigate('/signup');
-        return;
-      }
-      
-      if (!session) {
-        console.log('FoodDiary: No session found, redirecting to signup');
-        navigate('/signup');
-        return;
-      }
-      
-      console.log('FoodDiary: Session found, user is authenticated:', session.user.id);
-      setIsLoading(false);
-    };
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('FoodDiary: Auth state changed:', event, 'Session:', session ? 'exists' : 'null');
-      if (!session) {
-        navigate('/signup');
-      }
-    });
-
-    checkAuth();
-
-    return () => {
-      console.log('FoodDiary: Cleaning up auth subscription');
-      subscription.unsubscribe();
-    };
-  }, [navigate]);
 
   const getTotalNutrients = (mealList: Meal[]) => {
     return mealList.reduce((acc, meal) => ({
@@ -126,7 +86,6 @@ export const useFoodDiary = () => {
     meals,
     showSwaps,
     setShowSwaps,
-    isLoading,
     handleAddFood,
     handleDeleteFood,
     handleComplete,
