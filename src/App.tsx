@@ -22,6 +22,27 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/signup" />;
   }
 
+  // Check if user has completed their profile
+  const checkProfile = async () => {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', session.user.id)
+      .single();
+
+    if (!profile) {
+      console.log('No profile found, redirecting to personal info');
+      return <Navigate to="/signup/personal-info" />;
+    }
+    
+    return null;
+  };
+
+  const profileCheck = checkProfile();
+  if (profileCheck) {
+    return profileCheck;
+  }
+
   return <>{children}</>;
 };
 
@@ -30,12 +51,6 @@ const AuthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
 
   if (isLoading) {
     return <div>Loading...</div>;
-  }
-
-  // If there's a session, check if they need to complete signup
-  if (session) {
-    console.log('Session found, checking profile completion');
-    return <>{children}</>;
   }
 
   return <>{children}</>;

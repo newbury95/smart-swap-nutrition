@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
@@ -27,15 +26,13 @@ const PersonalInfo = () => {
     convertWeight
   } = usePersonalInfoForm();
 
-  // Only redirect if user has a profile
   useEffect(() => {
-    const checkProfile = async () => {
-      if (!session?.user) {
-        console.log('No session found, redirecting to signup');
-        navigate('/signup');
-        return;
-      }
+    if (!session?.user) {
+      navigate('/signup');
+      return;
+    }
 
+    const checkProfile = async () => {
       const { data: profile } = await supabase
         .from('profiles')
         .select('*')
@@ -43,14 +40,12 @@ const PersonalInfo = () => {
         .single();
       
       if (profile) {
-        console.log('User already has a profile, redirecting to diary');
         navigate('/diary');
-      } else {
-        console.log('No profile found, allowing signup to continue');
       }
     };
+
     checkProfile();
-  }, [navigate, session]);
+  }, [session, navigate]);
 
   if (!session) {
     return null;
