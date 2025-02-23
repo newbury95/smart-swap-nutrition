@@ -1,5 +1,5 @@
 
-import FirecrawlApp from '@mendable/firecrawl-js';
+import FirecrawlApp, { type CrawlDocument } from '@mendable/firecrawl-js';
 
 interface ScrapedFood {
   name: string;
@@ -38,16 +38,14 @@ export class FirecrawlService {
     try {
       const response = await this.firecrawlApp.crawlUrl(url, {
         limit: 100,
-        scrapeOptions: {
-          extract: {
-            name: '.product-name',
-            brand: '.brand-name',
-            calories: '.nutrition-calories',
-            protein: '.nutrition-protein',
-            carbs: '.nutrition-carbs',
-            fat: '.nutrition-fat',
-            servingSize: '.serving-size'
-          }
+        selectors: {
+          name: '.product-name',
+          brand: '.brand-name',
+          calories: '.nutrition-calories',
+          protein: '.nutrition-protein',
+          carbs: '.nutrition-carbs',
+          fat: '.nutrition-fat',
+          servingSize: '.serving-size'
         }
       });
 
@@ -55,17 +53,17 @@ export class FirecrawlService {
         throw new Error('Failed to scrape website');
       }
 
-      // Transform the FirecrawlDocument array into ScrapedFood array
+      // Transform the CrawlDocument array into ScrapedFood array
       const scrapedFoods = response.data.map(doc => {
-        const extracted = doc.extracted as Record<keyof ScrapedFood, string>;
+        const data = (doc as CrawlDocument).extract as Record<keyof ScrapedFood, string>;
         return {
-          name: extracted.name || '',
-          brand: extracted.brand || '',
-          calories: extracted.calories || '',
-          protein: extracted.protein || '',
-          carbs: extracted.carbs || '',
-          fat: extracted.fat || '',
-          servingSize: extracted.servingSize || '',
+          name: data.name || '',
+          brand: data.brand || '',
+          calories: data.calories || '',
+          protein: data.protein || '',
+          carbs: data.carbs || '',
+          fat: data.fat || '',
+          servingSize: data.servingSize || '',
           supermarket: new URL(url).hostname
         };
       });
