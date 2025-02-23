@@ -1,22 +1,25 @@
 
 import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import { PersonalInfoForm as PersonalInfoFormType } from "../types/PersonalInfo.types";
 
 interface PersonalInfoFormProps {
-  formData: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    nickname: string;
-    dateOfBirth: string;
-    height: string;
-    weight: string;
-    isPremium: boolean;
-  };
+  formData: PersonalInfoFormType;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handlePremiumToggle: (checked: boolean) => void;
+  handleUnitToggle: (type: "height" | "weight") => void;
+  convertHeight: (value: string, from: "cm" | "ft") => string;
+  convertWeight: (value: string, from: "kg" | "st") => string;
 }
 
-export const PersonalInfoForm = ({ formData, handleInputChange, handlePremiumToggle }: PersonalInfoFormProps) => {
+export const PersonalInfoForm = ({ 
+  formData, 
+  handleInputChange, 
+  handlePremiumToggle,
+  handleUnitToggle,
+  convertHeight,
+  convertWeight
+}: PersonalInfoFormProps) => {
   return (
     <>
       <div className="grid md:grid-cols-2 gap-6">
@@ -92,29 +95,61 @@ export const PersonalInfoForm = ({ formData, handleInputChange, handlePremiumTog
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Starting Height (cm)
-          </label>
+          <div className="flex items-center justify-between mb-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Starting Height
+            </label>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">cm</span>
+              <Switch
+                checked={formData.heightUnit === "ft"}
+                onCheckedChange={() => handleUnitToggle("height")}
+              />
+              <span className="text-sm text-gray-600">ft</span>
+            </div>
+          </div>
           <input
             type="number"
             name="height"
             required
             value={formData.height}
-            onChange={handleInputChange}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              e.target.value = convertHeight(newValue, formData.heightUnit);
+              handleInputChange(e);
+            }}
             className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-400 focus:border-transparent"
+            step={formData.heightUnit === "cm" ? "1" : "0.01"}
+            min="0"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Starting Weight (kg)
-          </label>
+          <div className="flex items-center justify-between mb-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Starting Weight
+            </label>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">kg</span>
+              <Switch
+                checked={formData.weightUnit === "st"}
+                onCheckedChange={() => handleUnitToggle("weight")}
+              />
+              <span className="text-sm text-gray-600">st</span>
+            </div>
+          </div>
           <input
             type="number"
             name="weight"
             required
             value={formData.weight}
-            onChange={handleInputChange}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              e.target.value = convertWeight(newValue, formData.weightUnit);
+              handleInputChange(e);
+            }}
             className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-400 focus:border-transparent"
+            step={formData.weightUnit === "kg" ? "0.1" : "0.01"}
+            min="0"
           />
         </div>
       </div>

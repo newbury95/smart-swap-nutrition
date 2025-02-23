@@ -17,9 +17,31 @@ export const usePersonalInfoForm = () => {
     nickname: "",
     dateOfBirth: "",
     height: "",
+    heightUnit: "cm",
     weight: "",
+    weightUnit: "kg",
     isPremium: false,
   });
+
+  const convertHeight = (value: string, from: "cm" | "ft"): string => {
+    if (!value) return "";
+    const numValue = parseFloat(value);
+    if (from === "cm") {
+      return (numValue / 30.48).toFixed(2); // Convert cm to feet
+    } else {
+      return Math.round(numValue * 30.48).toString(); // Convert feet to cm
+    }
+  };
+
+  const convertWeight = (value: string, from: "kg" | "st"): string => {
+    if (!value) return "";
+    const numValue = parseFloat(value);
+    if (from === "kg") {
+      return (numValue / 6.35029318).toFixed(2); // Convert kg to stone
+    } else {
+      return (numValue * 6.35029318).toFixed(1); // Convert stone to kg
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
@@ -29,8 +51,28 @@ export const usePersonalInfoForm = () => {
     }));
   };
 
+  const handleUnitToggle = (type: "height" | "weight") => {
+    if (type === "height") {
+      const newUnit = formData.heightUnit === "cm" ? "ft" : "cm";
+      const newHeight = convertHeight(formData.height, formData.heightUnit);
+      setFormData(prev => ({
+        ...prev,
+        heightUnit: newUnit,
+        height: newHeight
+      }));
+    } else {
+      const newUnit = formData.weightUnit === "kg" ? "st" : "kg";
+      const newWeight = convertWeight(formData.weight, formData.weightUnit);
+      setFormData(prev => ({
+        ...prev,
+        weightUnit: newUnit,
+        weight: newWeight
+      }));
+    }
+  };
+
   const handlePremiumToggle = (checked: boolean) => {
-    if (!checked && !showPremiumDialog) {
+    if (!checked && formData.isPremium) {
       setShowPremiumDialog(true);
       return;
     }
@@ -53,6 +95,15 @@ export const usePersonalInfoForm = () => {
       if (existingUser) {
         throw new Error('A user with this email already exists');
       }
+
+      // Convert units to metric for storage if necessary
+      const heightInCm = formData.heightUnit === "ft" 
+        ? parseFloat(convertHeight(formData.height, "ft"))
+        : parseFloat(formData.height);
+      
+      const weightInKg = formData.weightUnit === "st"
+        ? parseFloat(convertWeight(formData.weight, "st"))
+        : parseFloat(formData.weight);
 
       // Create auth user with email and password
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
@@ -87,8 +138,8 @@ export const usePersonalInfoForm = () => {
           email: formData.email,
           nickname: formData.nickname,
           date_of_birth: formData.dateOfBirth,
-          height: parseFloat(formData.height),
-          weight: parseFloat(formData.weight),
+          height: heightInCm,
+          weight: weightInKg,
           is_premium: formData.isPremium
         });
 
@@ -149,7 +200,9 @@ export const usePersonalInfoForm = () => {
     setShowPremiumDialog,
     handleInputChange,
     handlePremiumToggle,
-    handleSubmit
+    handleUnitToggle,
+    handleSubmit,
+    convertHeight,
+    convertWeight
   };
 };
-
