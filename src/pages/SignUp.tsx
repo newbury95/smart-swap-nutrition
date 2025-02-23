@@ -4,8 +4,6 @@ import { motion } from "framer-motion";
 import { ChevronLeft, Activity } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/providers/AuthProvider";
-import { supabase } from "@/integrations/supabase/client";
 
 type GoalType = "weight-loss" | "muscle-gain" | "endurance" | "general-fitness";
 
@@ -46,13 +44,9 @@ const goalOptions: GoalOption[] = [
 const SignUp = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { signUp } = useAuth();
   const [selectedGoal, setSelectedGoal] = useState<GoalType | null>(null);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleContinue = async () => {
+  const handleContinue = () => {
     if (!selectedGoal) {
       toast({
         variant: "destructive",
@@ -62,25 +56,8 @@ const SignUp = () => {
       return;
     }
 
-    if (!email || !password) {
-      toast({
-        variant: "destructive",
-        title: "Missing credentials",
-        description: "Please enter your email and password",
-      });
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      await signUp(email, password);
-      localStorage.setItem('selectedGoal', selectedGoal);
-      navigate('/signup/personal-info');
-    } catch (error) {
-      console.error('SignUp error:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
+    localStorage.setItem('selectedGoal', selectedGoal);
+    navigate('/signup/personal-info');
   };
 
   return (
@@ -134,32 +111,13 @@ const SignUp = () => {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="mt-8 max-w-md mx-auto space-y-4"
+              className="mt-8 max-w-md mx-auto"
             >
-              <div>
-                <input
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full p-3 rounded-lg border border-gray-300"
-                />
-              </div>
-              <div>
-                <input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full p-3 rounded-lg border border-gray-300"
-                />
-              </div>
               <button 
-                className={`w-full bg-gradient-to-r from-green-600 to-green-400 text-white px-8 py-4 rounded-full font-medium transition-all duration-300 shadow-lg hover:shadow-xl ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'}`}
+                className="w-full bg-gradient-to-r from-green-600 to-green-400 text-white px-8 py-4 rounded-full font-medium transition-all duration-300 shadow-lg hover:shadow-xl hover:opacity-90"
                 onClick={handleContinue}
-                disabled={isSubmitting}
               >
-                {isSubmitting ? 'Creating account...' : 'Continue'}
+                Continue
               </button>
             </motion.div>
           )}
