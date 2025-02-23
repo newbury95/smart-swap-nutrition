@@ -24,7 +24,6 @@ export const useFoodDiary = () => {
     snack: []
   });
   const [showSwaps, setShowSwaps] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   const getTotalNutrients = (mealList: Meal[]) => {
     return mealList.reduce((acc, meal) => ({
@@ -91,6 +90,5 @@ export const useFoodDiary = () => {
     handleDeleteFood,
     handleComplete,
     getAllMealsNutrients,
-    isLoading
   };
 };
