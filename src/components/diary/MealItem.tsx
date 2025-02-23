@@ -1,16 +1,9 @@
 
 import { Trash2 } from "lucide-react";
+import type { Meal } from "./types/meal-section.types";
 
 type MealItemProps = {
-  meal: {
-    id: string;
-    name: string;
-    calories: number;
-    protein: number;
-    carbs: number;
-    fat: number;
-    time: string;
-  };
+  meal: Meal;
   onDelete: (mealId: string) => void;
 };
 
