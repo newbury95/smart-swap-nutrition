@@ -35,7 +35,7 @@ export const usePersonalInfoForm = () => {
   const handleUnitToggle = (type: "height" | "weight") => {
     if (type === "height") {
       const newUnit = formData.heightUnit === "cm" ? "ft" : "cm";
-      const newHeight = convertHeight(formData.height, formData.heightUnit);
+      const newHeight = formData.height ? convertHeight(formData.height, formData.heightUnit) : "0";
       setFormData(prev => ({
         ...prev,
         heightUnit: newUnit,
@@ -43,7 +43,7 @@ export const usePersonalInfoForm = () => {
       }));
     } else {
       const newUnit = formData.weightUnit === "kg" ? "st" : "kg";
-      const newWeight = convertWeight(formData.weight, formData.weightUnit);
+      const newWeight = formData.weight ? convertWeight(formData.weight, formData.weightUnit) : "0";
       setFormData(prev => ({
         ...prev,
         weightUnit: newUnit,
@@ -66,13 +66,24 @@ export const usePersonalInfoForm = () => {
     console.log('Starting form submission with data:', formData);
 
     try {
-      await createUserProfile(formData);
+      // Validate required fields
+      const requiredFields = ['firstName', 'lastName', 'email', 'nickname', 'dateOfBirth', 'height', 'weight'];
+      for (const field of requiredFields) {
+        if (!formData[field as keyof PersonalInfoForm]) {
+          throw new Error(`${field} is required`);
+        }
+      }
+
+      // Create user profile
+      const user = await createUserProfile(formData);
+      console.log('User profile created successfully:', user);
       
       toast({
         title: "Success!",
         description: `Your ${formData.isPremium ? 'premium' : 'free'} profile has been created.`,
       });
 
+      // Navigate to diary page
       navigate('/diary');
 
     } catch (error) {

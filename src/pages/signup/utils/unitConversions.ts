@@ -1,20 +1,26 @@
 
 export const convertHeight = (value: string, from: "cm" | "ft"): string => {
-  if (!value) return "";
+  if (!value || isNaN(parseFloat(value))) return "0";
+  
   const numValue = parseFloat(value);
   if (from === "cm") {
-    return (numValue / 30.48).toFixed(2); // Convert cm to feet
+    // Convert cm to feet
+    return (numValue / 30.48).toFixed(2);
   } else {
-    return Math.round(numValue * 30.48).toString(); // Convert feet to cm
+    // Convert feet to cm
+    return Math.round(numValue * 30.48).toString();
   }
 };
 
 export const convertWeight = (value: string, from: "kg" | "st"): string => {
-  if (!value) return "";
+  if (!value || isNaN(parseFloat(value))) return "0";
+  
   const numValue = parseFloat(value);
   if (from === "kg") {
-    return (numValue / 6.35029318).toFixed(2); // Convert kg to stone
+    // Convert kg to stone
+    return (numValue / 6.35029318).toFixed(2);
   } else {
-    return (numValue * 6.35029318).toFixed(1); // Convert stone to kg
+    // Convert stone to kg
+    return (numValue * 6.35029318).toFixed(1);
   }
 };
