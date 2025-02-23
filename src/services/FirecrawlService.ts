@@ -70,14 +70,14 @@ export class FirecrawlService {
       console.log('Starting scrape with options:', {
         url,
         scrapeOptions: {
-          selectors: {
-            name: '.product-name',
-            brand: '.brand-name',
-            calories: '.nutrition-calories',
-            protein: '.nutrition-protein',
-            carbs: '.nutrition-carbs',
-            fat: '.nutrition-fat',
-            servingSize: '.serving-size'
+          extract: {
+            name: { selector: '.product-name', type: 'text' },
+            brand: { selector: '.brand-name', type: 'text' },
+            calories: { selector: '.nutrition-calories', type: 'text' },
+            protein: { selector: '.nutrition-protein', type: 'text' },
+            carbs: { selector: '.nutrition-carbs', type: 'text' },
+            fat: { selector: '.nutrition-fat', type: 'text' },
+            servingSize: { selector: '.serving-size', type: 'text' }
           }
         }
       });
@@ -86,14 +86,14 @@ export class FirecrawlService {
         this.firecrawlApp!.crawlUrl(url, {
           limit: 100,
           scrapeOptions: {
-            selectors: {
-              name: '.product-name',
-              brand: '.brand-name',
-              calories: '.nutrition-calories',
-              protein: '.nutrition-protein',
-              carbs: '.nutrition-carbs',
-              fat: '.nutrition-fat',
-              servingSize: '.serving-size'
+            extract: {
+              name: { selector: '.product-name', type: 'text' },
+              brand: { selector: '.brand-name', type: 'text' },
+              calories: { selector: '.nutrition-calories', type: 'text' },
+              protein: { selector: '.nutrition-protein', type: 'text' },
+              carbs: { selector: '.nutrition-carbs', type: 'text' },
+              fat: { selector: '.nutrition-fat', type: 'text' },
+              servingSize: { selector: '.serving-size', type: 'text' }
             }
           }
         })
@@ -107,17 +107,17 @@ export class FirecrawlService {
 
       // Transform the FirecrawlDocument array into ScrapedFood array
       const scrapedFoods = response.data.map(doc => {
-        const extracted = (doc as FirecrawlDocument<any, any>).selectors as Record<keyof Omit<ScrapedFood, 'supermarket'>, string>;
+        const extracted = (doc as FirecrawlDocument<any, any>).extract as Record<keyof Omit<ScrapedFood, 'supermarket'>, { value: string }>;
         console.log('Extracted data for document:', extracted);
         
         return {
-          name: extracted.name || '',
-          brand: extracted.brand || '',
-          calories: extracted.calories || '',
-          protein: extracted.protein || '',
-          carbs: extracted.carbs || '',
-          fat: extracted.fat || '',
-          servingSize: extracted.servingSize || '',
+          name: extracted.name?.value || '',
+          brand: extracted.brand?.value || '',
+          calories: extracted.calories?.value || '',
+          protein: extracted.protein?.value || '',
+          carbs: extracted.carbs?.value || '',
+          fat: extracted.fat?.value || '',
+          servingSize: extracted.servingSize?.value || '',
           supermarket: new URL(url).hostname.replace('www.', '').split('.')[0]
         };
       });
