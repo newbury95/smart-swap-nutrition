@@ -1,16 +1,14 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { useSupabase, type Meal } from "@/hooks/useSupabase";
 import { DiaryContent } from "@/components/diary/DiaryContent";
 import { DiarySidebar } from "@/components/diary/DiarySidebar";
 import { AdLayout } from "@/components/diary/AdLayout";
 import { SponsorBanner } from "@/components/diary/SponsorBanner";
 import { FoodSwapSuggestions } from "@/components/diary/FoodSwapSuggestions";
-
-type MealType = "breakfast" | "lunch" | "dinner" | "snack";
+import { useMealManagement } from "@/hooks/useMealManagement";
 
 const mockSwaps = [
   {
@@ -23,108 +21,10 @@ const mockSwaps = [
 const FoodDiary = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { getMeals, addMeal, deleteMeal } = useSupabase();
   const [date, setDate] = useState<Date>(new Date());
-  const [meals, setMeals] = useState<Record<MealType, Meal[]>>({
-    breakfast: [],
-    lunch: [],
-    dinner: [],
-    snack: []
-  });
   const [showSwaps, setShowSwaps] = useState(false);
-
-  useEffect(() => {
-    loadMeals();
-  }, [date]);
-
-  const loadMeals = async () => {
-    try {
-      const fetchedMeals = await getMeals(date);
-      const categorizedMeals = fetchedMeals.reduce((acc, meal) => ({
-        ...acc,
-        [meal.meal_type]: [...(acc[meal.meal_type as MealType] || []), meal]
-      }), { breakfast: [], lunch: [], dinner: [], snack: [] } as Record<MealType, Meal[]>);
-      
-      setMeals(categorizedMeals);
-    } catch (error) {
-      console.error('Error loading meals:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to load meals",
-      });
-    }
-  };
-
-  const getTotalNutrients = (mealList: Meal[]) => {
-    return mealList.reduce((acc, meal) => ({
-      calories: acc.calories + meal.calories,
-      protein: acc.protein + meal.protein,
-      carbs: acc.carbs + meal.carbs,
-      fat: acc.fat + meal.fat
-    }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
-  };
-
-  const getAllMealsNutrients = () => {
-    const allMeals = [...meals.breakfast, ...meals.lunch, ...meals.dinner, ...meals.snack];
-    return getTotalNutrients(allMeals);
-  };
-
-  const handleAddFood = (type: MealType) => async (food: any) => {
-    try {
-      const meal = await addMeal({
-        food_name: food.name,
-        calories: food.calories,
-        protein: food.protein,
-        carbs: food.carbs,
-        fat: food.fat,
-        meal_type: type,
-        serving_size: food.servingSize,
-        date: date.toISOString().split('T')[0],
-      });
-
-      if (meal) {
-        setMeals(prev => ({
-          ...prev,
-          [type]: [...prev[type], meal]
-        }));
-
-        toast({
-          title: "Food added",
-          description: `${food.name} added to ${type}`,
-        });
-      }
-    } catch (error) {
-      console.error('Error adding meal:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to add food",
-      });
-    }
-  };
-
-  const handleDeleteFood = async (type: MealType, mealId: string) => {
-    try {
-      await deleteMeal(mealId);
-      setMeals(prev => ({
-        ...prev,
-        [type]: prev[type].filter(meal => meal.id !== mealId)
-      }));
-
-      toast({
-        title: "Food removed",
-        description: "Item has been removed from your diary",
-      });
-    } catch (error) {
-      console.error('Error deleting meal:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to remove food",
-      });
-    }
-  };
+  
+  const { meals, handleAddFood, handleDeleteFood, getAllMealsNutrients } = useMealManagement(date);
 
   const handleComplete = () => {
     setShowSwaps(true);
@@ -177,3 +77,4 @@ const FoodDiary = () => {
 };
 
 export default FoodDiary;
+
