@@ -10,6 +10,7 @@ export const useMealSection = () => {
   const [isSearching, setIsSearching] = useState(false);
 
   const searchFoods = async (query: string) => {
+    console.log('Searching foods with query:', query);
     if (!query.trim()) {
       setSearchResults([]);
       return;
@@ -33,6 +34,17 @@ export const useMealSection = () => {
         return;
       }
 
+      console.log('Search results:', data);
+
+      if (!data || data.length === 0) {
+        toast({
+          title: "No results",
+          description: "No foods found matching your search.",
+        });
+        setSearchResults([]);
+        return;
+      }
+
       const foods: Food[] = data.map(item => ({
         id: item.id,
         name: item.food_item,
@@ -43,7 +55,8 @@ export const useMealSection = () => {
         servingSize: item.serving_size,
         brand: "",
         supermarket: "All Supermarkets",
-        category: "All Categories"
+        category: "All Categories",
+        barcode: item.barcode || undefined
       }));
 
       setSearchResults(foods);

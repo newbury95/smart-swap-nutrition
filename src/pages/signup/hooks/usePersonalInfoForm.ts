@@ -105,10 +105,10 @@ export const usePersonalInfoForm = () => {
         ? parseFloat(convertWeight(formData.weight, "st"))
         : parseFloat(formData.weight);
 
-      // Create auth user with email and password
+      // Create auth user with email and temp password
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: formData.email,
-        password: "tempPassword123",
+        password: "tempPassword123", // We'll implement password reset flow later
         options: {
           data: {
             first_name: formData.firstName,
@@ -125,8 +125,6 @@ export const usePersonalInfoForm = () => {
       if (!signUpData.user) {
         throw new Error('No user data returned from signup');
       }
-
-      console.log('User created successfully:', signUpData.user.id);
 
       // Create profile
       const { error: profileError } = await supabase
@@ -148,8 +146,8 @@ export const usePersonalInfoForm = () => {
         throw profileError;
       }
 
-      // Explicitly sign in with password after signup
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      // Sign in to establish session
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: "tempPassword123"
       });
@@ -159,25 +157,11 @@ export const usePersonalInfoForm = () => {
         throw signInError;
       }
 
-      if (!signInData.session) {
-        throw new Error('Failed to establish session after sign in');
-      }
-
-      console.log('Session established successfully:', signInData.session.user.id);
-
-      // Verify session is active
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('Session verification failed');
-      }
-
-      console.log('Session verified, navigating to diary');
       toast({
         title: "Success!",
         description: `Your ${formData.isPremium ? 'premium' : 'free'} profile has been created.`,
       });
 
-      // Navigate to diary page
       navigate('/diary');
 
     } catch (error) {
@@ -206,3 +190,4 @@ export const usePersonalInfoForm = () => {
     convertWeight
   };
 };
+
