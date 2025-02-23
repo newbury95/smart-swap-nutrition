@@ -28,6 +28,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const { toast } = useToast();
 
   const checkProfile = async (userId: string) => {
+    console.log('AuthProvider: Checking profile for user:', userId);
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -36,7 +37,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .maybeSingle();
 
       if (error) {
-        console.error('Error checking profile:', error);
+        console.error('AuthProvider: Error checking profile:', error);
         toast({
           variant: "destructive",
           title: "Error",
@@ -46,41 +47,49 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return;
       }
       
-      setHasProfile(!!data);
+      const profileExists = !!data;
+      console.log('AuthProvider: Profile exists?', profileExists);
+      setHasProfile(profileExists);
     } catch (error) {
-      console.error('Error in checkProfile:', error);
+      console.error('AuthProvider: Error in checkProfile:', error);
       setHasProfile(false);
     } finally {
+      console.log('AuthProvider: Finished checking profile');
       setCheckingProfile(false);
     }
   };
 
   useEffect(() => {
+    console.log('AuthProvider: Initializing...');
     let mounted = true;
 
     const initialize = async () => {
       try {
-        // Get initial session
+        console.log('AuthProvider: Getting initial session...');
         const { data: { session: initialSession } } = await supabase.auth.getSession();
         
         if (!mounted) return;
         
+        console.log('AuthProvider: Initial session:', initialSession ? 'exists' : 'null');
         setSession(initialSession);
         
         if (initialSession?.user) {
+          console.log('AuthProvider: Initial session has user, checking profile...');
           await checkProfile(initialSession.user.id);
         } else {
+          console.log('AuthProvider: No initial session user');
           setHasProfile(null);
           setCheckingProfile(false);
         }
       } catch (error) {
-        console.error('Auth initialization error:', error);
+        console.error('AuthProvider: Auth initialization error:', error);
         if (mounted) {
           setHasProfile(null);
           setCheckingProfile(false);
         }
       } finally {
         if (mounted) {
+          console.log('AuthProvider: Finished initialization');
           setIsLoading(false);
         }
       }
@@ -88,17 +97,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     initialize();
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, newSession) => {
+      async (event, newSession) => {
+        console.log('AuthProvider: Auth state changed:', event);
         if (!mounted) return;
 
         setSession(newSession);
         setCheckingProfile(true);
 
         if (newSession?.user) {
+          console.log('AuthProvider: New session has user, checking profile...');
           await checkProfile(newSession.user.id);
         } else {
+          console.log('AuthProvider: No user in new session');
           setHasProfile(null);
           setCheckingProfile(false);
         }
@@ -106,6 +117,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     );
 
     return () => {
+      console.log('AuthProvider: Cleaning up...');
       mounted = false;
       subscription.unsubscribe();
     };

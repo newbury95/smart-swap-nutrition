@@ -21,17 +21,29 @@ export const useFoodDiary = () => {
   const [isLoadingMeals, setIsLoadingMeals] = useState(true);
 
   useEffect(() => {
+    console.log('FoodDiary: Auth state:', { 
+      sessionExists: !!session, 
+      hasProfile, 
+      isLoading, 
+      checkingProfile 
+    });
+
     if (!isLoading && !checkingProfile) {
+      console.log('FoodDiary: Checking navigation conditions');
+      
       if (!session) {
+        console.log('FoodDiary: No session, navigating to signup');
         navigate('/signup');
         return;
       }
 
       if (hasProfile === false) {
+        console.log('FoodDiary: No profile, navigating to personal info');
         navigate('/signup/personal-info');
         return;
       }
 
+      console.log('FoodDiary: Setting loading state to false');
       setIsLoadingMeals(false);
     }
   }, [session, hasProfile, isLoading, checkingProfile, navigate]);

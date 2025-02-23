@@ -18,19 +18,26 @@ const LoadingSpinner = () => (
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, isLoading, hasProfile, checkingProfile } = useAuth();
+  console.log('ProtectedRoute:', { 
+    sessionExists: !!session, 
+    isLoading, 
+    hasProfile, 
+    checkingProfile,
+    currentPath: window.location.pathname 
+  });
   
-  // Show loading spinner while checking auth state or profile
   if (isLoading || checkingProfile) {
+    console.log('ProtectedRoute: Still loading...');
     return <LoadingSpinner />;
   }
 
-  // Redirect to signup if not authenticated
   if (!session) {
+    console.log('ProtectedRoute: No session, redirecting to signup');
     return <Navigate to="/signup" replace />;
   }
 
-  // Redirect to personal-info if no profile (except if already there)
   if (hasProfile === false && window.location.pathname !== '/signup/personal-info') {
+    console.log('ProtectedRoute: No profile, redirecting to personal info');
     return <Navigate to="/signup/personal-info" replace />;
   }
 
@@ -39,65 +46,76 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const AuthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, isLoading, hasProfile } = useAuth();
+  console.log('AuthenticatedRoute:', { 
+    sessionExists: !!session, 
+    isLoading, 
+    hasProfile,
+    currentPath: window.location.pathname 
+  });
 
   if (isLoading) {
+    console.log('AuthenticatedRoute: Still loading...');
     return <LoadingSpinner />;
   }
 
   if (session) {
-    // If they have a profile, send them to diary, otherwise to personal info
     if (hasProfile === false) {
+      console.log('AuthenticatedRoute: Session exists but no profile, redirecting to personal info');
       return <Navigate to="/signup/personal-info" replace />;
     }
+    console.log('AuthenticatedRoute: Session and profile exist, redirecting to diary');
     return <Navigate to="/diary" replace />;
   }
 
   return <>{children}</>;
 };
 
-const AppRoutes = () => (
-  <Routes>
-    <Route path="/" element={<Index />} />
-    
-    <Route
-      path="/signup"
-      element={
-        <AuthenticatedRoute>
-          <SignUp />
-        </AuthenticatedRoute>
-      }
-    />
-    
-    <Route
-      path="/signup/personal-info"
-      element={
-        <ProtectedRoute>
-          <PersonalInfo />
-        </ProtectedRoute>
-      }
-    />
-    
-    <Route
-      path="/diary"
-      element={
-        <ProtectedRoute>
-          <FoodDiary />
-        </ProtectedRoute>
-      }
-    />
-    
-    <Route
-      path="/tracking"
-      element={
-        <ProtectedRoute>
-          <TrackingPage />
-        </ProtectedRoute>
-      }
-    />
-    
-    <Route path="*" element={<NotFound />} />
-  </Routes>
-);
+const AppRoutes = () => {
+  console.log('AppRoutes: Current path:', window.location.pathname);
+  return (
+    <Routes>
+      <Route path="/" element={<Index />} />
+      
+      <Route
+        path="/signup"
+        element={
+          <AuthenticatedRoute>
+            <SignUp />
+          </AuthenticatedRoute>
+        }
+      />
+      
+      <Route
+        path="/signup/personal-info"
+        element={
+          <ProtectedRoute>
+            <PersonalInfo />
+          </ProtectedRoute>
+        }
+      />
+      
+      <Route
+        path="/diary"
+        element={
+          <ProtectedRoute>
+            <FoodDiary />
+          </ProtectedRoute>
+        }
+      />
+      
+      <Route
+        path="/tracking"
+        element={
+          <ProtectedRoute>
+            <TrackingPage />
+          </ProtectedRoute>
+        }
+      />
+      
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+};
 
 const App = () => (
   <Router>
