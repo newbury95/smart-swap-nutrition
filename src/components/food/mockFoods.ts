@@ -1,7 +1,45 @@
-
 import { Food } from "./types";
 
 export const mockFoods: Food[] = [
+  {
+    id: "1",
+    name: "Semi Skimmed Milk",
+    brand: "Tesco",
+    calories: 50,
+    protein: 3.6,
+    carbs: 4.8,
+    fat: 1.8,
+    servingSize: "100ml",
+    barcode: "5000436889195",
+    supermarket: "Tesco",
+    category: "Dairy & Eggs"
+  },
+  {
+    id: "2",
+    name: "Greek Style Natural Yogurt",
+    brand: "Sainsburys",
+    calories: 133,
+    protein: 5.2,
+    carbs: 4.7,
+    fat: 10.2,
+    servingSize: "100g",
+    barcode: "7874236589120",
+    supermarket: "Sainsburys",
+    category: "Dairy & Eggs"
+  },
+  {
+    id: "3",
+    name: "Large Free Range Eggs",
+    brand: "Asda",
+    calories: 72,
+    protein: 6.5,
+    carbs: 0,
+    fat: 5.1,
+    servingSize: "1 egg (58g)",
+    barcode: "5051413584726",
+    supermarket: "Asda",
+    category: "Dairy & Eggs"
+  },
   {
     id: "4",
     name: "Organic Bananas",
@@ -26,6 +64,42 @@ export const mockFoods: Food[] = [
     servingSize: "1 apple (100g)",
     supermarket: "M&S",
     category: "Fruits & Vegetables"
+  },
+  {
+    id: "6",
+    name: "Chicken Breast Fillets",
+    brand: "Tesco",
+    calories: 165,
+    protein: 31,
+    carbs: 0,
+    fat: 3.6,
+    servingSize: "100g",
+    supermarket: "Tesco",
+    category: "Meat & Fish"
+  },
+  {
+    id: "7",
+    name: "Scottish Salmon Fillet",
+    brand: "Sainsburys",
+    calories: 208,
+    protein: 20.4,
+    carbs: 0,
+    fat: 13.8,
+    servingSize: "100g",
+    supermarket: "Sainsburys",
+    category: "Meat & Fish"
+  },
+  {
+    id: "8",
+    name: "Wholemeal Bread",
+    brand: "Hovis",
+    calories: 93,
+    protein: 4.1,
+    carbs: 15.6,
+    fat: 1.2,
+    servingSize: "1 slice (40g)",
+    supermarket: "Tesco",
+    category: "Bread & Bakery"
   },
   {
     id: "9",
@@ -76,6 +150,18 @@ export const mockFoods: Food[] = [
     category: "Snacks"
   },
   {
+    id: "13",
+    name: "Chicken Tikka Masala & Rice",
+    brand: "Sainsburys",
+    calories: 440,
+    protein: 23,
+    carbs: 55,
+    fat: 14,
+    servingSize: "400g",
+    supermarket: "Sainsburys",
+    category: "Ready Meals"
+  },
+  {
     id: "14",
     name: "Porridge Oats",
     brand: "Quaker",
@@ -86,6 +172,18 @@ export const mockFoods: Food[] = [
     servingSize: "100g",
     supermarket: "All Supermarkets",
     category: "Cereals"
+  },
+  {
+    id: "15",
+    name: "Wholewheat Spaghetti",
+    brand: "Tesco",
+    calories: 348,
+    protein: 12,
+    carbs: 68,
+    fat: 2.2,
+    servingSize: "100g dry",
+    supermarket: "Tesco",
+    category: "Pasta & Rice"
   },
   {
     id: "16",
@@ -124,6 +222,18 @@ export const mockFoods: Food[] = [
     category: "Frozen Foods"
   },
   {
+    id: "19",
+    name: "Beef Mince 5% Fat",
+    brand: "Tesco",
+    calories: 143,
+    protein: 22.4,
+    carbs: 0,
+    fat: 5.4,
+    servingSize: "100g",
+    supermarket: "Tesco",
+    category: "Meat & Fish"
+  },
+  {
     id: "20",
     name: "Cheddar Cheese",
     brand: "Cathedral City",
@@ -148,6 +258,18 @@ export const mockFoods: Food[] = [
     category: "Snacks"
   },
   {
+    id: "22",
+    name: "Broccoli",
+    brand: "Tesco",
+    calories: 34,
+    protein: 2.8,
+    carbs: 4.1,
+    fat: 0.4,
+    servingSize: "100g",
+    supermarket: "Tesco",
+    category: "Fruits & Vegetables"
+  },
+  {
     id: "23",
     name: "Baked Beans",
     brand: "Heinz",
@@ -170,6 +292,18 @@ export const mockFoods: Food[] = [
     servingSize: "100g",
     supermarket: "All Supermarkets",
     category: "Frozen Foods"
+  },
+  {
+    id: "25",
+    name: "Croissant",
+    brand: "Tesco",
+    calories: 406,
+    protein: 7.8,
+    carbs: 42.4,
+    fat: 22.4,
+    servingSize: "1 croissant (70g)",
+    supermarket: "Tesco",
+    category: "Bread & Bakery"
   },
   {
     id: "26",
@@ -218,6 +352,53 @@ export const mockFoods: Food[] = [
     servingSize: "100g",
     supermarket: "All Supermarkets",
     category: "Dairy & Eggs"
+  },
+  {
+    id: "30",
+    name: "Sweet Potato",
+    brand: "Tesco",
+    calories: 86,
+    protein: 1.6,
+    carbs: 20.1,
+    fat: 0.1,
+    servingSize: "100g",
+    supermarket: "Tesco",
+    category: "Fruits & Vegetables"
+  },
+  {
+    id: "31",
+    name: "Quinoa",
+    brand: "Merchant Gourmet",
+    calories: 120,
+    protein: 4.4,
+    carbs: 21.3,
+    fat: 1.9,
+    servingSize: "100g cooked",
+    supermarket: "All Supermarkets",
+    category: "Pasta & Rice"
+  },
+  {
+    id: "32",
+    name: "Protein Bar",
+    brand: "Quest",
+    calories: 190,
+    protein: 20,
+    carbs: 21,
+    fat: 8,
+    servingSize: "60g bar",
+    supermarket: "All Supermarkets",
+    category: "Snacks"
+  },
+  {
+    id: "33",
+    name: "Turkey Breast",
+    brand: "Sainsburys",
+    calories: 104,
+    protein: 24,
+    carbs: 0,
+    fat: 1,
+    servingSize: "100g",
+    supermarket: "Sainsburys",
+    category: "Meat & Fish"
   }
 ];
-

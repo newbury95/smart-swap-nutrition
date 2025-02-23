@@ -9,7 +9,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-soft-green/20 to-white">
       {/* Hero Section */}
-      <section className="container mx-auto px-4 pt-12 pb-8">
+      <section className="container mx-auto px-4 pt-12 pb-16">
         <motion.div 
           className="text-center max-w-4xl mx-auto"
           initial={{ opacity: 0, y: 20 }}
@@ -19,7 +19,7 @@ const Index = () => {
           <h1 className="text-5xl md:text-6xl font-bold mb-6 tracking-tight text-green-800">
             Transform Your Diet,<br />Achieve Your Goals
           </h1>
-          <p className="text-lg text-gray-600 mb-4 leading-relaxed">
+          <p className="text-lg text-gray-600 mb-8 leading-relaxed">
             Get personalized meal suggestions and healthy food swaps tailored to your
             specific health, diet, or fitness goals.
           </p>
@@ -111,4 +111,3 @@ const premiumPlanFeatures = [
 ];
 
 export default Index;
-
