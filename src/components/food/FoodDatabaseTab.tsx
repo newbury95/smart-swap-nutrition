@@ -5,7 +5,6 @@ import { FoodSearchBar } from "./FoodSearchBar";
 import { FoodFilters } from "./FoodFilters";
 import { BarcodeScanner } from "./BarcodeScanner";
 import { FoodList } from "./FoodList";
-import { FoodScraper } from "./FoodScraper";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { BrowserMultiFormatReader } from '@zxing/library';
@@ -20,7 +19,6 @@ export const FoodDatabaseTab = ({ foods, onSelect }: FoodDatabaseTabProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isScanning, setIsScanning] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [showScraper, setShowScraper] = useState(false);
   const [selectedSupermarket, setSelectedSupermarket] = useState<"all" | Food["supermarket"]>("all");
   const [selectedCategory, setSelectedCategory] = useState<Food["category"]>("All Categories");
   const [nutritionFilters, setNutritionFilters] = useState({
@@ -100,15 +98,7 @@ export const FoodDatabaseTab = ({ foods, onSelect }: FoodDatabaseTabProps) => {
           onBarcodeClick={handleBarcodeScanner}
           isScanning={isScanning}
         />
-        <Button 
-          variant="outline"
-          onClick={() => setShowScraper(!showScraper)}
-        >
-          Import Foods
-        </Button>
       </div>
-
-      {showScraper && <FoodScraper />}
 
       {showFilters && (
         <FoodFilters
