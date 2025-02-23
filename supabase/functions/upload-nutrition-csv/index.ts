@@ -7,16 +7,29 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const parseNumericField = (value: string): number => {
-  // Remove any whitespace and convert commas to dots
-  const cleanValue = value.trim().replace(',', '.');
-  const number = parseFloat(cleanValue);
+// Helper function to parse numeric values with units
+const parseNumericWithUnit = (value: string): { value: number; unit: string } => {
+  // Remove any whitespace
+  const cleanValue = value.trim();
   
-  if (isNaN(number)) {
-    throw new Error(`Invalid numeric value: ${value}`);
+  // Extract the numeric part and unit using regex
+  const match = cleanValue.match(/^([\d.,]+)\s*([a-zA-Z%]+)?$/);
+  
+  if (!match) {
+    throw new Error(`Invalid value format: ${value}. Expected format: number followed by optional unit`);
   }
   
-  return number;
+  // First capture group is the number, second is the unit (if any)
+  const numericPart = match[1].replace(',', '.');
+  const unit = match[2] || '';
+  
+  const parsedValue = parseFloat(numericPart);
+  
+  if (isNaN(parsedValue)) {
+    throw new Error(`Invalid numeric value: ${numericPart}`);
+  }
+  
+  return { value: parsedValue, unit };
 };
 
 serve(async (req) => {
@@ -86,7 +99,16 @@ serve(async (req) => {
 
     const data = []
     const errors = []
-    const numericColumns = ['kcal', 'protein', 'fats', 'saturates', 'carbohydrates', 'sugar', 'salt', 'calcium']
+    const numericColumns = [
+      'kcal',
+      'protein',
+      'fats',
+      'saturates',
+      'carbohydrates',
+      'sugar',
+      'salt',
+      'calcium'
+    ]
     const validProviders = ['Tesco', 'Sainsburys', 'Asda', 'Morrisons', 'Waitrose', 'Coop', 'M&S', 'Ocado']
     
     for (let i = 1; i < lines.length; i++) {
@@ -107,23 +129,35 @@ serve(async (req) => {
           
           if (numericColumns.includes(header)) {
             try {
-              row[header] = parseNumericField(value)
+              const { value: numericValue, unit } = parseNumericWithUnit(value);
+              console.log(`Parsed ${header}: value = ${numericValue}, unit = ${unit}`);
+              row[header] = numericValue;
+              // Store unit in a separate column if needed
+              row[`${header}_unit`] = unit;
             } catch (error) {
-              throw new Error(`Row ${i}, column ${header}: ${error.message}`)
+              throw new Error(`Row ${i}, column ${header}: ${error.message}`);
+            }
+          } else if (header === 'serving_size') {
+            try {
+              const { value: amount, unit } = parseNumericWithUnit(value);
+              row['serving_size'] = `${amount}${unit}`;
+            } catch (error) {
+              throw new Error(`Row ${i}, serving_size: ${error.message}`);
             }
           } else if (header === 'provider') {
             if (!validProviders.includes(value)) {
-              throw new Error(`Row ${i}: Invalid provider "${value}". Must be one of: ${validProviders.join(', ')}`)
+              throw new Error(`Row ${i}: Invalid provider "${value}". Must be one of: ${validProviders.join(', ')}`);
             }
-            row[header] = value
+            row[header] = value;
           } else {
-            row[header] = value
+            row[header] = value;
           }
         })
 
-        data.push(row)
+        data.push(row);
+        console.log(`Processed row ${i}:`, row);
       } catch (error) {
-        errors.push(error.message)
+        errors.push(error.message);
       }
     }
 
@@ -134,7 +168,7 @@ serve(async (req) => {
           errors,
           validFormat: `The CSV should have these exact headers: ${requiredColumns.join(', ')}\n` +
                       `Provider must be one of: ${validProviders.join(', ')}\n` +
-                      'All numeric columns must contain valid numbers (using either dots or commas as decimal separators)'
+                      'All numeric values should be in format: number followed by optional unit (e.g., 100g, 5mg, 12)'
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       )
@@ -168,3 +202,4 @@ serve(async (req) => {
     )
   }
 })
+
