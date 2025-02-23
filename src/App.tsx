@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import Header from "./components/Header";
+import { supabase } from "@/integrations/supabase/client";
 
 // Lazy load route components
 const Index = lazy(() => import("./pages/Index"));
@@ -41,13 +42,6 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        const supabase = (window as any).supabase;
-        if (!supabase) {
-          console.error('Supabase client not initialized');
-          setIsInitialized(true);
-          return;
-        }
-
         const { data: { session } } = await supabase.auth.getSession();
         setIsAuthenticated(!!session);
         

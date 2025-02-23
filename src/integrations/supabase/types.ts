@@ -93,6 +93,42 @@ export type Database = {
         }
         Relationships: []
       }
+      Tesco: {
+        Row: {
+          Calcium: string | null
+          Carbohydrates: string | null
+          Fat: string | null
+          "Food Item": string
+          KCAL: number | null
+          Protein: string | null
+          Salt: string | null
+          Saturates: string | null
+          Sugar: string | null
+        }
+        Insert: {
+          Calcium?: string | null
+          Carbohydrates?: string | null
+          Fat?: string | null
+          "Food Item": string
+          KCAL?: number | null
+          Protein?: string | null
+          Salt?: string | null
+          Saturates?: string | null
+          Sugar?: string | null
+        }
+        Update: {
+          Calcium?: string | null
+          Carbohydrates?: string | null
+          Fat?: string | null
+          "Food Item"?: string
+          KCAL?: number | null
+          Protein?: string | null
+          Salt?: string | null
+          Saturates?: string | null
+          Sugar?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
