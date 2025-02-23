@@ -39,3 +39,4 @@ export type NutritionFilters = {
   minFat: string;
   maxFat: string;
 };
+

@@ -166,6 +166,10 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
     onFoodSelect(food);
   };
 
+  const handleSupermarketChange = (value: Supermarket) => {
+    setSelectedSupermarket(value);
+  };
+
   return (
     <>
       <Sheet>
@@ -218,7 +222,7 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
                 {showFilters && (
                   <FoodFilters
                     selectedSupermarket={selectedSupermarket}
-                    setSelectedSupermarket={setSelectedSupermarket}
+                    setSelectedSupermarket={handleSupermarketChange}
                     selectedCategory={selectedCategory}
                     setSelectedCategory={setSelectedCategory}
                     nutritionFilters={nutritionFilters}
