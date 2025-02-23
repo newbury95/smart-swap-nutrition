@@ -39,7 +39,7 @@ export class FirecrawlService {
       const response = await this.firecrawlApp.crawlUrl(url, {
         limit: 100,
         scrapeOptions: {
-          selectors: {
+          extract: {
             name: '.product-name',
             brand: '.brand-name',
             calories: '.nutrition-calories',
@@ -55,7 +55,22 @@ export class FirecrawlService {
         throw new Error('Failed to scrape website');
       }
 
-      return response.data as ScrapedFood[];
+      // Transform the FirecrawlDocument array into ScrapedFood array
+      const scrapedFoods = response.data.map(doc => {
+        const extracted = doc.extracted as Record<keyof ScrapedFood, string>;
+        return {
+          name: extracted.name || '',
+          brand: extracted.brand || '',
+          calories: extracted.calories || '',
+          protein: extracted.protein || '',
+          carbs: extracted.carbs || '',
+          fat: extracted.fat || '',
+          servingSize: extracted.servingSize || '',
+          supermarket: new URL(url).hostname
+        };
+      });
+
+      return scrapedFoods;
     } catch (error) {
       console.error('Error during scraping:', error);
       throw error;

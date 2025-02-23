@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Food } from "./types";
 import { FoodSearchBar } from "./FoodSearchBar";
@@ -6,6 +7,7 @@ import { BarcodeScanner } from "./BarcodeScanner";
 import { FoodList } from "./FoodList";
 import { FoodScraper } from "./FoodScraper";
 import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
 import { BrowserMultiFormatReader } from '@zxing/library';
 
 interface FoodDatabaseTabProps {
@@ -19,8 +21,8 @@ export const FoodDatabaseTab = ({ foods, onSelect }: FoodDatabaseTabProps) => {
   const [isScanning, setIsScanning] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [showScraper, setShowScraper] = useState(false);
-  const [selectedSupermarket, setSelectedSupermarket] = useState<string>("all");
-  const [selectedCategory, setSelectedCategory] = useState<string>("All Categories");
+  const [selectedSupermarket, setSelectedSupermarket] = useState<"all" | Food["supermarket"]>("all");
+  const [selectedCategory, setSelectedCategory] = useState<Food["category"]>("All Categories");
   const [nutritionFilters, setNutritionFilters] = useState({
     minCalories: "",
     maxCalories: "",
