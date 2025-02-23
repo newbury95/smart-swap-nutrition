@@ -20,7 +20,7 @@ type MealType = "breakfast" | "lunch" | "dinner" | "snack";
 export const useFoodDiary = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { session, hasProfile } = useAuth();
+  const { session, hasProfile, isLoading, checkingProfile } = useAuth();
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [meals, setMeals] = useState<Record<MealType, Meal[]>>({
     breakfast: [],
@@ -29,23 +29,35 @@ export const useFoodDiary = () => {
     snack: []
   });
   const [showSwaps, setShowSwaps] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMeals, setIsLoadingMeals] = useState(true);
 
   useEffect(() => {
+    console.log('[FoodDiary] Auth state:', {
+      hasSession: !!session,
+      hasProfile,
+      isLoading,
+      checkingProfile
+    });
+
+    if (isLoading || checkingProfile) {
+      console.log('[FoodDiary] Still loading auth state...');
+      return;
+    }
+
     if (!session) {
-      console.log('No session in food diary, redirecting to signup');
+      console.log('[FoodDiary] No session, redirecting to signup');
       navigate('/signup');
       return;
     }
 
     if (hasProfile === false) {
-      console.log('No profile found in food diary, redirecting to personal info');
+      console.log('[FoodDiary] No profile found, redirecting to personal info');
       navigate('/signup/personal-info');
       return;
     }
 
-    setIsLoading(false);
-  }, [session, hasProfile, navigate]);
+    setIsLoadingMeals(false);
+  }, [session, hasProfile, isLoading, checkingProfile, navigate]);
 
   const getTotalNutrients = (mealList: Meal[]) => {
     return mealList.reduce((acc, meal) => ({
@@ -62,7 +74,7 @@ export const useFoodDiary = () => {
   };
 
   const handleAddFood = (type: MealType) => (food: any) => {
-    console.log('Adding food to', type, ':', food);
+    console.log('[FoodDiary] Adding food to', type, ':', food);
     const newMeal: Meal = {
       ...food,
       id: Math.random().toString(36).substr(2, 9),
@@ -81,7 +93,7 @@ export const useFoodDiary = () => {
   };
 
   const handleDeleteFood = (type: MealType, mealId: string) => {
-    console.log('Deleting food from', type, 'with id:', mealId);
+    console.log('[FoodDiary] Deleting food from', type, 'with id:', mealId);
     setMeals(prev => ({
       ...prev,
       [type]: prev[type].filter(meal => meal.id !== mealId)
@@ -94,7 +106,7 @@ export const useFoodDiary = () => {
   };
 
   const handleComplete = () => {
-    console.log('Completing daily food diary');
+    console.log('[FoodDiary] Completing daily food diary');
     setShowSwaps(true);
     toast({
       title: "Daily food diary completed",
@@ -108,7 +120,7 @@ export const useFoodDiary = () => {
     meals,
     showSwaps,
     setShowSwaps,
-    isLoading,
+    isLoading: isLoadingMeals,
     handleAddFood,
     handleDeleteFood,
     handleComplete,
