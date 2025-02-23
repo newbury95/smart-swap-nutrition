@@ -1,12 +1,11 @@
 
-import { Search, Barcode, Filter } from "lucide-react";
+import { Search, Barcode } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 interface FoodSearchBarProps {
   searchQuery: string;
   onSearchChange: (value: string) => void;
-  onFilterClick: () => void;
   onBarcodeClick: () => void;
   isScanning: boolean;
 }
@@ -14,7 +13,6 @@ interface FoodSearchBarProps {
 export const FoodSearchBar = ({
   searchQuery,
   onSearchChange,
-  onFilterClick,
   onBarcodeClick,
   isScanning
 }: FoodSearchBarProps) => {
@@ -28,13 +26,6 @@ export const FoodSearchBar = ({
           className="w-full"
         />
       </div>
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={onFilterClick}
-      >
-        <Filter className="h-4 w-4" />
-      </Button>
       <Button
         variant="outline"
         size="icon"

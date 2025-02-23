@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
@@ -12,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { FoodSwapSuggestions } from "@/components/diary/FoodSwapSuggestions";
 import { HealthMetrics } from "@/components/diary/HealthMetrics";
 import { Calendar } from "@/components/ui/calendar";
+import { CriteoAd } from "@/components/diary/CriteoAd";
 
 type MealType = "breakfast" | "lunch" | "dinner" | "snack";
 
@@ -151,8 +151,12 @@ const FoodDiary = () => {
         </div>
       </header>
 
+      <div className="container mx-auto px-4 my-4">
+        <CriteoAd width={728} height={90} zoneId="YOUR_TOP_ZONE_ID" className="mx-auto" />
+      </div>
+
       <main className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-[300px,1fr] gap-8">
+        <div className="grid lg:grid-cols-[300px,1fr,160px] gap-8">
           <div className="space-y-6">
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <Calendar
@@ -192,16 +196,21 @@ const FoodDiary = () => {
             <HealthMetrics />
             
             <div className="text-center mt-4">
-              <Button 
-                onClick={handleComplete}
-                className="w-auto"
-              >
+              <Button onClick={handleComplete} className="w-auto">
                 Complete Day
               </Button>
             </div>
           </div>
+
+          <div className="hidden lg:block">
+            <CriteoAd width={160} height={600} zoneId="YOUR_SIDE_ZONE_ID" className="sticky top-4" />
+          </div>
         </div>
       </main>
+
+      <div className="container mx-auto px-4 mt-8">
+        <CriteoAd width={728} height={90} zoneId="YOUR_BOTTOM_ZONE_ID" className="mx-auto" />
+      </div>
 
       <SponsorBanner />
       
@@ -216,4 +225,3 @@ const FoodDiary = () => {
 };
 
 export default FoodDiary;
-
