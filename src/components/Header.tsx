@@ -10,7 +10,7 @@ const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const { isPremium } = useSupabase();
+  const { isPremium, loading } = useSupabase();
   const isOnDashboard = location.pathname === "/";
 
   const handleLogout = async () => {
@@ -24,6 +24,11 @@ const Header = () => {
       navigate("/");
     }
   };
+
+  // Don't render anything while loading
+  if (loading) {
+    return null;
+  }
 
   return (
     <header className="border-b bg-white">
@@ -41,14 +46,16 @@ const Header = () => {
                 Dashboard
               </Button>
               
-              <Button
-                variant="outline"
-                className="flex items-center gap-2"
-                onClick={() => navigate("/tracking")}
-              >
-                Tracker
-                <Crown className="h-4 w-4 text-yellow-500" />
-              </Button>
+              {isPremium && (
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2"
+                  onClick={() => navigate("/tracking")}
+                >
+                  Tracker
+                  <Crown className="h-4 w-4 text-yellow-500" />
+                </Button>
+              )}
             </div>
           )}
         </div>
