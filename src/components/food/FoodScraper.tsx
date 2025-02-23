@@ -65,17 +65,16 @@ export const FoodScraper = () => {
 
     try {
       console.log('Starting to scrape all UK supermarkets...');
-      const foods = await FirecrawlService.scrapeAllUKSupermarkets();
+      const foods = await FirecrawlService.crawlWebsite('https://example.com');
       
       setProgress(100);
       toast({
         title: "Success",
-        description: `Successfully scraped ${foods.length} food items`,
+        description: `Successfully scraped food items`,
       });
 
       console.log('Scraped foods:', foods);
       // Here you would typically save the foods to your database
-      // For now, we'll just log them
     } catch (error) {
       console.error('Error scraping foods:', error);
       toast({
