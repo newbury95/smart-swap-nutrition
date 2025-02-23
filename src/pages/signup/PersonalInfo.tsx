@@ -8,9 +8,11 @@ import { PaymentSection } from "./components/PaymentSection";
 import { PremiumDialog } from "./components/PremiumDialog";
 import { usePersonalInfoForm } from "./hooks/usePersonalInfoForm";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/providers/AuthProvider";
 
 const PersonalInfo = () => {
   const navigate = useNavigate();
+  const { session } = useAuth();
   const {
     formData,
     setFormData,
@@ -25,17 +27,26 @@ const PersonalInfo = () => {
     convertWeight
   } = usePersonalInfoForm();
 
-  // Verify session on component mount
+  // Only redirect if user has a profile
   useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        console.log('User already has a session, redirecting to diary');
-        navigate('/diary');
+    const checkProfile = async () => {
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+        
+        if (profile) {
+          console.log('User already has a profile, redirecting to diary');
+          navigate('/diary');
+        } else {
+          console.log('No profile found, allowing signup to continue');
+        }
       }
     };
-    checkSession();
-  }, [navigate]);
+    checkProfile();
+  }, [navigate, session]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-soft-green/20 to-white">
