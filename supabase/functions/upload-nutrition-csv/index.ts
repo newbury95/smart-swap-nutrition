@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 
@@ -8,18 +9,22 @@ const corsHeaders = {
 
 // Helper function to parse numeric values with units
 const parseNumericWithUnit = (value: string): { value: number; unit: string | null } => {
-  // Remove any whitespace
+  // Remove any whitespace and handle empty values
   const cleanValue = value.trim();
-  
-  // Extract the numeric part and unit using regex
-  // This will match numbers (including decimals) followed by optional units
-  const match = cleanValue.match(/^([\d.]+)([a-zA-Z%]*)$/);
-  
-  if (!match) {
-    throw new Error(`Invalid value format: ${value}. Expected format: number followed by optional unit`);
+  if (!cleanValue) {
+    throw new Error('Empty value provided');
   }
   
-  // First capture group is the number, second is the unit (if any)
+  // This regex will match:
+  // - Optional negative sign
+  // - Digits (with optional decimal point)
+  // - Optional units (letters, % symbol)
+  const match = cleanValue.match(/^(-?\d*\.?\d+)([a-zA-Z%]*)$/);
+  
+  if (!match) {
+    throw new Error(`Invalid value format: "${value}". Expected format: number followed by optional unit`);
+  }
+  
   const numericPart = match[1];
   const unit = match[2] || null;
   
@@ -57,6 +62,7 @@ serve(async (req) => {
 
     const text = await file.text();
     const lines = text.split('\n');
+    
     if (lines.length < 2) {
       return new Response(
         JSON.stringify({ error: 'CSV file is empty or invalid' }),
@@ -111,6 +117,7 @@ serve(async (req) => {
     ];
     const validProviders = ['Tesco', 'Sainsburys', 'Asda', 'Morrisons', 'Waitrose', 'Coop', 'M&S', 'Ocado'];
     
+    // Process each line of the CSV
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i].trim();
       if (!line) continue;
@@ -124,6 +131,7 @@ serve(async (req) => {
 
         const row: Record<string, any> = {};
         
+        // Process each column in the row
         headers.forEach((header, index) => {
           const value = values[index].trim();
           
@@ -133,12 +141,11 @@ serve(async (req) => {
               const { value: numericValue, unit } = parseNumericWithUnit(value);
               row[header] = numericValue;
               row[`${header}_unit`] = unit;
-              console.log(`Parsed ${header}: value = ${numericValue}, unit = ${unit}`);
+              console.log(`Row ${i}, ${header}: value = ${numericValue}, unit = ${unit}`);
             } catch (error) {
               throw new Error(`Row ${i}, column ${header}: ${error.message}`);
             }
           } else if (header === 'serving_size') {
-            // For serving_size, keep the original format as it's stored as text
             row[header] = value;
           } else if (header === 'provider') {
             if (!validProviders.includes(value)) {
@@ -151,8 +158,9 @@ serve(async (req) => {
         });
 
         data.push(row);
-        console.log(`Processed row ${i}:`, row);
+        console.log(`Successfully processed row ${i}:`, row);
       } catch (error) {
+        console.error(`Error processing row ${i}:`, error);
         errors.push(error.message);
       }
     }
@@ -170,16 +178,25 @@ serve(async (req) => {
       );
     }
 
-    const { error: insertError } = await supabase
-      .from('nutritional_info')
-      .insert(data);
+    // Insert the data row by row for better error tracking
+    for (let i = 0; i < data.length; i++) {
+      const row = data[i];
+      const { error: insertError } = await supabase
+        .from('nutritional_info')
+        .insert([row]);
 
-    if (insertError) {
-      console.error('Insert error:', insertError);
-      return new Response(
-        JSON.stringify({ error: 'Failed to insert data', details: insertError }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-      );
+      if (insertError) {
+        console.error(`Error inserting row ${i}:`, insertError);
+        return new Response(
+          JSON.stringify({ 
+            error: 'Failed to insert data', 
+            details: insertError,
+            failedRow: row,
+            rowIndex: i
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+        );
+      }
     }
 
     return new Response(
@@ -191,7 +208,7 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Unexpected error:', error);
     return new Response(
       JSON.stringify({ error: 'An unexpected error occurred', details: error.message }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
