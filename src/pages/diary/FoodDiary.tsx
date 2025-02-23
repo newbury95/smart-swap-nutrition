@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { FoodSwapSuggestions } from "@/components/diary/FoodSwapSuggestions";
 import { HealthMetrics } from "@/components/diary/HealthMetrics";
 import { Calendar } from "@/components/ui/calendar";
+import { supabase } from "@/integrations/supabase/client";
 
 type Meal = {
   id: string;
@@ -43,6 +44,25 @@ const FoodDiary = () => {
     snack: []
   });
   const [showSwaps, setShowSwaps] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      console.log('FoodDiary: Checking authentication status');
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        console.log('FoodDiary: No session found, redirecting to signup');
+        navigate('/signup');
+        return;
+      }
+      
+      console.log('FoodDiary: Session found, user is authenticated');
+      setIsLoading(false);
+    };
+
+    checkAuth();
+  }, [navigate]);
 
   const getTotalNutrients = (mealList: Meal[]) => {
     return mealList.reduce((acc, meal) => ({
@@ -59,6 +79,7 @@ const FoodDiary = () => {
   };
 
   const handleAddFood = (type: MealType) => (food: any) => {
+    console.log('Adding food to', type, ':', food);
     const newMeal: Meal = {
       ...food,
       id: Math.random().toString(36).substr(2, 9),
@@ -77,6 +98,7 @@ const FoodDiary = () => {
   };
 
   const handleDeleteFood = (type: MealType, mealId: string) => {
+    console.log('Deleting food from', type, 'with id:', mealId);
     setMeals(prev => ({
       ...prev,
       [type]: prev[type].filter(meal => meal.id !== mealId)
@@ -89,12 +111,21 @@ const FoodDiary = () => {
   };
 
   const handleComplete = () => {
+    console.log('Completing daily food diary');
     setShowSwaps(true);
     toast({
       title: "Daily food diary completed",
       description: "Here are some suggested food swaps based on your goals",
     });
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 pb-32">

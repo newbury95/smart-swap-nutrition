@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -16,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { supabase } from "@/integrations/supabase/client";
 
 type TimeRange = "daily" | "weekly" | "monthly" | "yearly";
 type TrackingData = {
@@ -37,9 +39,29 @@ const TrackingPage = () => {
   const [weight, setWeight] = useState<string>("");
   const [height, setHeight] = useState<string>("");
   const [trackingData, setTrackingData] = useState<TrackingData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      console.log('TrackingPage: Checking authentication status');
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        console.log('TrackingPage: No session found, redirecting to signup');
+        navigate('/signup');
+        return;
+      }
+      
+      console.log('TrackingPage: Session found, user is authenticated');
+      setIsLoading(false);
+    };
+
+    checkAuth();
+  }, [navigate]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Submitting new measurements:', { weight, height });
     const weightNum = parseFloat(weight);
     const heightNum = parseFloat(height);
 
@@ -78,6 +100,14 @@ const TrackingPage = () => {
   };
 
   const latestBMI = trackingData[trackingData.length - 1]?.bmi || 0;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

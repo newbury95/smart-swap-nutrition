@@ -55,9 +55,10 @@ const PersonalInfo = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Starting form submission with data:', formData);
 
     try {
-      // First sign up the user
+      console.log('Attempting to sign up user with email:', formData.email);
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: "tempPassword123", // You should add a password field to your form
@@ -69,11 +70,18 @@ const PersonalInfo = () => {
         }
       });
 
-      if (authError) throw authError;
+      if (authError) {
+        console.error('Auth error during signup:', authError);
+        throw authError;
+      }
 
       if (!authData.user) {
+        console.error('No user data returned from signup');
         throw new Error("No user data returned");
       }
+
+      console.log('User created successfully:', authData.user.id);
+      console.log('Creating profile for user:', authData.user.id);
 
       // Then create their profile
       const { error: profileError } = await supabase
@@ -90,16 +98,22 @@ const PersonalInfo = () => {
           is_premium: formData.isPremium
         });
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error('Error creating profile:', profileError);
+        throw profileError;
+      }
 
+      console.log('Profile created successfully');
+      
       toast({
         title: "Success!",
         description: `Your ${formData.isPremium ? 'premium' : 'free'} profile has been created.`,
       });
       
+      console.log('Navigating to diary page');
       navigate("/diary");
     } catch (error) {
-      console.error('Error creating profile:', error);
+      console.error('Detailed error creating profile:', error);
       toast({
         variant: "destructive",
         title: "Error",
