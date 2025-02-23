@@ -29,7 +29,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const checkProfile = async (userId: string) => {
     try {
-      console.log('Checking profile for user:', userId);
       const { data, error } = await supabase
         .from('profiles')
         .select('id')
@@ -41,13 +40,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         toast({
           variant: "destructive",
           title: "Error",
-          description: "Failed to check user profile. Please try again.",
+          description: "Failed to check user profile",
         });
         setHasProfile(false);
         return;
       }
-
-      console.log('Profile check result:', data);
+      
       setHasProfile(!!data);
     } catch (error) {
       console.error('Error in checkProfile:', error);
@@ -59,48 +57,53 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     let mounted = true;
-    console.log('AuthProvider initialized');
-    
-    const initializeAuth = async () => {
+
+    const initialize = async () => {
       try {
-        const { data: { session: initialSession }} = await supabase.auth.getSession();
-        console.log('Initial session:', initialSession?.user?.id);
+        // Get initial session
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
         
-        if (mounted) {
-          setSession(initialSession);
-          if (initialSession?.user) {
-            await checkProfile(initialSession.user.id);
-          } else {
-            setHasProfile(null);
-            setCheckingProfile(false);
-          }
-          setIsLoading(false);
+        if (!mounted) return;
+        
+        setSession(initialSession);
+        
+        if (initialSession?.user) {
+          await checkProfile(initialSession.user.id);
+        } else {
+          setHasProfile(null);
+          setCheckingProfile(false);
         }
       } catch (error) {
-        console.error('Error initializing auth:', error);
+        console.error('Auth initialization error:', error);
+        if (mounted) {
+          setHasProfile(null);
+          setCheckingProfile(false);
+        }
+      } finally {
         if (mounted) {
           setIsLoading(false);
-          setCheckingProfile(false);
         }
       }
     };
 
-    initializeAuth();
+    initialize();
 
-    const { data: { subscription }} = supabase.auth.onAuthStateChange(async (_event, session) => {
-      console.log('Auth state changed:', session?.user?.id);
-      if (mounted) {
-        setSession(session);
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, newSession) => {
+        if (!mounted) return;
+
+        setSession(newSession);
         setCheckingProfile(true);
-        
-        if (session?.user) {
-          await checkProfile(session.user.id);
+
+        if (newSession?.user) {
+          await checkProfile(newSession.user.id);
         } else {
           setHasProfile(null);
           setCheckingProfile(false);
         }
       }
-    });
+    );
 
     return () => {
       mounted = false;
@@ -109,14 +112,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ 
-      session, 
-      isLoading, 
-      hasProfile, 
-      checkingProfile 
+    <AuthContext.Provider value={{
+      session,
+      isLoading,
+      hasProfile,
+      checkingProfile
     }}>
       {children}
     </AuthContext.Provider>
   );
 };
-
