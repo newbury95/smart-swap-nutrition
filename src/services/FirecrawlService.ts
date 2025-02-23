@@ -47,7 +47,7 @@ export class FirecrawlService {
       const response = await this.firecrawlApp.crawlUrl(url, {
         limit: 100,
         scrapeOptions: {
-          extract: {
+          selectors: {
             name: '.product-name',
             brand: '.brand-name',
             calories: '.nutrition-calories',
