@@ -1,17 +1,14 @@
+
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useSupabase, type Meal } from "@/hooks/useSupabase";
-import { MealSection } from "@/components/diary/MealSection";
-import { DailySummary } from "@/components/diary/DailySummary";
+import { DiaryContent } from "@/components/diary/DiaryContent";
+import { DiarySidebar } from "@/components/diary/DiarySidebar";
+import { AdLayout } from "@/components/diary/AdLayout";
 import { SponsorBanner } from "@/components/diary/SponsorBanner";
-import { Button } from "@/components/ui/button";
 import { FoodSwapSuggestions } from "@/components/diary/FoodSwapSuggestions";
-import { HealthMetrics } from "@/components/diary/HealthMetrics";
-import { Calendar } from "@/components/ui/calendar";
-import { CriteoAd } from "@/components/diary/CriteoAd";
 
 type MealType = "breakfast" | "lunch" | "dinner" | "snack";
 
@@ -35,18 +32,10 @@ const FoodDiary = () => {
     snack: []
   });
   const [showSwaps, setShowSwaps] = useState(false);
-  const [sidebarAdZone, setSidebarAdZone] = useState(() => {
-    const savedZone = localStorage.getItem('userAdPreference');
-    return savedZone || '1234567'; // Default zone ID
-  });
 
   useEffect(() => {
     loadMeals();
   }, [date]);
-
-  useEffect(() => {
-    localStorage.setItem('userAdPreference', sidebarAdZone);
-  }, [sidebarAdZone]);
 
   const loadMeals = async () => {
     try {
@@ -159,81 +148,21 @@ const FoodDiary = () => {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 my-4">
-        <CriteoAd 
-          width={728} 
-          height={90} 
-          zoneId="847249" // Liverpool FC Campaign Zone ID
-          className="mx-auto" 
-        />
-      </div>
-
       <main className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-[300px,1fr,160px] gap-8">
-          <div className="space-y-6">
-            <div className="bg-white rounded-xl p-6 shadow-sm">
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={(newDate) => newDate && setDate(newDate)}
-                className="rounded-md"
-              />
-            </div>
-
-            <DailySummary dailyTotals={getAllMealsNutrients()} />
-          </div>
-
-          <div className="space-y-6">
-            {[
-              { type: "breakfast", title: "Breakfast" },
-              { type: "lunch", title: "Lunch" },
-              { type: "dinner", title: "Dinner" },
-              { type: "snack", title: "Snacks" }
-            ].map(({ type, title }, index) => (
-              <motion.div
-                key={type}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-              >
-                <MealSection
-                  type={type as MealType}
-                  title={title}
-                  meals={meals[type as MealType]}
-                  onAddFood={handleAddFood(type as MealType)}
-                  onDeleteFood={(mealId) => handleDeleteFood(type as MealType, mealId)}
-                />
-              </motion.div>
-            ))}
-
-            <HealthMetrics />
-            
-            <div className="text-center mt-4">
-              <Button onClick={handleComplete} className="w-auto">
-                Complete Day
-              </Button>
-            </div>
-          </div>
-
-          <div className="hidden lg:block">
-            <CriteoAd 
-              width={160} 
-              height={600} 
-              zoneId={sidebarAdZone}
-              className="sticky top-4" 
-            />
-          </div>
-        </div>
+        <AdLayout>
+          <DiarySidebar 
+            date={date}
+            onSelectDate={(newDate) => newDate && setDate(newDate)}
+            dailyTotals={getAllMealsNutrients()}
+          />
+          <DiaryContent
+            meals={meals}
+            onAddFood={handleAddFood}
+            onDeleteFood={handleDeleteFood}
+            onComplete={handleComplete}
+          />
+        </AdLayout>
       </main>
-
-      <div className="container mx-auto px-4 mt-8">
-        <CriteoAd 
-          width={728} 
-          height={90} 
-          zoneId="847250" // TUI Holidays Campaign Zone ID
-          className="mx-auto" 
-        />
-      </div>
 
       <SponsorBanner />
       
