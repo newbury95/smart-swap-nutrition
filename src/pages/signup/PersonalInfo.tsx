@@ -30,23 +30,31 @@ const PersonalInfo = () => {
   // Only redirect if user has a profile
   useEffect(() => {
     const checkProfile = async () => {
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-        
-        if (profile) {
-          console.log('User already has a profile, redirecting to diary');
-          navigate('/diary');
-        } else {
-          console.log('No profile found, allowing signup to continue');
-        }
+      if (!session?.user) {
+        console.log('No session found, redirecting to signup');
+        navigate('/signup');
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+      
+      if (profile) {
+        console.log('User already has a profile, redirecting to diary');
+        navigate('/diary');
+      } else {
+        console.log('No profile found, allowing signup to continue');
       }
     };
     checkProfile();
   }, [navigate, session]);
+
+  if (!session) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-soft-green/20 to-white">

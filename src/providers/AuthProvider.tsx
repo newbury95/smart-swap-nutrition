@@ -27,9 +27,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (mounted) {
           if (initialSession) {
             console.log('Initial session found:', initialSession.user.id);
+            // Check if user has a profile
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', initialSession.user.id)
+              .single();
+
             setSession(initialSession);
+
+            if (!profile && !window.location.pathname.includes('/signup')) {
+              console.log('No profile found, redirecting to personal info');
+              navigate('/signup/personal-info');
+            }
           } else {
             console.log('No initial session found');
+            if (!window.location.pathname.includes('/signup')) {
+              navigate('/signup');
+            }
           }
           setIsLoading(false);
         }
@@ -37,23 +52,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.error('Error getting initial session:', error);
         if (mounted) {
           setIsLoading(false);
+          if (!window.location.pathname.includes('/signup')) {
+            navigate('/signup');
+          }
         }
       }
     }
 
     getInitialSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, currentSession) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, currentSession) => {
       console.log('Auth state changed. Event:', _event, 'Session:', currentSession?.user?.id ?? 'none');
       if (mounted) {
         setSession(currentSession);
         
-        if (!currentSession && !window.location.pathname.includes('/signup')) {
+        if (!currentSession) {
           console.log('No session detected, redirecting to signup');
           navigate('/signup');
-        } else if (currentSession && window.location.pathname.includes('/signup')) {
-          console.log('Session detected on signup page, redirecting to diary');
-          navigate('/diary');
+        } else {
+          // Check if user has a profile
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', currentSession.user.id)
+            .single();
+
+          if (!profile && !window.location.pathname.includes('/signup')) {
+            console.log('No profile found, redirecting to personal info');
+            navigate('/signup/personal-info');
+          } else if (profile && window.location.pathname.includes('/signup')) {
+            console.log('Profile exists, redirecting to diary');
+            navigate('/diary');
+          }
         }
       }
     });

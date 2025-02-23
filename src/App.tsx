@@ -32,9 +32,10 @@ const AuthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
     return <div>Loading...</div>;
   }
 
+  // If there's a session, check if they need to complete signup
   if (session) {
-    console.log('Session found, redirecting to diary');
-    return <Navigate to="/diary" />;
+    console.log('Session found, checking profile completion');
+    return <>{children}</>;
   }
 
   return <>{children}</>;
