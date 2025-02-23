@@ -1,13 +1,32 @@
 
 import { motion } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
 import { MealItem } from "./MealItem";
 import { MealSectionHeader } from "./MealSectionHeader";
 import { MealSectionSummary } from "./MealSectionSummary";
-import { useMealSection } from "./hooks/useMealSection";
-import type { MealSectionProps } from "./types/meal-section.types";
+
+type Meal = {
+  id: string;
+  name: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  time: string;
+};
+
+type MealType = "breakfast" | "lunch" | "dinner" | "snack";
+
+interface MealSectionProps {
+  type: MealType;
+  title: string;
+  meals: Meal[];
+  onAddFood: (food: any) => void;
+  onDeleteFood: (mealId: string) => void;
+}
 
 export const MealSection = ({ type, title, meals, onAddFood, onDeleteFood }: MealSectionProps) => {
-  const { toast } = useMealSection();
+  const { toast } = useToast();
 
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm">

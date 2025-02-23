@@ -1,107 +1,111 @@
 
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect, useState, Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
-import { AuthProvider, useAuth } from './providers/AuthProvider';
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import Header from "./components/Header";
+import { supabase } from "@/integrations/supabase/client";
 
-import Index from './pages/Index';
-import SignUp from './pages/SignUp';
-import PersonalInfo from './pages/signup/PersonalInfo';
-import FoodDiary from './pages/diary/FoodDiary';
-import TrackingPage from './pages/tracking/TrackingPage';
-import NotFound from './pages/NotFound';
+// Lazy load route components
+const Index = lazy(() => import("./pages/Index"));
+const SignUp = lazy(() => import("./pages/SignUp"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const PersonalInfo = lazy(() => import("./pages/signup/PersonalInfo"));
+const FoodDiary = lazy(() => import("./pages/diary/FoodDiary"));
+const TrackingPage = lazy(() => import("./pages/tracking/TrackingPage"));
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { session, isLoading, userProfile } = useAuth();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000,
+      gcTime: 5 * 60 * 1000,
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
-  if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
-    </div>;
+const LoadingFallback = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+  </div>
+);
+
+// Define which routes require authentication
+const protectedRoutes = ['/diary', '/tracking'];
+
+const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
+  
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setIsAuthenticated(!!session);
+        
+        // Only redirect to signup if on a protected route
+        if (!session && protectedRoutes.includes(location.pathname)) {
+          navigate('/signup');
+        }
+
+        const {
+          data: { subscription },
+        } = supabase.auth.onAuthStateChange((_event, session) => {
+          setIsAuthenticated(!!session);
+          if (!session && protectedRoutes.includes(location.pathname)) {
+            navigate('/signup');
+          }
+        });
+
+        setIsInitialized(true);
+        return () => subscription.unsubscribe();
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        setIsInitialized(true);
+      }
+    };
+
+    initializeAuth();
+  }, [navigate, location.pathname]);
+
+  if (!isInitialized) {
+    return <LoadingFallback />;
   }
 
-  // If no session, redirect to signup
-  if (!session) {
-    console.log('No session found, redirecting to signup');
-    return <Navigate to="/signup" replace />;
-  }
-
-  // If no profile, redirect to personal info
-  if (!userProfile) {
-    console.log('No profile found, redirecting to personal info');
-    return <Navigate to="/signup/personal-info" replace />;
-  }
-
-  return <>{children}</>;
-};
-
-const SignUpFlow = ({ children }: { children: React.ReactNode }) => {
-  const { session, isLoading, userProfile } = useAuth();
-
-  if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
-    </div>;
-  }
-
-  // If user has completed signup (has session and profile), redirect to diary
-  if (session && userProfile) {
-    console.log('User has completed signup, redirecting to diary');
-    return <Navigate to="/diary" replace />;
-  }
-
-  // If user has session but no profile, allow access only to personal-info
-  if (session && !userProfile && window.location.pathname !== '/signup/personal-info') {
-    console.log('User has session but no profile, redirecting to personal info');
-    return <Navigate to="/signup/personal-info" replace />;
-  }
-
-  return <>{children}</>;
-};
-
-const AppRoutes = () => {
   return (
-    <Routes>
-      {/* Public routes */}
-      <Route path="/" element={<Index />} />
-      
-      {/* Signup flow */}
-      <Route path="/signup" element={
-        <SignUpFlow>
-          <SignUp />
-        </SignUpFlow>
-      } />
-      <Route path="/signup/personal-info" element={
-        <SignUpFlow>
-          <PersonalInfo />
-        </SignUpFlow>
-      } />
-      
-      {/* Protected routes */}
-      <Route path="/diary" element={
-        <ProtectedRoute>
-          <FoodDiary />
-        </ProtectedRoute>
-      } />
-      <Route path="/tracking" element={
-        <ProtectedRoute>
-          <TrackingPage />
-        </ProtectedRoute>
-      } />
-      
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <>
+      {isAuthenticated && location.pathname !== '/' && <Header />}
+      {children}
+    </>
   );
 };
 
-const App = () => {
-  return (
-    <Router>
-      <AuthProvider>
-        <AppRoutes />
-        <Toaster />
-      </AuthProvider>
-    </Router>
-  );
-};
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <AuthWrapper>
+          <Suspense fallback={<LoadingFallback />}>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/signup/personal-info" element={<PersonalInfo />} />
+              <Route path="/diary" element={<FoodDiary />} />
+              <Route path="/tracking" element={<TrackingPage />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
+        </AuthWrapper>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 
 export default App;

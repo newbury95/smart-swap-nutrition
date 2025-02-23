@@ -1,5 +1,7 @@
 
-import type { Meal } from "./types/meal-section.types";
+type Meal = {
+  calories: number;
+};
 
 type MealSectionSummaryProps = {
   meals: Meal[];
