@@ -1,136 +1,122 @@
 
 import { useState } from 'react';
-import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
 import { Card } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { FirecrawlService } from '@/services/FirecrawlService';
 
-export const FoodScraper = () => {
-  const { toast } = useToast();
-  const [url, setUrl] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [apiKey, setApiKey] = useState(FirecrawlService.getApiKey() || '');
-  const [isScraping, setIsScraping] = useState(false);
+interface ApiKeyFormProps {
+  onApiKeySave: (apiKey: string) => void;
+}
 
-  const handleSubmit = async (e: React.FormEvent) => {
+const ApiKeyForm = ({ onApiKeySave }: ApiKeyFormProps) => {
+  const [apiKey, setApiKey] = useState('');
+  const { toast } = useToast();
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!apiKey) {
+    if (!apiKey.trim()) {
       toast({
         title: "Error",
-        description: "Please enter your Firecrawl API key",
-        variant: "destructive"
+        description: "Please enter a valid API key",
+        variant: "destructive",
       });
       return;
     }
 
+    FirecrawlService.saveApiKey(apiKey);
+    onApiKeySave(apiKey);
+    toast({
+      title: "Success",
+      description: "API key saved successfully",
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label htmlFor="apiKey" className="block text-sm font-medium mb-1">
+          Firecrawl API Key
+        </label>
+        <input
+          id="apiKey"
+          type="password"
+          value={apiKey}
+          onChange={(e) => setApiKey(e.target.value)}
+          className="w-full p-2 border rounded"
+          placeholder="Enter your Firecrawl API key"
+        />
+      </div>
+      <Button type="submit">Save API Key</Button>
+    </form>
+  );
+};
+
+export const FoodScraper = () => {
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [hasApiKey, setHasApiKey] = useState(!!FirecrawlService.getApiKey());
+
+  const handleScrapeAll = async () => {
     setIsLoading(true);
     setProgress(0);
 
     try {
-      FirecrawlService.saveApiKey(apiKey);
-      await FirecrawlService.scrapeSupermarket(url);
+      console.log('Starting to scrape all UK supermarkets...');
+      const foods = await FirecrawlService.scrapeAllUKSupermarkets();
       
+      setProgress(100);
       toast({
         title: "Success",
-        description: "Food data scraped successfully"
+        description: `Successfully scraped ${foods.length} food items`,
       });
+
+      console.log('Scraped foods:', foods);
+      // Here you would typically save the foods to your database
+      // For now, we'll just log them
     } catch (error) {
+      console.error('Error scraping foods:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to scrape food data",
-        variant: "destructive"
+        description: "Failed to scrape supermarket data",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
-      setProgress(100);
     }
   };
 
-  const handleScrapeAllUK = async () => {
-    if (!apiKey) {
-      toast({
-        title: "Error",
-        description: "Please enter your Firecrawl API key",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsScraping(true);
-    setProgress(0);
-
-    try {
-      FirecrawlService.saveApiKey(apiKey);
-      const foods = await FirecrawlService.scrapeAllUKSupermarkets();
-      
-      toast({
-        title: "Success",
-        description: `Successfully scraped ${foods.length} food items from UK supermarkets`
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to scrape UK supermarkets",
-        variant: "destructive"
-      });
-    } finally {
-      setIsScraping(false);
-      setProgress(100);
-    }
-  };
+  if (!hasApiKey) {
+    return (
+      <Card className="p-4">
+        <h3 className="text-lg font-semibold mb-4">Supermarket Data Scraper</h3>
+        <ApiKeyForm onApiKeySave={() => setHasApiKey(true)} />
+      </Card>
+    );
+  }
 
   return (
-    <Card className="p-6 space-y-4">
-      <h2 className="text-2xl font-bold">Import Supermarket Foods</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <label className="text-sm font-medium">
-            Firecrawl API Key
-          </label>
-          <Input
-            type="password"
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-            placeholder="Enter your Firecrawl API key"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium">
-            Supermarket URL
-          </label>
-          <Input
-            type="url"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://www.supermarket.com/food-section"
-          />
-        </div>
-
-        {(isLoading || isScraping) && (
-          <Progress value={progress} />
+    <Card className="p-4">
+      <h3 className="text-lg font-semibold mb-4">Supermarket Data Scraper</h3>
+      <div className="space-y-4">
+        <Button 
+          onClick={handleScrapeAll} 
+          disabled={isLoading}
+        >
+          {isLoading ? "Scraping..." : "Scrape All UK Supermarkets"}
+        </Button>
+        
+        {isLoading && (
+          <div className="space-y-2">
+            <Progress value={progress} className="w-full" />
+            <p className="text-sm text-gray-500">
+              This may take a few minutes...
+            </p>
+          </div>
         )}
-
-        <div className="flex gap-4">
-          <Button type="submit" disabled={isLoading || isScraping} className="flex-1">
-            {isLoading ? "Scraping..." : "Scrape URL"}
-          </Button>
-          
-          <Button 
-            type="button" 
-            onClick={handleScrapeAllUK}
-            disabled={isLoading || isScraping}
-            variant="secondary"
-            className="flex-1"
-          >
-            {isScraping ? "Scraping UK..." : "Scrape All UK"}
-          </Button>
-        </div>
-      </form>
+      </div>
     </Card>
   );
 };

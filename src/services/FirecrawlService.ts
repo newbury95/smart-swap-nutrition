@@ -47,7 +47,7 @@ export class FirecrawlService {
       const response = await this.firecrawlApp.crawlUrl(url, {
         limit: 100,
         scrapeOptions: {
-          selectors: {
+          extract: {
             name: '.product-name',
             brand: '.brand-name',
             calories: '.nutrition-calories',
@@ -74,10 +74,11 @@ export class FirecrawlService {
           carbs: extracted.carbs || '',
           fat: extracted.fat || '',
           servingSize: extracted.servingSize || '',
-          supermarket: new URL(url).hostname
+          supermarket: new URL(url).hostname.replace('www.', '').split('.')[0]
         };
       });
 
+      console.log(`Scraped ${scrapedFoods.length} foods from ${url}`);
       return scrapedFoods;
     } catch (error) {
       console.error('Error during scraping:', error);
