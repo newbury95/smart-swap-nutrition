@@ -1,4 +1,3 @@
-
 import { useEffect, useState, Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -15,6 +14,11 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const PersonalInfo = lazy(() => import("./pages/signup/PersonalInfo"));
 const FoodDiary = lazy(() => import("./pages/diary/FoodDiary"));
 const TrackingPage = lazy(() => import("./pages/tracking/TrackingPage"));
+const ForumPage = lazy(() => import("./pages/forum/ForumPage"));
+const ActivityTracker = lazy(() => import("./pages/activity/ActivityTracker"));
+const ContactPage = lazy(() => import("./pages/contact/ContactPage"));
+const MealPlansPage = lazy(() => import("./pages/premium/MealPlansPage"));
+const WorkoutPlansPage = lazy(() => import("./pages/premium/WorkoutPlansPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,8 +37,14 @@ const LoadingFallback = () => (
   </div>
 );
 
-// Define which routes require authentication
-const protectedRoutes = ['/diary', '/tracking'];
+const protectedRoutes = [
+  '/diary', 
+  '/tracking',
+  '/forum',
+  '/activity',
+  '/meal-plans',
+  '/workout-plans'
+];
 
 const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
@@ -99,6 +109,11 @@ const App = () => (
               <Route path="/signup/personal-info" element={<PersonalInfo />} />
               <Route path="/diary" element={<FoodDiary />} />
               <Route path="/tracking" element={<TrackingPage />} />
+              <Route path="/forum" element={<ForumPage />} />
+              <Route path="/activity" element={<ActivityTracker />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/meal-plans" element={<MealPlansPage />} />
+              <Route path="/workout-plans" element={<WorkoutPlansPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

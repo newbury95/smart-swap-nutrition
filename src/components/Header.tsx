@@ -34,10 +34,15 @@ const Header = memo(() => {
     <header className="border-b bg-white">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <h1 className="text-xl font-semibold text-green-600">NutriTrack</h1>
+          <h1 
+            onClick={() => navigate("/")}
+            className="text-xl font-semibold text-green-600 cursor-pointer"
+          >
+            NutriTrack
+          </h1>
           
           {!isOnDashboard && (
-            <div className="flex items-center gap-4">
+            <nav className="flex items-center gap-4">
               <Button
                 variant="outline"
                 className="flex items-center gap-2"
@@ -46,17 +51,60 @@ const Header = memo(() => {
                 Dashboard
               </Button>
               
+              <Button
+                variant="outline"
+                className="flex items-center gap-2"
+                onClick={() => navigate("/diary")}
+              >
+                Food Diary
+              </Button>
+
+              <Button
+                variant="outline"
+                className="flex items-center gap-2"
+                onClick={() => navigate("/activity")}
+              >
+                Activity
+              </Button>
+
+              <Button
+                variant="outline"
+                className="flex items-center gap-2"
+                onClick={() => navigate("/forum")}
+              >
+                Forum
+              </Button>
+
               {isPremium && (
-                <Button
-                  variant="outline"
-                  className="flex items-center gap-2"
-                  onClick={() => navigate("/tracking")}
-                >
-                  Tracker
-                  <Crown className="h-4 w-4 text-yellow-500" />
-                </Button>
+                <>
+                  <Button
+                    variant="outline"
+                    className="flex items-center gap-2"
+                    onClick={() => navigate("/meal-plans")}
+                  >
+                    Meal Plans
+                    <Crown className="h-4 w-4 text-yellow-500" />
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    className="flex items-center gap-2"
+                    onClick={() => navigate("/workout-plans")}
+                  >
+                    Workouts
+                    <Crown className="h-4 w-4 text-yellow-500" />
+                  </Button>
+                </>
               )}
-            </div>
+
+              <Button
+                variant="outline"
+                className="flex items-center gap-2"
+                onClick={() => navigate("/contact")}
+              >
+                Contact
+              </Button>
+            </nav>
           )}
         </div>
         
