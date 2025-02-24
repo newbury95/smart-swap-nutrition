@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { DiaryContent } from "@/components/diary/DiaryContent";
 import { DiarySidebar } from "@/components/diary/DiarySidebar";
-import { AdLayout } from "@/components/diary/AdLayout";
 import { SponsorBanner } from "@/components/diary/SponsorBanner";
 import { FoodSwapSuggestions } from "@/components/diary/FoodSwapSuggestions";
 import { useMealManagement } from "@/hooks/useMealManagement";
@@ -49,7 +48,7 @@ const FoodDiary = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <AdLayout>
+        <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-8">
           <DiarySidebar 
             date={date}
             onSelectDate={(newDate) => newDate && setDate(newDate)}
@@ -61,7 +60,7 @@ const FoodDiary = () => {
             onDeleteFood={handleDeleteFood}
             onComplete={handleComplete}
           />
-        </AdLayout>
+        </div>
       </main>
 
       <SponsorBanner />
@@ -77,4 +76,3 @@ const FoodDiary = () => {
 };
 
 export default FoodDiary;
-
