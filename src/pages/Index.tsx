@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { ArrowRight, LogIn, Dumbbell, Apple, Crown, CheckCircle2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -72,7 +71,7 @@ const Index = () => {
                 <h3 className="text-2xl font-semibold">Free Plan</h3>
                 <p className="text-gray-600 mt-2">Get started with the basics</p>
               </div>
-              <span className="text-2xl font-bold text-green-600">$0</span>
+              <span className="text-2xl font-bold text-green-600">£0</span>
             </div>
             
             <div className="space-y-4 mb-8">
@@ -107,7 +106,7 @@ const Index = () => {
                 <p className="text-gray-600 mt-2">Unlock all features</p>
               </div>
               <div className="text-right">
-                <span className="text-2xl font-bold text-green-600">$9.99</span>
+                <span className="text-2xl font-bold text-green-600">£7.99</span>
                 <p className="text-sm text-gray-500">/month</p>
               </div>
             </div>

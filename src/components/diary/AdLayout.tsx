@@ -9,11 +9,24 @@ export const AdLayout = ({ children }: { children: React.ReactNode }) => {
   });
 
   useEffect(() => {
+    // Ensure the Criteo script is loaded
+    const script = document.createElement('script');
+    script.src = '//static.criteo.net/js/ld/publishertag.js';
+    script.async = true;
+    document.head.appendChild(script);
+
+    return () => {
+      // Cleanup
+      document.head.removeChild(script);
+    };
+  }, []);
+
+  useEffect(() => {
     localStorage.setItem('userAdPreference', sidebarAdZone);
   }, [sidebarAdZone]);
 
   return (
-    <>
+    <div className="relative">
       <div className="container mx-auto px-4 my-4">
         <CriteoAd 
           width={728} 
@@ -43,6 +56,6 @@ export const AdLayout = ({ children }: { children: React.ReactNode }) => {
           className="mx-auto" 
         />
       </div>
-    </>
+    </div>
   );
 };
