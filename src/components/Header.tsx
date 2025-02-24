@@ -1,126 +1,87 @@
 
 import { useNavigate } from "react-router-dom";
-import { Crown, LogOut } from "lucide-react";
-import { Button } from "./ui/button";
-import { useSupabase } from "@/hooks/useSupabase";
+import { ActivityIcon, BookOpen, Home, MessageSquare, PhoneCall } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useLocation } from "react-router-dom";
-import { memo } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
 
-const Header = memo(() => {
+const Header = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { toast } = useToast();
-  const { isPremium, loading } = useSupabase();
-  const isOnDashboard = location.pathname === "/";
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
-  const handleLogout = async () => {
-    const supabase = (window as any).supabase;
-    if (supabase) {
-      await supabase.auth.signOut();
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleNavigation = (path: string) => {
+    const protectedRoutes = ['/diary', '/dashboard', '/activity'];
+    
+    if (protectedRoutes.includes(path) && !isAuthenticated) {
       toast({
-        title: "Logged out successfully",
-        description: "See you next time!",
+        title: "Authentication Required",
+        description: "Please sign in to access this feature",
       });
-      navigate("/");
+      navigate('/auth');
+      return;
     }
+    
+    navigate(path);
   };
 
-  if (loading) {
-    return null;
-  }
-
   return (
-    <header className="border-b bg-white">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <h1 
-            onClick={() => navigate("/")}
-            className="text-xl font-semibold text-green-600 cursor-pointer"
-          >
-            NutriTrack
-          </h1>
-          
-          {!isOnDashboard && (
-            <nav className="flex items-center gap-4">
-              <Button
-                variant="outline"
-                className="flex items-center gap-2"
-                onClick={() => navigate("/")}
-              >
-                Dashboard
-              </Button>
-              
-              <Button
-                variant="outline"
-                className="flex items-center gap-2"
-                onClick={() => navigate("/diary")}
-              >
-                Food Diary
-              </Button>
+    <header className="sticky top-0 z-50 border-b bg-white">
+      <div className="container mx-auto px-4">
+        <nav className="flex gap-6 justify-between py-4">
+          <div className="grid grid-cols-5 gap-6 flex-1">
+            <button
+              onClick={() => handleNavigation('/dashboard')}
+              className="flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 transition-all duration-300 transform hover:scale-105"
+            >
+              <Home className="w-5 h-5" />
+              <span className="text-xs">Dashboard</span>
+            </button>
 
-              <Button
-                variant="outline"
-                className="flex items-center gap-2"
-                onClick={() => navigate("/activity")}
-              >
-                Activity
-              </Button>
+            <button
+              onClick={() => handleNavigation('/diary')}
+              className="flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 transition-all duration-300 transform hover:scale-105"
+            >
+              <BookOpen className="w-5 h-5" />
+              <span className="text-xs">Food Diary</span>
+            </button>
 
-              <Button
-                variant="outline"
-                className="flex items-center gap-2"
-                onClick={() => navigate("/forum")}
-              >
-                Forum
-              </Button>
+            <button
+              onClick={() => handleNavigation('/activity')}
+              className="flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 transition-all duration-300 transform hover:scale-105"
+            >
+              <ActivityIcon className="w-5 h-5" />
+              <span className="text-xs">Activity</span>
+            </button>
 
-              {isPremium && (
-                <>
-                  <Button
-                    variant="outline"
-                    className="flex items-center gap-2"
-                    onClick={() => navigate("/meal-plans")}
-                  >
-                    Meal Plans
-                    <Crown className="h-4 w-4 text-yellow-500" />
-                  </Button>
+            <button
+              onClick={() => handleNavigation('/forum')}
+              className="flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 transition-all duration-300 transform hover:scale-105"
+            >
+              <MessageSquare className="w-5 h-5" />
+              <span className="text-xs">Forum</span>
+            </button>
 
-                  <Button
-                    variant="outline"
-                    className="flex items-center gap-2"
-                    onClick={() => navigate("/workout-plans")}
-                  >
-                    Workouts
-                    <Crown className="h-4 w-4 text-yellow-500" />
-                  </Button>
-                </>
-              )}
-
-              <Button
-                variant="outline"
-                className="flex items-center gap-2"
-                onClick={() => navigate("/contact")}
-              >
-                Contact
-              </Button>
-            </nav>
-          )}
-        </div>
-        
-        <Button
-          variant="ghost"
-          onClick={handleLogout}
-          className="flex items-center gap-2"
-        >
-          <span>Log out</span>
-          <LogOut className="h-4 w-4" />
-        </Button>
+            <button
+              onClick={() => handleNavigation('/contact')}
+              className="flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 transition-all duration-300 transform hover:scale-105"
+            >
+              <PhoneCall className="w-5 h-5" />
+              <span className="text-xs">Contact</span>
+            </button>
+          </div>
+        </nav>
       </div>
     </header>
   );
-});
-
-Header.displayName = 'Header';
+};
 
 export default Header;

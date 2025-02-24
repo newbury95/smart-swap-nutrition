@@ -7,7 +7,6 @@ import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-ro
 import Header from "./components/Header";
 import { supabase } from "@/integrations/supabase/client";
 
-// Lazy load route components
 const Index = lazy(() => import("./pages/Index"));
 const SignUp = lazy(() => import("./pages/SignUp"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -19,6 +18,7 @@ const ActivityTracker = lazy(() => import("./pages/activity/ActivityTracker"));
 const ContactPage = lazy(() => import("./pages/contact/ContactPage"));
 const MealPlansPage = lazy(() => import("./pages/premium/MealPlansPage"));
 const WorkoutPlansPage = lazy(() => import("./pages/premium/WorkoutPlansPage"));
+const AuthPage = lazy(() => import("./pages/auth/AuthPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -58,7 +58,6 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
         const { data: { session } } = await supabase.auth.getSession();
         setIsAuthenticated(!!session);
         
-        // Only redirect to signup if on a protected route
         if (!session && protectedRoutes.includes(location.pathname)) {
           navigate('/signup');
         }
@@ -114,6 +113,7 @@ const App = () => (
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/meal-plans" element={<MealPlansPage />} />
               <Route path="/workout-plans" element={<WorkoutPlansPage />} />
+              <Route path="/auth" element={<AuthPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
