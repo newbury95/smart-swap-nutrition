@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import { ArrowRight, LogIn, Dumbbell, Apple, Crown, CheckCircle2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
