@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Activity, Flame, Footprints } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import {
@@ -12,11 +12,13 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Legend,
 } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useSupabase } from "@/hooks/useSupabase";
 
 type TimeRange = "daily" | "weekly" | "monthly" | "yearly";
 type TrackingData = {
@@ -26,6 +28,7 @@ type TrackingData = {
   bmi: number;
   steps: number;
   exerciseMinutes: number;
+  caloriesBurned: number;
 };
 
 const calculateBMI = (weight: number, height: number) => {
@@ -36,11 +39,12 @@ const calculateBMI = (weight: number, height: number) => {
 const TrackingPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isPremium } = useSupabase();
   const [timeRange, setTimeRange] = useState<TimeRange>("daily");
   const [weight, setWeight] = useState<string>("");
   const [height, setHeight] = useState<string>("");
+  const [caloriesBurned, setCaloriesBurned] = useState(0);
   const [steps, setSteps] = useState(0);
-  const [exerciseMinutes, setExerciseMinutes] = useState(0);
   const [trackingData, setTrackingData] = useState<TrackingData[]>([]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -64,7 +68,8 @@ const TrackingPage = () => {
       height: heightNum,
       bmi,
       steps,
-      exerciseMinutes
+      exerciseMinutes: 0,
+      caloriesBurned,
     };
 
     setTrackingData([...trackingData, newEntry]);
@@ -77,19 +82,35 @@ const TrackingPage = () => {
     });
   };
 
-  const handleUpdateSteps = () => {
-    setSteps(prev => prev + 1000);
+  const handleUpdateActivity = () => {
+    if (!isPremium) {
+      toast({
+        title: "Premium Feature",
+        description: "Upgrade to Premium to track activity and calories",
+        variant: "destructive",
+      });
+      return;
+    }
+    setCaloriesBurned(prev => prev + 100);
     toast({
       title: "Activity Logged",
-      description: "Your steps have been recorded for the day",
+      description: "Your calories burned have been recorded",
     });
   };
 
-  const handleUpdateExercise = () => {
-    setExerciseMinutes(prev => prev + 30);
+  const handleUpdateSteps = () => {
+    if (!isPremium) {
+      toast({
+        title: "Premium Feature",
+        description: "Upgrade to Premium to track steps",
+        variant: "destructive",
+      });
+      return;
+    }
+    setSteps(prev => prev + 1000);
     toast({
-      title: "Exercise Logged",
-      description: "Your exercise minutes have been recorded for the day",
+      title: "Steps Logged",
+      description: "Your steps have been recorded",
     });
   };
 
@@ -122,91 +143,98 @@ const TrackingPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="grid md:grid-cols-2 gap-8 mb-8"
+            className="grid md:grid-cols-3 gap-4 mb-8"
           >
-            {/* BMI Calculator Section */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
-              <h2 className="text-lg font-semibold mb-4">Enter New Measurements</h2>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Weight (kg)
-                  </label>
-                  <Input
-                    type="number"
-                    value={weight}
-                    onChange={(e) => setWeight(e.target.value)}
-                    placeholder="Enter weight in kg"
-                    step="0.1"
-                    required
-                  />
+            {/* BMI Display */}
+            <div className="bg-white rounded-xl p-4 shadow-sm">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <Activity className="w-5 h-5 text-green-600" />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Height (cm)
-                  </label>
-                  <Input
-                    type="number"
-                    value={height}
-                    onChange={(e) => setHeight(e.target.value)}
-                    placeholder="Enter height in cm"
-                    step="0.1"
-                    required
-                  />
-                </div>
-                <Button type="submit" className="w-full">
-                  Save Measurements
-                </Button>
-              </form>
+                <h3 className="font-medium">Current BMI</h3>
+              </div>
+              <p className="text-2xl font-bold text-green-600 mb-1">{latestBMI}</p>
+              <p className="text-sm text-gray-600">{getBMICategory(latestBMI)}</p>
             </div>
 
-            {/* Current BMI Display */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
-              <h2 className="text-lg font-semibold mb-4">Current BMI</h2>
-              <div className="text-center">
-                <div className="text-4xl font-bold text-green-600 mb-2">
-                  {latestBMI}
+            {/* Calories Burned */}
+            <div className="bg-white rounded-xl p-4 shadow-sm">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 bg-orange-100 rounded-lg">
+                  <Flame className="w-5 h-5 text-orange-600" />
                 </div>
-                <div className="text-gray-600 mb-4">
-                  {getBMICategory(latestBMI)}
-                </div>
-                <div className="text-sm text-gray-500">
-                  Last updated: {trackingData[trackingData.length - 1]?.date || "Never"}
-                </div>
+                <h3 className="font-medium">Calories Burned</h3>
               </div>
+              <p className="text-2xl font-bold text-orange-600 mb-1">{caloriesBurned}</p>
+              <Button 
+                onClick={handleUpdateActivity} 
+                variant="outline" 
+                size="sm"
+                className={!isPremium ? "cursor-not-allowed opacity-50" : ""}
+              >
+                Log Activity
+              </Button>
+            </div>
+
+            {/* Steps */}
+            <div className="bg-white rounded-xl p-4 shadow-sm">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <Footprints className="w-5 h-5 text-blue-600" />
+                </div>
+                <h3 className="font-medium">Daily Steps</h3>
+              </div>
+              <p className="text-2xl font-bold text-blue-600 mb-1">{steps}</p>
+              <Button 
+                onClick={handleUpdateSteps} 
+                variant="outline" 
+                size="sm"
+                className={!isPremium ? "cursor-not-allowed opacity-50" : ""}
+              >
+                Log Steps
+              </Button>
             </div>
           </motion.div>
 
-          {/* Activity Tracking */}
+          {/* BMI Input Form */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="bg-white rounded-xl p-6 shadow-sm mb-8"
           >
-            <h2 className="text-lg font-semibold mb-4">Activity Tracking</h2>
-            <Tabs defaultValue="steps" className="space-y-4">
-              <TabsList>
-                <TabsTrigger value="steps">Steps</TabsTrigger>
-                <TabsTrigger value="exercise">Exercise</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="steps" className="space-y-4">
-                <div className="p-6 bg-white border rounded-lg">
-                  <h3 className="text-xl font-medium mb-2">Today's Steps</h3>
-                  <p className="text-3xl font-bold text-green-600 mb-4">{steps}</p>
-                  <Button onClick={handleUpdateSteps}>Log Steps</Button>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="exercise" className="space-y-4">
-                <div className="p-6 bg-white border rounded-lg">
-                  <h3 className="text-xl font-medium mb-2">Exercise Minutes</h3>
-                  <p className="text-3xl font-bold text-green-600 mb-4">{exerciseMinutes} min</p>
-                  <Button onClick={handleUpdateExercise}>Log Exercise</Button>
-                </div>
-              </TabsContent>
-            </Tabs>
+            <h2 className="text-lg font-semibold mb-4">Enter New Measurements</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Weight (kg)
+                </label>
+                <Input
+                  type="number"
+                  value={weight}
+                  onChange={(e) => setWeight(e.target.value)}
+                  placeholder="Enter weight in kg"
+                  step="0.1"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Height (cm)
+                </label>
+                <Input
+                  type="number"
+                  value={height}
+                  onChange={(e) => setHeight(e.target.value)}
+                  placeholder="Enter height in cm"
+                  step="0.1"
+                  required
+                />
+              </div>
+              <Button type="submit" className="w-full">
+                Save Measurements
+              </Button>
+            </form>
           </motion.div>
 
           {/* Progress Chart */}
@@ -232,14 +260,38 @@ const TrackingPage = () => {
                   <LineChart data={trackingData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" />
-                    <YAxis />
+                    <YAxis yAxisId="left" />
+                    <YAxis yAxisId="right" orientation="right" />
                     <Tooltip />
+                    <Legend />
                     <Line
+                      yAxisId="left"
                       type="monotone"
                       dataKey="bmi"
+                      name="BMI"
                       stroke="#22c55e"
                       strokeWidth={2}
                     />
+                    {isPremium && (
+                      <>
+                        <Line
+                          yAxisId="right"
+                          type="monotone"
+                          dataKey="caloriesBurned"
+                          name="Calories"
+                          stroke="#f97316"
+                          strokeWidth={2}
+                        />
+                        <Line
+                          yAxisId="right"
+                          type="monotone"
+                          dataKey="steps"
+                          name="Steps"
+                          stroke="#3b82f6"
+                          strokeWidth={2}
+                        />
+                      </>
+                    )}
                   </LineChart>
                 </ResponsiveContainer>
               </TabsContent>
@@ -252,3 +304,4 @@ const TrackingPage = () => {
 };
 
 export default TrackingPage;
+
