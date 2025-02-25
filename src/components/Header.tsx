@@ -1,9 +1,10 @@
 
 import { useNavigate } from "react-router-dom";
-import { ActivityIcon, BookOpen, Home, MessageSquare, PhoneCall } from "lucide-react";
+import { ActivityIcon, BookOpen, Home, MessageSquare, PhoneCall, LogOut } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
+import { Button } from "./ui/button";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -31,6 +32,23 @@ const Header = () => {
     }
     
     navigate(path);
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: "Signed out successfully",
+        description: "You have been signed out of your account",
+      });
+      navigate('/');
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error signing out",
+        description: error.message,
+      });
+    }
   };
 
   return (
@@ -78,6 +96,25 @@ const Header = () => {
               <span className="text-xs">Contact</span>
             </button>
           </div>
+
+          {isAuthenticated ? (
+            <Button
+              variant="ghost"
+              className="text-gray-600 hover:text-gray-900"
+              onClick={handleSignOut}
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              className="text-gray-600 hover:text-gray-900"
+              onClick={() => navigate('/auth')}
+            >
+              Sign In
+            </Button>
+          )}
         </nav>
       </div>
     </header>
