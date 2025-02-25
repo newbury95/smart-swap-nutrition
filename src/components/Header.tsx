@@ -1,6 +1,6 @@
 
 import { useNavigate } from "react-router-dom";
-import { ActivityIcon, BookOpen, Home, MessageSquare, PhoneCall, LogOut } from "lucide-react";
+import { BookOpen, Home, MessageSquare, PhoneCall, LogOut, Activity } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
@@ -20,7 +20,7 @@ const Header = () => {
   }, []);
 
   const handleNavigation = (path: string) => {
-    const protectedRoutes = ['/diary', '/dashboard', '/activity'];
+    const protectedRoutes = ['/diary', '/tracking', '/forum'];
     
     if (protectedRoutes.includes(path) && !isAuthenticated) {
       toast({
@@ -57,11 +57,11 @@ const Header = () => {
         <nav className="flex gap-6 justify-between py-4">
           <div className="grid grid-cols-5 gap-6 flex-1">
             <button
-              onClick={() => handleNavigation('/dashboard')}
+              onClick={() => handleNavigation('/tracking')}
               className="flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 transition-all duration-300 transform hover:scale-105"
             >
-              <Home className="w-5 h-5" />
-              <span className="text-xs">Dashboard</span>
+              <Activity className="w-5 h-5" />
+              <span className="text-xs">Tracking</span>
             </button>
 
             <button
@@ -70,14 +70,6 @@ const Header = () => {
             >
               <BookOpen className="w-5 h-5" />
               <span className="text-xs">Food Diary</span>
-            </button>
-
-            <button
-              onClick={() => handleNavigation('/activity')}
-              className="flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 transition-all duration-300 transform hover:scale-105"
-            >
-              <ActivityIcon className="w-5 h-5" />
-              <span className="text-xs">Activity</span>
             </button>
 
             <button

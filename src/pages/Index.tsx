@@ -1,6 +1,6 @@
 
 import { motion } from "framer-motion";
-import { ArrowRight, LogIn, Dumbbell, Apple, Crown, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Crown, CheckCircle2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Index = () => {
@@ -29,11 +29,10 @@ const Index = () => {
         <div className="container mx-auto px-4 h-16 flex justify-between items-center">
           <h1 className="text-xl font-semibold text-green-600">NutriTrack</h1>
           <button
-            onClick={() => navigate('/signup')}
+            onClick={() => navigate('/auth')}
             className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
           >
             <span>Sign In</span>
-            <LogIn className="w-4 h-4" />
           </button>
         </div>
       </header>
@@ -131,39 +130,6 @@ const Index = () => {
           </motion.div>
         </motion.div>
 
-        {/* Feature Tiles */}
-        <motion.div
-          className="grid md:grid-cols-2 gap-8 mt-16 max-w-4xl mx-auto"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-        >
-          <motion.div
-            className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow"
-            whileHover={{ y: -5 }}
-          >
-            <div className="p-3 bg-green-100 rounded-xl w-fit mb-4">
-              <Dumbbell className="w-6 h-6 text-green-600" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2">Workout Integration</h3>
-            <p className="text-gray-600">
-              Sync your workouts and track your progress with our premium health metrics integration.
-            </p>
-          </motion.div>
-
-          <motion.div
-            className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow"
-            whileHover={{ y: -5 }}
-          >
-            <div className="p-3 bg-green-100 rounded-xl w-fit mb-4">
-              <Apple className="w-6 h-6 text-green-600" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2">Health App Sync</h3>
-            <p className="text-gray-600">
-              Connect with Apple Health or Samsung Health to automatically track your daily activities.
-            </p>
-          </motion.div>
-        </motion.div>
       </section>
 
       {/* Sponsor Banner */}

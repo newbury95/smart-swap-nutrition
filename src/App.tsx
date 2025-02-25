@@ -1,3 +1,4 @@
+
 import { useEffect, useState, Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -14,7 +15,6 @@ const PersonalInfo = lazy(() => import("./pages/signup/PersonalInfo"));
 const FoodDiary = lazy(() => import("./pages/diary/FoodDiary"));
 const TrackingPage = lazy(() => import("./pages/tracking/TrackingPage"));
 const ForumPage = lazy(() => import("./pages/forum/ForumPage"));
-const ActivityTracker = lazy(() => import("./pages/activity/ActivityTracker"));
 const ContactPage = lazy(() => import("./pages/contact/ContactPage"));
 const MealPlansPage = lazy(() => import("./pages/premium/MealPlansPage"));
 const WorkoutPlansPage = lazy(() => import("./pages/premium/WorkoutPlansPage"));
@@ -41,7 +41,6 @@ const protectedRoutes = [
   '/diary', 
   '/tracking',
   '/forum',
-  '/activity',
   '/meal-plans',
   '/workout-plans'
 ];
@@ -59,7 +58,7 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
         setIsAuthenticated(!!session);
         
         if (!session && protectedRoutes.includes(location.pathname)) {
-          navigate('/signup');
+          navigate('/auth');
         }
 
         const {
@@ -67,7 +66,7 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
         } = supabase.auth.onAuthStateChange((_event, session) => {
           setIsAuthenticated(!!session);
           if (!session && protectedRoutes.includes(location.pathname)) {
-            navigate('/signup');
+            navigate('/auth');
           }
         });
 
@@ -109,7 +108,6 @@ const App = () => (
               <Route path="/diary" element={<FoodDiary />} />
               <Route path="/tracking" element={<TrackingPage />} />
               <Route path="/forum" element={<ForumPage />} />
-              <Route path="/activity" element={<ActivityTracker />} />
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/meal-plans" element={<MealPlansPage />} />
               <Route path="/workout-plans" element={<WorkoutPlansPage />} />

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
@@ -14,7 +15,7 @@ import {
 } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type TimeRange = "daily" | "weekly" | "monthly" | "yearly";
@@ -23,6 +24,8 @@ type TrackingData = {
   weight: number;
   height: number;
   bmi: number;
+  steps: number;
+  exerciseMinutes: number;
 };
 
 const calculateBMI = (weight: number, height: number) => {
@@ -36,6 +39,8 @@ const TrackingPage = () => {
   const [timeRange, setTimeRange] = useState<TimeRange>("daily");
   const [weight, setWeight] = useState<string>("");
   const [height, setHeight] = useState<string>("");
+  const [steps, setSteps] = useState(0);
+  const [exerciseMinutes, setExerciseMinutes] = useState(0);
   const [trackingData, setTrackingData] = useState<TrackingData[]>([]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -58,6 +63,8 @@ const TrackingPage = () => {
       weight: weightNum,
       height: heightNum,
       bmi,
+      steps,
+      exerciseMinutes
     };
 
     setTrackingData([...trackingData, newEntry]);
@@ -67,6 +74,22 @@ const TrackingPage = () => {
     toast({
       title: "Measurements updated",
       description: `Your BMI is ${bmi}`,
+    });
+  };
+
+  const handleUpdateSteps = () => {
+    setSteps(prev => prev + 1000);
+    toast({
+      title: "Activity Logged",
+      description: "Your steps have been recorded for the day",
+    });
+  };
+
+  const handleUpdateExercise = () => {
+    setExerciseMinutes(prev => prev + 30);
+    toast({
+      title: "Exercise Logged",
+      description: "Your exercise minutes have been recorded for the day",
     });
   };
 
@@ -101,6 +124,7 @@ const TrackingPage = () => {
             transition={{ duration: 0.6 }}
             className="grid md:grid-cols-2 gap-8 mb-8"
           >
+            {/* BMI Calculator Section */}
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <h2 className="text-lg font-semibold mb-4">Enter New Measurements</h2>
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -136,6 +160,7 @@ const TrackingPage = () => {
               </form>
             </div>
 
+            {/* Current BMI Display */}
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <h2 className="text-lg font-semibold mb-4">Current BMI</h2>
               <div className="text-center">
@@ -152,6 +177,39 @@ const TrackingPage = () => {
             </div>
           </motion.div>
 
+          {/* Activity Tracking */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="bg-white rounded-xl p-6 shadow-sm mb-8"
+          >
+            <h2 className="text-lg font-semibold mb-4">Activity Tracking</h2>
+            <Tabs defaultValue="steps" className="space-y-4">
+              <TabsList>
+                <TabsTrigger value="steps">Steps</TabsTrigger>
+                <TabsTrigger value="exercise">Exercise</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="steps" className="space-y-4">
+                <div className="p-6 bg-white border rounded-lg">
+                  <h3 className="text-xl font-medium mb-2">Today's Steps</h3>
+                  <p className="text-3xl font-bold text-green-600 mb-4">{steps}</p>
+                  <Button onClick={handleUpdateSteps}>Log Steps</Button>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="exercise" className="space-y-4">
+                <div className="p-6 bg-white border rounded-lg">
+                  <h3 className="text-xl font-medium mb-2">Exercise Minutes</h3>
+                  <p className="text-3xl font-bold text-green-600 mb-4">{exerciseMinutes} min</p>
+                  <Button onClick={handleUpdateExercise}>Log Exercise</Button>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </motion.div>
+
+          {/* Progress Chart */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
