@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import FreePlanCard from "@/components/pricing/FreePlanCard";
