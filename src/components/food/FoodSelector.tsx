@@ -15,12 +15,14 @@ import { CustomFoodForm } from "./CustomFoodForm";
 import { PremiumFoodDialog } from "./PremiumFoodDialog";
 import { FoodDatabaseTab } from "./FoodDatabaseTab";
 import { type Food } from "./types";
+import { useNavigate } from "react-router-dom";
 
 interface FoodSelectorProps {
   onFoodSelect: (food: Food) => void;
 }
 
 export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
+  const navigate = useNavigate();
   const { isPremium, customFoods } = useSupabase();
   const [activeTab, setActiveTab] = useState("database");
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
@@ -73,7 +75,26 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
               <TabsContent value="custom" className="space-y-4">
                 <div className="text-center py-8">
                   {isPremium ? (
-                    <CustomFoodForm onSuccess={() => setActiveTab("database")} />
+                    <>
+                      <Button 
+                        onClick={() => navigate('/custom-foods')}
+                        className="mb-4"
+                      >
+                        Create New Custom Food
+                      </Button>
+                      <div className="space-y-2">
+                        {customFoods?.map((food) => (
+                          <Button
+                            key={food.id}
+                            variant="outline"
+                            className="w-full justify-start"
+                            onClick={() => handleCustomFoodSelect(food)}
+                          >
+                            {food.name}
+                          </Button>
+                        ))}
+                      </div>
+                    </>
                   ) : (
                     <>
                       <h3 className="font-medium text-lg mb-2">Premium Feature</h3>
@@ -99,4 +120,3 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
     </>
   );
 };
-
