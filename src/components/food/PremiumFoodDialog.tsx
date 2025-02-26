@@ -18,6 +18,11 @@ interface PremiumFoodDialogProps {
 export const PremiumFoodDialog = ({ open, onOpenChange }: PremiumFoodDialogProps) => {
   const navigate = useNavigate();
 
+  const handleUpgrade = () => {
+    onOpenChange(false);
+    navigate('/premium-upgrade');
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -32,10 +37,7 @@ export const PremiumFoodDialog = ({ open, onOpenChange }: PremiumFoodDialogProps
         </DialogHeader>
         <div className="mt-4">
           <Button 
-            onClick={() => {
-              onOpenChange(false);
-              navigate('/premium-upgrade');
-            }}
+            onClick={handleUpgrade}
             className="w-full"
           >
             Upgrade to Premium
@@ -45,3 +47,4 @@ export const PremiumFoodDialog = ({ open, onOpenChange }: PremiumFoodDialogProps
     </Dialog>
   );
 };
+

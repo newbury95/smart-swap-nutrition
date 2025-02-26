@@ -48,6 +48,11 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
     onFoodSelect(food);
   };
 
+  const handlePremiumUpgrade = () => {
+    setShowPremiumDialog(false);
+    navigate('/premium-upgrade');
+  };
+
   return (
     <>
       <Sheet>
@@ -78,7 +83,7 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
                     <>
                       <Button 
                         onClick={() => navigate('/custom-foods')}
-                        className="mb-4"
+                        className="mb-4 w-full"
                       >
                         Create New Custom Food
                       </Button>
@@ -101,7 +106,7 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
                       <p className="text-muted-foreground mb-4">
                         Upgrade to Premium to create and save custom foods
                       </p>
-                      <Button onClick={() => setShowPremiumDialog(true)}>
+                      <Button onClick={() => handlePremiumUpgrade()}>
                         Upgrade to Premium
                       </Button>
                     </>
@@ -120,3 +125,4 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
     </>
   );
 };
+
