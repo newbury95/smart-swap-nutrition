@@ -9,6 +9,45 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      custom_foods: {
+        Row: {
+          brand: string | null
+          calories: number
+          carbs: number
+          created_at: string | null
+          fat: number
+          id: string
+          name: string
+          protein: number
+          serving_size: string
+          user_id: string
+        }
+        Insert: {
+          brand?: string | null
+          calories: number
+          carbs: number
+          created_at?: string | null
+          fat: number
+          id?: string
+          name: string
+          protein: number
+          serving_size: string
+          user_id: string
+        }
+        Update: {
+          brand?: string | null
+          calories?: number
+          carbs?: number
+          created_at?: string | null
+          fat?: number
+          id?: string
+          name?: string
+          protein?: number
+          serving_size?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       health_metrics: {
         Row: {
           id: string
@@ -221,6 +260,38 @@ export type Database = {
           weight?: number
         }
         Relationships: []
+      }
+      serving_size_options: {
+        Row: {
+          description: string
+          grams: number
+          id: string
+          is_default: boolean | null
+          nutritional_info_id: string
+        }
+        Insert: {
+          description: string
+          grams: number
+          id?: string
+          is_default?: boolean | null
+          nutritional_info_id: string
+        }
+        Update: {
+          description?: string
+          grams?: number
+          id?: string
+          is_default?: boolean | null
+          nutritional_info_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "serving_size_options_nutritional_info_id_fkey"
+            columns: ["nutritional_info_id"]
+            isOneToOne: false
+            referencedRelation: "nutritional_info"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

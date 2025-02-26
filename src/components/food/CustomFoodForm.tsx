@@ -5,7 +5,11 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useSupabase } from "@/hooks/useSupabase";
 
-export const CustomFoodForm = ({ onSuccess }: { onSuccess: () => void }) => {
+interface CustomFoodFormProps {
+  onSuccess: () => void;
+}
+
+export const CustomFoodForm = ({ onSuccess }: CustomFoodFormProps) => {
   const { toast } = useToast();
   const { addCustomFood } = useSupabase();
   const [loading, setLoading] = useState(false);
@@ -132,3 +136,4 @@ export const CustomFoodForm = ({ onSuccess }: { onSuccess: () => void }) => {
     </form>
   );
 };
+

@@ -21,7 +21,14 @@ export const FoodDatabaseTab = ({ onSelect }: FoodDatabaseTabProps) => {
   const { data: foods = [], isLoading } = useQuery({
     queryKey: ['foods', searchQuery],
     queryFn: async () => {
-      let query = supabase.from('nutritional_info').select('*');
+      let query = supabase.from('nutritional_info').select(`
+        *,
+        serving_size_options (
+          description,
+          grams,
+          is_default
+        )
+      `);
 
       if (searchQuery) {
         query = query.ilike('food_item', `%${searchQuery}%`);
@@ -44,7 +51,8 @@ export const FoodDatabaseTab = ({ onSelect }: FoodDatabaseTabProps) => {
         servingSize: item.serving_size,
         barcode: item.barcode || undefined,
         supermarket: "All Supermarkets" as Supermarket,
-        category: "All Categories" as FoodCategory
+        category: "All Categories" as FoodCategory,
+        servingSizeOptions: item.serving_size_options
       }));
     }
   });
@@ -81,3 +89,4 @@ export const FoodDatabaseTab = ({ onSelect }: FoodDatabaseTabProps) => {
     </div>
   );
 };
+
