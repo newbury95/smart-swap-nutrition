@@ -1,4 +1,3 @@
-
 import { useEffect, useState, Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -19,6 +18,8 @@ const ContactPage = lazy(() => import("./pages/contact/ContactPage"));
 const MealPlansPage = lazy(() => import("./pages/premium/MealPlansPage"));
 const WorkoutPlansPage = lazy(() => import("./pages/premium/WorkoutPlansPage"));
 const AuthPage = lazy(() => import("./pages/auth/AuthPage"));
+const PremiumUpgradePage = lazy(() => import("./pages/premium/PremiumUpgradePage"));
+const CustomFoodsPage = lazy(() => import("./pages/premium/CustomFoodsPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -112,6 +113,8 @@ const App = () => (
               <Route path="/meal-plans" element={<MealPlansPage />} />
               <Route path="/workout-plans" element={<WorkoutPlansPage />} />
               <Route path="/auth" element={<AuthPage />} />
+              <Route path="/premium-upgrade" element={<PremiumUpgradePage />} />
+              <Route path="/custom-foods" element={<CustomFoodsPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

@@ -1,6 +1,6 @@
 
 import { useNavigate } from "react-router-dom";
-import { BookOpen, MessageSquare, PhoneCall, LogOut, Activity, Crown, Dumbbell } from "lucide-react";
+import { BookOpen, MessageSquare, PhoneCall, LogOut, Activity, Crown, Dumbbell, Menu } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
@@ -21,7 +21,7 @@ const Header = () => {
   }, []);
 
   const handleNavigation = (path: string) => {
-    const protectedRoutes = ['/diary', '/tracking', '/forum', '/workout-plans'];
+    const protectedRoutes = ['/diary', '/tracking', '/forum', '/workout-plans', '/meal-plans', '/custom-foods'];
     
     if (protectedRoutes.includes(path) && !isAuthenticated) {
       toast({
@@ -55,38 +55,41 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 border-b bg-white">
       <div className="container mx-auto px-4">
-        <nav className="flex gap-6 justify-between py-4">
-          <div className="grid grid-cols-5 gap-6 flex-1">
+        <nav className="flex gap-4 justify-between py-3">
+          <div className="grid grid-cols-6 gap-3 flex-1">
             <button
               onClick={() => handleNavigation('/tracking')}
               className="flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 transition-all duration-300 transform hover:scale-105"
             >
-              <Activity className="w-5 h-5" />
-              <span className="text-xs">Tracking</span>
+              <Activity className="w-4 h-4" />
+              <span className="text-[10px]">Tracking</span>
             </button>
 
             <button
               onClick={() => handleNavigation('/diary')}
               className="flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 transition-all duration-300 transform hover:scale-105"
             >
-              <BookOpen className="w-5 h-5" />
-              <span className="text-xs">Food Diary</span>
+              <BookOpen className="w-4 h-4" />
+              <span className="text-[10px]">Food Diary</span>
             </button>
 
             <button
-              onClick={() => handleNavigation('/forum')}
+              onClick={() => handleNavigation('/meal-plans')}
               className="flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 transition-all duration-300 transform hover:scale-105"
             >
-              <MessageSquare className="w-5 h-5" />
-              <span className="text-xs">Forum</span>
+              <div className="relative">
+                <Menu className="w-4 h-4" />
+                <Crown className="absolute -top-1.5 -right-1.5 w-3 h-3 text-yellow-500" />
+              </div>
+              <span className="text-[10px]">Meal Plans</span>
             </button>
 
             <button
-              onClick={() => handleNavigation('/contact')}
+              onClick={() => handleNavigation('/custom-foods')}
               className="flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 transition-all duration-300 transform hover:scale-105"
             >
-              <PhoneCall className="w-5 h-5" />
-              <span className="text-xs">Contact</span>
+              <BookOpen className="w-4 h-4" />
+              <span className="text-[10px]">Custom Foods</span>
             </button>
 
             <button
@@ -94,10 +97,18 @@ const Header = () => {
               className="flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 transition-all duration-300 transform hover:scale-105"
             >
               <div className="relative">
-                <Dumbbell className="w-5 h-5" />
-                <Crown className="absolute -top-2 -right-2 w-4 h-4 text-yellow-500" />
+                <Dumbbell className="w-4 h-4" />
+                <Crown className="absolute -top-1.5 -right-1.5 w-3 h-3 text-yellow-500" />
               </div>
-              <span className="text-xs">Workouts</span>
+              <span className="text-[10px]">Workouts</span>
+            </button>
+
+            <button
+              onClick={() => handleNavigation('/forum')}
+              className="flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 transition-all duration-300 transform hover:scale-105"
+            >
+              <MessageSquare className="w-4 h-4" />
+              <span className="text-[10px]">Forum</span>
             </button>
           </div>
 
@@ -126,4 +137,3 @@ const Header = () => {
 };
 
 export default Header;
-
