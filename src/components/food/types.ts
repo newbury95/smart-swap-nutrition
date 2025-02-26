@@ -15,6 +15,13 @@ export type FoodCategory =
   | "Frozen Foods"
   | "All Categories";
 
+export interface ServingSizeOption {
+  id: string;
+  description: string;
+  grams: number;
+  is_default: boolean;
+}
+
 export type Food = {
   id: string;
   name: string;
@@ -27,6 +34,7 @@ export type Food = {
   barcode?: string;
   supermarket: Supermarket;
   category: FoodCategory;
+  servingSizeOptions?: ServingSizeOption[];
 };
 
 export type NutritionFilters = {

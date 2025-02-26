@@ -24,6 +24,7 @@ export const FoodDatabaseTab = ({ onSelect }: FoodDatabaseTabProps) => {
       let query = supabase.from('nutritional_info').select(`
         *,
         serving_size_options (
+          id,
           description,
           grams,
           is_default
@@ -52,7 +53,7 @@ export const FoodDatabaseTab = ({ onSelect }: FoodDatabaseTabProps) => {
         barcode: item.barcode || undefined,
         supermarket: "All Supermarkets" as Supermarket,
         category: "All Categories" as FoodCategory,
-        servingSizeOptions: item.serving_size_options
+        servingSizeOptions: item.serving_size_options || []
       }));
     }
   });
@@ -89,4 +90,3 @@ export const FoodDatabaseTab = ({ onSelect }: FoodDatabaseTabProps) => {
     </div>
   );
 };
-
