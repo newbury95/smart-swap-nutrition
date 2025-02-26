@@ -200,7 +200,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_food_swaps: {
+        Args: {
+          meal_date: string
+          user_id: string
+        }
+        Returns: {
+          original_food: string
+          suggested_food: string
+          reason: string
+          calorie_difference: number
+          protein_difference: number
+        }[]
+      }
     }
     Enums: {
       food_category_type:

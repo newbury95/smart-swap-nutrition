@@ -8,29 +8,35 @@ import { DiarySidebar } from "@/components/diary/DiarySidebar";
 import SponsorBanner from "@/components/shared/SponsorBanner";
 import { FoodSwapSuggestions } from "@/components/diary/FoodSwapSuggestions";
 import { useMealManagement } from "@/hooks/useMealManagement";
-
-const mockSwaps = [
-  {
-    original: "Fried egg on toast with butter",
-    suggestion: "Scrambled egg on dry wholemeal toast",
-    reason: "Lower in calories and saturated fats while maintaining protein content. Wholemeal bread provides more fiber and nutrients."
-  }
-];
+import { useSupabase, type FoodSwap } from "@/hooks/useSupabase";
 
 const FoodDiary = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [date, setDate] = useState<Date>(new Date());
   const [showSwaps, setShowSwaps] = useState(false);
+  const [foodSwaps, setFoodSwaps] = useState<FoodSwap[]>([]);
+  const { getFoodSwaps } = useSupabase();
   
   const { meals, handleAddFood, handleDeleteFood, getAllMealsNutrients } = useMealManagement(date);
 
-  const handleComplete = () => {
-    setShowSwaps(true);
-    toast({
-      title: "Daily food diary completed",
-      description: "Here are some suggested food swaps based on your goals",
-    });
+  const handleComplete = async () => {
+    try {
+      const swaps = await getFoodSwaps(date);
+      setFoodSwaps(swaps);
+      setShowSwaps(true);
+      toast({
+        title: "Daily food diary completed",
+        description: "Here are some suggested food swaps based on your goals",
+      });
+    } catch (error) {
+      console.error('Error getting food swaps:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to get food swap suggestions",
+      });
+    }
   };
 
   return (
@@ -67,7 +73,7 @@ const FoodDiary = () => {
       
       {showSwaps && (
         <FoodSwapSuggestions
-          swaps={mockSwaps}
+          swaps={foodSwaps}
           onClose={() => setShowSwaps(false)}
         />
       )}

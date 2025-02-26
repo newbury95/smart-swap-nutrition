@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
@@ -39,6 +38,14 @@ export type Meal = {
   serving_size?: string;
   created_at: string;
   date: string;
+};
+
+export type FoodSwap = {
+  original_food: string;
+  suggested_food: string;
+  reason: string;
+  calorie_difference: number;
+  protein_difference: number;
 };
 
 export const useSupabase = () => {
@@ -176,6 +183,24 @@ export const useSupabase = () => {
     return data || [];
   };
 
+  const getFoodSwaps = async (date: Date) => {
+    if (!supabase) return [];
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) return [];
+
+    const { data, error } = await supabase.rpc(
+      'get_food_swaps',
+      { 
+        meal_date: date.toISOString().split('T')[0],
+        user_id: session.user.id
+      }
+    );
+
+    if (error) throw error;
+    return data as FoodSwap[];
+  };
+
   return {
     isPremium,
     customFoods,
@@ -186,6 +211,6 @@ export const useSupabase = () => {
     getMeals,
     addMeal,
     deleteMeal,
+    getFoodSwaps,
   };
 };
-
