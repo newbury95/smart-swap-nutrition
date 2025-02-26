@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import FreePlanCard from "@/components/pricing/FreePlanCard";
 import PremiumPlanCard from "@/components/pricing/PremiumPlanCard";
-import SponsorBanner from "@/components/shared/SponsorBanner";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -67,8 +66,6 @@ const Index = () => {
           <PremiumPlanCard features={premiumFeatures} />
         </motion.div>
       </section>
-
-      <SponsorBanner />
     </div>
   );
 };
