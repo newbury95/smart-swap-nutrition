@@ -239,6 +239,7 @@ export type Database = {
         | "M&S"
         | "Ocado"
         | "Generic"
+        | "Aldi"
       supermarket_type:
         | "Tesco"
         | "Sainsburys"
