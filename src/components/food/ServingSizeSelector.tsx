@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -35,15 +35,19 @@ export const ServingSizeSelector = ({ foodId, onSelect }: ServingSizeSelectorPro
 
       if (error) throw error;
       return data as ServingSizeOption[];
-    },
-    onSuccess: (data) => {
-      const defaultSize = data.find(size => size.is_default);
+    }
+  });
+
+  // Handle default serving size selection when data is loaded
+  useEffect(() => {
+    if (servingSizes?.length) {
+      const defaultSize = servingSizes.find(size => size.is_default);
       if (defaultSize && !selectedSize) {
         setSelectedSize(defaultSize.description);
         onSelect(defaultSize.description);
       }
     }
-  });
+  }, [servingSizes, selectedSize, onSelect]);
 
   const handleSizeChange = (value: string) => {
     setSelectedSize(value);
