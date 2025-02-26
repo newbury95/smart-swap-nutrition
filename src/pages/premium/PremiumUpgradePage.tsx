@@ -32,12 +32,12 @@ const PremiumUpgradePage = () => {
       // Create payment record
       const { error: paymentError } = await supabase
         .from('payment_history')
-        .insert({
+        .insert([{
           user_id: userId,
           amount: 7.99,
           status: 'completed',
           payment_method: 'card',
-        });
+        }]);
 
       if (paymentError) throw paymentError;
 
@@ -157,3 +157,4 @@ const PremiumUpgradePage = () => {
 };
 
 export default PremiumUpgradePage;
+
