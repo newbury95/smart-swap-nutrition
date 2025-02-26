@@ -64,7 +64,7 @@ export const FoodDatabaseTab = ({ onSelect }: FoodDatabaseTabProps) => {
         />
         <Button 
           variant="outline"
-          onClick={() => navigate('/add-custom-food')}
+          onClick={() => navigate('/custom-foods')}
         >
           Add Custom Food
         </Button>
