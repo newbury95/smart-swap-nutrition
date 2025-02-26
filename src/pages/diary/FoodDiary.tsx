@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { DiaryContent } from "@/components/diary/DiaryContent";
 import { DiarySidebar } from "@/components/diary/DiarySidebar";
-import { SponsorBanner } from "@/components/diary/SponsorBanner";
+import SponsorBanner from "@/components/shared/SponsorBanner";
 import { FoodSwapSuggestions } from "@/components/diary/FoodSwapSuggestions";
 import { useMealManagement } from "@/hooks/useMealManagement";
 
