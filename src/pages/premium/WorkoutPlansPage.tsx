@@ -31,10 +31,10 @@ const WorkoutPlansPage = () => {
         description: "Upgrade to Premium to access workout plans",
         variant: "destructive",
       });
+      navigate('/premium-upgrade');  // Updated this line to use correct route
       return;
     }
     setSelectedMuscle(muscleId);
-    // TODO: Navigate to specific workout category page
   };
 
   return (

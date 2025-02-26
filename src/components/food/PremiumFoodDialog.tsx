@@ -1,6 +1,14 @@
 
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Crown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface PremiumFoodDialogProps {
   open: boolean;
@@ -8,21 +16,29 @@ interface PremiumFoodDialogProps {
 }
 
 export const PremiumFoodDialog = ({ open, onOpenChange }: PremiumFoodDialogProps) => {
+  const navigate = useNavigate();
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Upgrade to Premium</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <Crown className="w-5 h-5 text-yellow-500" />
+            Premium Feature
+          </DialogTitle>
           <DialogDescription>
-            Get access to custom food creation and more premium features by upgrading your account.
+            Custom foods are only available to premium users. Upgrade your account to unlock this feature.
           </DialogDescription>
         </DialogHeader>
-        <div className="flex justify-end space-x-2 mt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Maybe Later
-          </Button>
-          <Button onClick={() => onOpenChange(false)}>
-            Upgrade Now
+        <div className="mt-4">
+          <Button 
+            onClick={() => {
+              onOpenChange(false);
+              navigate('/premium-upgrade');
+            }}
+            className="w-full"
+          >
+            Upgrade to Premium
           </Button>
         </div>
       </DialogContent>

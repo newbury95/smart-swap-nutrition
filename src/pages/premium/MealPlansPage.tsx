@@ -1,8 +1,11 @@
 
 import { Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const MealPlansPage = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-gray-50 pb-32">
       <main className="container mx-auto px-4 py-8">
@@ -18,7 +21,12 @@ const MealPlansPage = () => {
               This premium feature is coming soon!
             </p>
             
-            <Button variant="outline">Upgrade to Premium</Button>
+            <Button 
+              variant="outline"
+              onClick={() => navigate('/premium-upgrade')}
+            >
+              Upgrade to Premium
+            </Button>
           </div>
         </div>
       </main>
