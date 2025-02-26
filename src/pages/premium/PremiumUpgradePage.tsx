@@ -23,10 +23,17 @@ const PremiumUpgradePage = () => {
     setLoading(true);
 
     try {
-      // First create a payment record
+      const userId = (await supabase.auth.getUser()).data.user?.id;
+      
+      if (!userId) {
+        throw new Error('User not authenticated');
+      }
+
+      // Create payment record
       const { error: paymentError } = await supabase
         .from('payment_history')
         .insert({
+          user_id: userId,
           amount: 7.99,
           status: 'completed',
           payment_method: 'card',
@@ -38,7 +45,7 @@ const PremiumUpgradePage = () => {
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ is_premium: true })
-        .eq('id', (await supabase.auth.getUser()).data.user?.id);
+        .eq('id', userId);
 
       if (updateError) throw updateError;
 

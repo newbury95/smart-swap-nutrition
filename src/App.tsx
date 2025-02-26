@@ -19,7 +19,7 @@ const MealPlansPage = lazy(() => import("./pages/premium/MealPlansPage"));
 const WorkoutPlansPage = lazy(() => import("./pages/premium/WorkoutPlansPage"));
 const AuthPage = lazy(() => import("./pages/auth/AuthPage"));
 const PremiumUpgradePage = lazy(() => import("./pages/premium/PremiumUpgradePage"));
-const CustomFoodsPage = lazy(() => import("./pages/premium/CustomFoodsPage"));
+const CustomFoodsPage = lazy(() => import("./pages/custom-foods/CustomFoodsPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
