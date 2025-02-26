@@ -1,10 +1,11 @@
 
 import { useNavigate } from "react-router-dom";
-import { BookOpen, Home, MessageSquare, PhoneCall, LogOut, Activity } from "lucide-react";
+import { BookOpen, MessageSquare, PhoneCall, LogOut, Activity, Crown, Dumbbell } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
+import { cn } from "@/lib/utils";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ const Header = () => {
   }, []);
 
   const handleNavigation = (path: string) => {
-    const protectedRoutes = ['/diary', '/tracking', '/forum'];
+    const protectedRoutes = ['/diary', '/tracking', '/forum', '/workout-plans'];
     
     if (protectedRoutes.includes(path) && !isAuthenticated) {
       toast({
@@ -87,6 +88,17 @@ const Header = () => {
               <PhoneCall className="w-5 h-5" />
               <span className="text-xs">Contact</span>
             </button>
+
+            <button
+              onClick={() => handleNavigation('/workout-plans')}
+              className="flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 transition-all duration-300 transform hover:scale-105"
+            >
+              <div className="relative">
+                <Dumbbell className="w-5 h-5" />
+                <Crown className="absolute -top-2 -right-2 w-4 h-4 text-yellow-500" />
+              </div>
+              <span className="text-xs">Workouts</span>
+            </button>
           </div>
 
           {isAuthenticated ? (
@@ -114,3 +126,4 @@ const Header = () => {
 };
 
 export default Header;
+
