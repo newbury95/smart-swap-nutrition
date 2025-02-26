@@ -37,7 +37,7 @@ const TopNavigation = () => {
     <nav className="bg-white border-b">
       <div className="container mx-auto px-4 py-2">
         <div className="flex justify-between items-center">
-          <div className="grid grid-cols-5 gap-4">
+          <div className="grid grid-cols-6 gap-4">
             <NavTile
               icon={<Activity className="w-5 h-5" />}
               label="Tracking"
