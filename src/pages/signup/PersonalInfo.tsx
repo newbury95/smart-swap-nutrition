@@ -72,14 +72,16 @@ const PersonalInfo = () => {
       if (authError) throw authError;
 
       if (!authData.user) {
-        throw new Error("No user data returned");
+        throw new Error("No user data returned from signup");
       }
 
-      // Then create their profile
+      console.log("Auth success, user ID:", authData.user.id);
+
+      // Then create their profile using the ID from the signup response
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
-          id: authData.user.id,
+          id: authData.user.id, // Use the ID from the signup response
           first_name: formData.firstName,
           last_name: formData.lastName,
           email: formData.email,
@@ -90,7 +92,10 @@ const PersonalInfo = () => {
           is_premium: formData.isPremium
         });
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error('Profile creation error:', profileError);
+        throw new Error(`Failed to create profile: ${JSON.stringify(profileError)}`);
+      }
 
       toast({
         title: "Success!",
@@ -99,7 +104,7 @@ const PersonalInfo = () => {
       
       navigate("/diary");
     } catch (error) {
-      console.error('Error creating profile:', error);
+      console.error('Error during signup:', error);
       toast({
         variant: "destructive",
         title: "Error",
@@ -170,3 +175,4 @@ const PersonalInfo = () => {
 };
 
 export default PersonalInfo;
+
