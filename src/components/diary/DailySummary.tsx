@@ -1,7 +1,5 @@
 
 import React from 'react';
-import { useSupabase } from '@/hooks/useSupabase';
-import { useToast } from '@/hooks/use-toast';
 
 interface NutritionSummary {
   calories: number;
@@ -15,8 +13,6 @@ interface DailySummaryProps {
 }
 
 export const DailySummary = ({ dailyTotals }: DailySummaryProps) => {
-  const { toast } = useToast();
-  const { isPremium, addHealthMetric } = useSupabase();
   const [waterIntake, setWaterIntake] = React.useState(0);
   const [caloriesBurned, setCaloriesBurned] = React.useState(0);
 
@@ -24,7 +20,7 @@ export const DailySummary = ({ dailyTotals }: DailySummaryProps) => {
     setWaterIntake(prev => Math.max(0, prev + amount));
   };
 
-  // Get calories burned from localStorage (set in TrackingPage)
+  // Get calories burned from localStorage (set in TrackingPage or HealthMetrics)
   React.useEffect(() => {
     const storedCaloriesBurned = localStorage.getItem('caloriesBurned');
     if (storedCaloriesBurned) {
@@ -34,40 +30,6 @@ export const DailySummary = ({ dailyTotals }: DailySummaryProps) => {
 
   // Calculate net calories (intake - burned)
   const netCalories = dailyTotals.calories - caloriesBurned;
-
-  const handleLogActivity = async () => {
-    if (!isPremium) {
-      toast({
-        title: "Premium Feature",
-        description: "Upgrade to Premium to track activity and calories",
-        variant: "destructive",
-      });
-      return;
-    }
-    try {
-      await addHealthMetric({
-        metric_type: 'activity',
-        value: 100,
-        source: 'manual'
-      });
-      setCaloriesBurned(prev => prev + 100);
-      
-      // Update localStorage for other components
-      localStorage.setItem('caloriesBurned', (caloriesBurned + 100).toString());
-      
-      toast({
-        title: "Activity Logged",
-        description: "Your calories burned have been recorded",
-      });
-    } catch (error) {
-      console.error('Error logging activity:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to log activity",
-      });
-    }
-  };
 
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm">
@@ -127,12 +89,9 @@ export const DailySummary = ({ dailyTotals }: DailySummaryProps) => {
               <span className="text-gray-600">Calories Burned</span>
               <span className="font-medium">{caloriesBurned} kcal</span>
             </div>
-            <button
-              onClick={handleLogActivity}
-              className="w-full px-2 py-1 text-sm bg-orange-100 text-orange-600 rounded hover:bg-orange-200 transition-colors"
-            >
-              Log Activity (+100 kcal)
-            </button>
+            <p className="text-xs text-gray-500">
+              Use the Health Metrics section to log and track your activity
+            </p>
           </div>
         </div>
       </div>

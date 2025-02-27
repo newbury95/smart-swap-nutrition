@@ -1,10 +1,11 @@
 
-import { Activity, Heart, Footprints } from "lucide-react";
+import { Activity, Heart, Footprints, Dumbbell, Flame } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useSupabase } from "@/hooks/useSupabase";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 
 type MetricType = 'activity' | 'heart-rate' | 'steps';
 
@@ -29,6 +30,10 @@ export const HealthMetrics = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isPremium, addHealthMetric } = useSupabase();
+  const [caloriesBurned, setCaloriesBurned] = useState(() => {
+    const storedCaloriesBurned = localStorage.getItem('caloriesBurned');
+    return storedCaloriesBurned ? parseInt(storedCaloriesBurned) : 0;
+  });
 
   const { data: metrics, refetch } = useQuery({
     queryKey: ['health-metrics'],
@@ -51,6 +56,46 @@ export const HealthMetrics = () => {
       return;
     }
     navigate('/tracking', { state: { activeMetric: metric } });
+  };
+
+  const handleLogActivity = async () => {
+    if (!isPremium) {
+      toast({
+        title: "Premium Feature",
+        description: "Upgrade to Premium to track activity and calories",
+        variant: "destructive",
+      });
+      return;
+    }
+    try {
+      await addHealthMetric({
+        metric_type: 'activity',
+        value: 100,
+        source: 'manual'
+      });
+      
+      // Update local state
+      const newCaloriesBurned = caloriesBurned + 100;
+      setCaloriesBurned(newCaloriesBurned);
+      
+      // Update localStorage for other components
+      localStorage.setItem('caloriesBurned', newCaloriesBurned.toString());
+      
+      // Refetch metrics
+      refetch();
+      
+      toast({
+        title: "Activity Logged",
+        description: "Your calories burned have been recorded",
+      });
+    } catch (error) {
+      console.error('Error logging activity:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to log activity",
+      });
+    }
   };
 
   const handleLogSteps = async () => {
@@ -116,7 +161,7 @@ export const HealthMetrics = () => {
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
       <h3 className="font-semibold text-gray-800 mb-4">Health Metrics</h3>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <div className="bg-white rounded-xl p-4 border">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-100 rounded-lg">
@@ -173,6 +218,46 @@ export const HealthMetrics = () => {
               className="w-full px-2 py-1 text-sm bg-green-100 text-green-600 rounded hover:bg-green-200 transition-colors"
             >
               Log Steps (+1000)
+            </button>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl p-4 border">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-orange-100 rounded-lg">
+              <Flame className="w-5 h-5 text-orange-600" />
+            </div>
+            <div>
+              <h4 className="text-sm font-medium text-gray-800">Calories</h4>
+              <p className="text-xl font-semibold">{caloriesBurned} kcal</p>
+            </div>
+          </div>
+          <div className="mt-2">
+            <button
+              onClick={handleLogActivity}
+              className="w-full px-2 py-1 text-sm bg-orange-100 text-orange-600 rounded hover:bg-orange-200 transition-colors"
+            >
+              Log Activity (+100)
+            </button>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl p-4 border">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-purple-100 rounded-lg">
+              <Dumbbell className="w-5 h-5 text-purple-600" />
+            </div>
+            <div>
+              <h4 className="text-sm font-medium text-gray-800">Exercise</h4>
+              <p className="text-xl font-semibold">Log</p>
+            </div>
+          </div>
+          <div className="mt-2">
+            <button
+              onClick={() => navigate('/tracking')}
+              className="w-full px-2 py-1 text-sm bg-purple-100 text-purple-600 rounded hover:bg-purple-200 transition-colors"
+            >
+              Track Exercise
             </button>
           </div>
         </div>

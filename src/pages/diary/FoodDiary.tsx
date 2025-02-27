@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { DiaryContent } from "@/components/diary/DiaryContent";
 import { DiarySidebar } from "@/components/diary/DiarySidebar";
 import { FoodSwapSuggestions } from "@/components/diary/FoodSwapSuggestions";
+import { HealthMetrics } from "@/components/diary/HealthMetrics";
 import { useMealManagement } from "@/hooks/useMealManagement";
 import { useSupabase, type FoodSwap } from "@/hooks/useSupabase";
 
@@ -53,6 +54,8 @@ const FoodDiary = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
+        <HealthMetrics />
+        
         <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-8">
           <DiarySidebar 
             date={date}
