@@ -31,6 +31,7 @@ export type Food = {
   carbs: number;
   fat: number;
   servingSize: string;
+  quantity?: number;
   barcode?: string;
   supermarket: Supermarket;
   category: FoodCategory;

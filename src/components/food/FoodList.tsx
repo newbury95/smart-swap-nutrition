@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Food } from "./types";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus, Minus } from "lucide-react";
 import { ServingSizeSelector } from "./ServingSizeSelector";
 import {
   Dialog,
@@ -11,6 +11,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface FoodListProps {
   foods: Food[];
@@ -21,6 +22,7 @@ interface FoodListProps {
 export const FoodList = ({ foods, onSelect, isLoading }: FoodListProps) => {
   const [selectedFood, setSelectedFood] = useState<Food | null>(null);
   const [selectedServingSize, setSelectedServingSize] = useState<string>("");
+  const [quantity, setQuantity] = useState(1);
 
   if (isLoading) {
     return (
@@ -40,16 +42,34 @@ export const FoodList = ({ foods, onSelect, isLoading }: FoodListProps) => {
 
   const handleFoodClick = (food: Food) => {
     setSelectedFood(food);
+    setQuantity(1); // Reset quantity when selecting new food
+  };
+
+  const handleQuantityChange = (value: number) => {
+    if (value >= 1 && value <= 99) {
+      setQuantity(value);
+    }
   };
 
   const handleConfirm = () => {
     if (selectedFood) {
-      onSelect({
+      const servingSize = selectedServingSize || selectedFood.servingSize;
+      
+      // Calculate adjusted nutritional values based on quantity
+      const adjustedFood = {
         ...selectedFood,
-        servingSize: selectedServingSize || selectedFood.servingSize
-      });
+        servingSize: `${quantity} × ${servingSize}`,
+        calories: selectedFood.calories * quantity,
+        protein: selectedFood.protein * quantity,
+        carbs: selectedFood.carbs * quantity,
+        fat: selectedFood.fat * quantity,
+        quantity: quantity
+      };
+
+      onSelect(adjustedFood);
       setSelectedFood(null);
       setSelectedServingSize("");
+      setQuantity(1);
     }
   };
 
@@ -91,6 +111,43 @@ export const FoodList = ({ foods, onSelect, isLoading }: FoodListProps) => {
                   foodId={selectedFood.id}
                   onSelect={setSelectedServingSize}
                 />
+              )}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Quantity</label>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => handleQuantityChange(quantity - 1)}
+                    disabled={quantity <= 1}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <Input
+                    type="number"
+                    min="1"
+                    max="99"
+                    value={quantity}
+                    onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
+                    className="w-20 text-center"
+                  />
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => handleQuantityChange(quantity + 1)}
+                    disabled={quantity >= 99}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+              {selectedFood && (
+                <div className="text-sm mt-4">
+                  <div className="font-medium">Total nutrition ({quantity} servings)</div>
+                  <div className="mt-1 text-gray-500">
+                    {selectedFood.calories * quantity} kcal | {selectedFood.protein * quantity}g protein | {selectedFood.carbs * quantity}g carbs | {selectedFood.fat * quantity}g fat
+                  </div>
+                </div>
               )}
             </div>
           </div>
