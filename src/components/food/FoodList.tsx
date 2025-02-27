@@ -113,6 +113,7 @@ export const FoodList = ({ foods, onSelect, isLoading }: FoodListProps) => {
               {selectedFood && selectedFood.id && (
                 <ServingSizeSelector
                   foodId={selectedFood.id}
+                  foodName={selectedFood.name}
                   onSelect={handleServingSizeSelect}
                 />
               )}
