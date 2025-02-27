@@ -11,6 +11,7 @@ import {
 } from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TrackingData, TimeRange } from "@/types/tracking";
+import { useFormattedChartData } from "@/hooks/useFormattedChartData";
 
 interface ProgressChartProps {
   data: TrackingData[];
@@ -25,6 +26,8 @@ const ProgressChart = ({
   onTimeRangeChange,
   isPremium,
 }: ProgressChartProps) => {
+  const chartData = useFormattedChartData(data, timeRange);
+  
   return (
     <Tabs value={timeRange} onValueChange={(value) => onTimeRangeChange(value as TimeRange)}>
       <div className="flex justify-between items-center mb-6">
@@ -39,7 +42,7 @@ const ProgressChart = ({
 
       <TabsContent value={timeRange} className="h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data}>
+          <LineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="date" />
             <YAxis yAxisId="left" />
