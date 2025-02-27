@@ -17,17 +17,40 @@ export const usePremiumStatus = () => {
   const checkPremiumStatus = async () => {
     if (!supabase) return;
     
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session?.user) {
-      const { data } = await supabase
-        .from('profiles')
-        .select('is_premium')
-        .eq('id', session.user.id)
-        .single();
-      setIsPremium(!!data?.is_premium);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('is_premium')
+          .eq('id', session.user.id)
+          .single();
+        
+        if (error) {
+          console.error('Error fetching premium status:', error);
+          setIsPremium(false);
+        } else {
+          setIsPremium(!!data?.is_premium);
+          
+          // Also store in localStorage for quick access
+          localStorage.setItem('isPremium', data?.is_premium ? 'true' : 'false');
+        }
+      } else {
+        setIsPremium(false);
+        localStorage.removeItem('isPremium');
+      }
+    } catch (error) {
+      console.error('Error in premium status check:', error);
+      setIsPremium(false);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
-  return { isPremium, loading };
+  const refreshPremiumStatus = () => {
+    setLoading(true);
+    checkPremiumStatus();
+  };
+
+  return { isPremium, loading, refreshPremiumStatus };
 };
