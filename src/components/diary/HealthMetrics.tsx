@@ -7,7 +7,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 
-type MetricType = 'heart-rate' | 'steps';
+// Update the MetricType to include 'activity'
+type MetricType = 'heart-rate' | 'steps' | 'activity';
 
 interface HealthMetric {
   metric_type: MetricType;

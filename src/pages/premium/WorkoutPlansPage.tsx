@@ -1,5 +1,5 @@
 
-import { Crown, Dumbbell, Weight } from "lucide-react";
+import { Crown, Dumbbell, Weight, ChevronLeft } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useSupabase } from "@/hooks/useSupabase";
