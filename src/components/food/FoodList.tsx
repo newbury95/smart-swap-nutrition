@@ -22,6 +22,7 @@ interface FoodListProps {
 export const FoodList = ({ foods, onSelect, isLoading }: FoodListProps) => {
   const [selectedFood, setSelectedFood] = useState<Food | null>(null);
   const [selectedServingSize, setSelectedServingSize] = useState<string>("");
+  const [servingSizeGrams, setServingSizeGrams] = useState<number>(0);
   const [quantity, setQuantity] = useState(1);
 
   if (isLoading) {
@@ -42,7 +43,14 @@ export const FoodList = ({ foods, onSelect, isLoading }: FoodListProps) => {
 
   const handleFoodClick = (food: Food) => {
     setSelectedFood(food);
-    setQuantity(1); // Reset quantity when selecting new food
+    setQuantity(1);
+    setSelectedServingSize("");
+    setServingSizeGrams(0);
+  };
+
+  const handleServingSizeSelect = (description: string, grams: number) => {
+    setSelectedServingSize(description);
+    setServingSizeGrams(grams);
   };
 
   const handleQuantityChange = (value: number) => {
@@ -52,23 +60,25 @@ export const FoodList = ({ foods, onSelect, isLoading }: FoodListProps) => {
   };
 
   const handleConfirm = () => {
-    if (selectedFood) {
-      const servingSize = selectedServingSize || selectedFood.servingSize;
+    if (selectedFood && servingSizeGrams > 0) {
+      const gramsMultiplier = quantity * (servingSizeGrams / 100);
       
-      // Calculate adjusted nutritional values based on quantity
+      // Calculate adjusted nutritional values based on serving size and quantity
       const adjustedFood = {
         ...selectedFood,
-        servingSize: `${quantity} × ${servingSize}`,
-        calories: selectedFood.calories * quantity,
-        protein: selectedFood.protein * quantity,
-        carbs: selectedFood.carbs * quantity,
-        fat: selectedFood.fat * quantity,
+        servingSize: `${quantity} × ${selectedServingSize}`,
+        calories: Math.round(selectedFood.calories * gramsMultiplier),
+        protein: Number((selectedFood.protein * gramsMultiplier).toFixed(1)),
+        carbs: Number((selectedFood.carbs * gramsMultiplier).toFixed(1)),
+        fat: Number((selectedFood.fat * gramsMultiplier).toFixed(1)),
         quantity: quantity
       };
 
+      console.log('Adjusted food:', adjustedFood); // Debug log
       onSelect(adjustedFood);
       setSelectedFood(null);
       setSelectedServingSize("");
+      setServingSizeGrams(0);
       setQuantity(1);
     }
   };
@@ -100,16 +110,10 @@ export const FoodList = ({ foods, onSelect, isLoading }: FoodListProps) => {
           </DialogHeader>
           <div className="py-4">
             <div className="space-y-4">
-              <div className="text-sm">
-                <div className="font-medium">Nutrition per {selectedFood?.servingSize}</div>
-                <div className="mt-1 text-gray-500">
-                  {selectedFood?.calories} kcal | {selectedFood?.protein}g protein | {selectedFood?.carbs}g carbs | {selectedFood?.fat}g fat
-                </div>
-              </div>
               {selectedFood && selectedFood.id && (
                 <ServingSizeSelector
                   foodId={selectedFood.id}
-                  onSelect={setSelectedServingSize}
+                  onSelect={handleServingSizeSelect}
                 />
               )}
               <div className="space-y-2">
@@ -141,11 +145,16 @@ export const FoodList = ({ foods, onSelect, isLoading }: FoodListProps) => {
                   </Button>
                 </div>
               </div>
-              {selectedFood && (
+              {selectedFood && selectedServingSize && (
                 <div className="text-sm mt-4">
-                  <div className="font-medium">Total nutrition ({quantity} servings)</div>
+                  <div className="font-medium">
+                    Nutrition per {quantity} × {selectedServingSize}
+                  </div>
                   <div className="mt-1 text-gray-500">
-                    {selectedFood.calories * quantity} kcal | {selectedFood.protein * quantity}g protein | {selectedFood.carbs * quantity}g carbs | {selectedFood.fat * quantity}g fat
+                    {Math.round(selectedFood.calories * quantity * (servingSizeGrams / 100))} kcal | {" "}
+                    {(selectedFood.protein * quantity * (servingSizeGrams / 100)).toFixed(1)}g protein | {" "}
+                    {(selectedFood.carbs * quantity * (servingSizeGrams / 100)).toFixed(1)}g carbs | {" "}
+                    {(selectedFood.fat * quantity * (servingSizeGrams / 100)).toFixed(1)}g fat
                   </div>
                 </div>
               )}
@@ -155,7 +164,7 @@ export const FoodList = ({ foods, onSelect, isLoading }: FoodListProps) => {
             <Button variant="outline" onClick={() => setSelectedFood(null)}>
               Cancel
             </Button>
-            <Button onClick={handleConfirm}>
+            <Button onClick={handleConfirm} disabled={!selectedServingSize}>
               Add Food
             </Button>
           </DialogFooter>

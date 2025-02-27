@@ -19,7 +19,7 @@ interface ServingSizeOption {
 
 interface ServingSizeSelectorProps {
   foodId: string;
-  onSelect: (servingSize: string) => void;
+  onSelect: (servingSize: string, grams: number) => void;
 }
 
 export const ServingSizeSelector = ({ foodId, onSelect }: ServingSizeSelectorProps) => {
@@ -44,14 +44,17 @@ export const ServingSizeSelector = ({ foodId, onSelect }: ServingSizeSelectorPro
       const defaultSize = servingSizes.find(size => size.is_default);
       if (defaultSize && !selectedSize) {
         setSelectedSize(defaultSize.description);
-        onSelect(defaultSize.description);
+        onSelect(defaultSize.description, defaultSize.grams);
       }
     }
   }, [servingSizes, selectedSize, onSelect]);
 
   const handleSizeChange = (value: string) => {
-    setSelectedSize(value);
-    onSelect(value);
+    const selectedOption = servingSizes?.find(size => size.description === value);
+    if (selectedOption) {
+      setSelectedSize(value);
+      onSelect(value, selectedOption.grams);
+    }
   };
 
   if (!servingSizes?.length) {
@@ -73,4 +76,3 @@ export const ServingSizeSelector = ({ foodId, onSelect }: ServingSizeSelectorPro
     </Select>
   );
 };
-
