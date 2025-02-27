@@ -1,5 +1,5 @@
 
-import { Activity, BookOpen, MessageSquare, PhoneCall, Crown, Dumbbell } from "lucide-react";
+import { BookOpen, Activity, MessageSquare, PhoneCall, Crown, Dumbbell } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useSupabase } from "@/hooks/useSupabase";
 import { cn } from "@/lib/utils";

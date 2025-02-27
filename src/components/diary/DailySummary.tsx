@@ -14,10 +14,22 @@ interface DailySummaryProps {
 
 export const DailySummary = ({ dailyTotals }: DailySummaryProps) => {
   const [waterIntake, setWaterIntake] = React.useState(0);
+  const [caloriesBurned, setCaloriesBurned] = React.useState(0);
 
   const handleWaterChange = (amount: number) => {
     setWaterIntake(prev => Math.max(0, prev + amount));
   };
+
+  // Get calories burned from localStorage (set in TrackingPage)
+  React.useEffect(() => {
+    const storedCaloriesBurned = localStorage.getItem('caloriesBurned');
+    if (storedCaloriesBurned) {
+      setCaloriesBurned(parseInt(storedCaloriesBurned));
+    }
+  }, []);
+
+  // Calculate net calories (intake - burned)
+  const netCalories = dailyTotals.calories - caloriesBurned;
 
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm">
@@ -25,7 +37,15 @@ export const DailySummary = ({ dailyTotals }: DailySummaryProps) => {
       <div className="space-y-3">
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">Calories</span>
-          <span className="font-medium">{dailyTotals.calories} kcal</span>
+          <div className="flex flex-col items-end">
+            <span className="font-medium">{dailyTotals.calories} kcal</span>
+            {caloriesBurned > 0 && (
+              <>
+                <span className="text-xs text-red-500">-{caloriesBurned} kcal (burned)</span>
+                <span className="text-xs font-medium">= {netCalories} kcal (net)</span>
+              </>
+            )}
+          </div>
         </div>
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">Protein</span>

@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Crown } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -70,7 +70,10 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="database">Database</TabsTrigger>
-                <TabsTrigger value="custom">Custom Foods</TabsTrigger>
+                <TabsTrigger value="custom" className="relative">
+                  Custom Foods
+                  <Crown className="ml-1 h-3 w-3 text-yellow-500" />
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="database">
@@ -88,28 +91,33 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
                         Create New Custom Food
                       </Button>
                       <div className="space-y-2">
-                        {customFoods?.map((food) => (
-                          <Button
-                            key={food.id}
-                            variant="outline"
-                            className="w-full justify-start"
-                            onClick={() => handleCustomFoodSelect(food)}
-                          >
-                            {food.name}
-                          </Button>
-                        ))}
+                        {customFoods?.length > 0 ? (
+                          customFoods.map((food) => (
+                            <Button
+                              key={food.id}
+                              variant="outline"
+                              className="w-full justify-start"
+                              onClick={() => handleCustomFoodSelect(food)}
+                            >
+                              {food.name}
+                            </Button>
+                          ))
+                        ) : (
+                          <p className="text-gray-500">No custom foods yet. Create your first one!</p>
+                        )}
                       </div>
                     </>
                   ) : (
-                    <>
+                    <div className="bg-yellow-50 p-6 rounded-lg">
+                      <Crown className="h-8 w-8 text-yellow-500 mx-auto mb-3" />
                       <h3 className="font-medium text-lg mb-2">Premium Feature</h3>
                       <p className="text-muted-foreground mb-4">
                         Upgrade to Premium to create and save custom foods
                       </p>
-                      <Button onClick={() => handlePremiumUpgrade()}>
+                      <Button onClick={() => handlePremiumUpgrade()} className="bg-yellow-500 hover:bg-yellow-600">
                         Upgrade to Premium
                       </Button>
-                    </>
+                    </div>
                   )}
                 </div>
               </TabsContent>
@@ -125,4 +133,3 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
     </>
   );
 };
-

@@ -85,18 +85,21 @@ export const FoodList = ({ foods, onSelect, isLoading }: FoodListProps) => {
 
   return (
     <>
-      <div className="space-y-2 max-h-[400px] overflow-y-auto">
+      <div className="space-y-2 max-h-[400px] overflow-y-auto rounded-lg shadow-inner bg-white">
         {foods.map((food) => (
           <button
             key={food.id}
             onClick={() => handleFoodClick(food)}
-            className="w-full text-left p-3 hover:bg-gray-50 rounded-lg transition-colors"
+            className="w-full text-left p-4 hover:bg-gray-50 rounded-lg transition-colors border-b border-gray-100 last:border-0"
           >
             <div className="font-medium text-gray-900">{food.name}</div>
-            <div className="text-sm text-gray-500 mt-1">
-              {food.calories} kcal | {food.protein}g P | {food.carbs}g C | {food.fat}g F
+            <div className="text-sm text-gray-500 mt-1 flex justify-between">
+              <span>{food.calories} kcal</span>
+              <span className="px-2 border-l border-r border-gray-200">{food.protein}g P</span>
+              <span className="px-2 border-r border-gray-200">{food.carbs}g C</span>
+              <span>{food.fat}g F</span>
             </div>
-            <div className="text-xs text-gray-400 mt-0.5">
+            <div className="text-xs text-gray-400 mt-1">
               Per {food.servingSize}
             </div>
           </button>
@@ -147,15 +150,35 @@ export const FoodList = ({ foods, onSelect, isLoading }: FoodListProps) => {
                 </div>
               </div>
               {selectedFood && selectedServingSize && (
-                <div className="text-sm mt-4">
-                  <div className="font-medium">
+                <div className="text-sm mt-4 p-4 bg-gray-50 rounded-lg">
+                  <div className="font-medium mb-2">
                     Nutrition per {quantity} × {selectedServingSize}
                   </div>
-                  <div className="mt-1 text-gray-500">
-                    {Math.round(selectedFood.calories * quantity * (servingSizeGrams / 100))} kcal | {" "}
-                    {(selectedFood.protein * quantity * (servingSizeGrams / 100)).toFixed(1)}g protein | {" "}
-                    {(selectedFood.carbs * quantity * (servingSizeGrams / 100)).toFixed(1)}g carbs | {" "}
-                    {(selectedFood.fat * quantity * (servingSizeGrams / 100)).toFixed(1)}g fat
+                  <div className="grid grid-cols-4 gap-2 text-center">
+                    <div className="p-2 bg-blue-50 rounded-md">
+                      <div className="text-sm text-blue-700 font-semibold">
+                        {Math.round(selectedFood.calories * quantity * (servingSizeGrams / 100))}
+                      </div>
+                      <div className="text-xs text-blue-600">kcal</div>
+                    </div>
+                    <div className="p-2 bg-green-50 rounded-md">
+                      <div className="text-sm text-green-700 font-semibold">
+                        {(selectedFood.protein * quantity * (servingSizeGrams / 100)).toFixed(1)}
+                      </div>
+                      <div className="text-xs text-green-600">protein</div>
+                    </div>
+                    <div className="p-2 bg-yellow-50 rounded-md">
+                      <div className="text-sm text-yellow-700 font-semibold">
+                        {(selectedFood.carbs * quantity * (servingSizeGrams / 100)).toFixed(1)}
+                      </div>
+                      <div className="text-xs text-yellow-600">carbs</div>
+                    </div>
+                    <div className="p-2 bg-red-50 rounded-md">
+                      <div className="text-sm text-red-700 font-semibold">
+                        {(selectedFood.fat * quantity * (servingSizeGrams / 100)).toFixed(1)}
+                      </div>
+                      <div className="text-xs text-red-600">fat</div>
+                    </div>
                   </div>
                 </div>
               )}
