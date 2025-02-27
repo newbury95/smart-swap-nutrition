@@ -3,6 +3,7 @@ import React from 'react';
 import { motion } from "framer-motion";
 import { type Meal } from "@/hooks/useSupabase";
 import { MealSection } from "@/components/diary/MealSection";
+import { ExerciseSection } from "@/components/diary/ExerciseSection";
 import { Button } from "@/components/ui/button";
 
 type MealType = "breakfast" | "lunch" | "dinner" | "snack";
@@ -43,6 +44,14 @@ export const DiaryContent: React.FC<DiaryContentProps> = ({
           />
         </motion.div>
       ))}
+      
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.5 }}
+      >
+        <ExerciseSection />
+      </motion.div>
       
       <div className="text-center mt-10">
         <Button onClick={onComplete} className="w-auto">

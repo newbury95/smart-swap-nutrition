@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Footprints } from "lucide-react";
 
 interface NutritionSummary {
   calories: number;
@@ -15,6 +16,7 @@ interface DailySummaryProps {
 export const DailySummary = ({ dailyTotals }: DailySummaryProps) => {
   const [waterIntake, setWaterIntake] = React.useState(0);
   const [caloriesBurned, setCaloriesBurned] = React.useState(0);
+  const [steps, setSteps] = React.useState(7436); // Default step count
 
   const handleWaterChange = (amount: number) => {
     setWaterIntake(prev => Math.max(0, prev + amount));
@@ -58,6 +60,17 @@ export const DailySummary = ({ dailyTotals }: DailySummaryProps) => {
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">Fat</span>
           <span className="font-medium">{dailyTotals.fat}g</span>
+        </div>
+        
+        <div className="pt-3 border-t">
+          <div className="flex justify-between items-center text-sm mb-2">
+            <span className="text-gray-600">Daily Steps</span>
+            <div className="flex items-center gap-2">
+              <Footprints className="w-4 h-4 text-green-600" />
+              <span className="font-medium">{steps}</span>
+            </div>
+          </div>
+          <div className="text-xs text-gray-500">Synced with Apple Health / Samsung Health</div>
         </div>
         
         <div className="pt-3 border-t">
