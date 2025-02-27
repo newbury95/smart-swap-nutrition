@@ -5,6 +5,7 @@ import { FoodSearchBar } from "./FoodSearchBar";
 import { BarcodeScanner } from "./BarcodeScanner";
 import { FoodList } from "./FoodList";
 import { Button } from "@/components/ui/button";
+import { Crown } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -74,8 +75,10 @@ export const FoodDatabaseTab = ({ onSelect }: FoodDatabaseTabProps) => {
         <Button 
           variant="outline"
           onClick={() => navigate('/custom-foods')}
+          className="relative"
         >
           Add Custom Food
+          <Crown className="w-4 h-4 text-yellow-500 absolute -top-2 -right-2" />
         </Button>
       </div>
 
