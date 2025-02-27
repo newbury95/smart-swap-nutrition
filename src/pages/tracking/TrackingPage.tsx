@@ -81,6 +81,7 @@ const TrackingPage = () => {
             transition={{ duration: 0.6 }}
             className="grid md:grid-cols-4 gap-4 mb-8"
           >
+            {/* Reordered cards - BMI first, Exercise second */}
             <MetricCard
               icon={Activity}
               iconColor="text-green-600"
@@ -89,6 +90,7 @@ const TrackingPage = () => {
               value={latestBMI}
               buttonLabel={getBMICategory(latestBMI)}
               isPremium={true}
+              priority={1}
             />
 
             <MetricCard
@@ -100,6 +102,7 @@ const TrackingPage = () => {
               onUpdate={() => setShowExerciseDialog(true)}
               isPremium={isPremium}
               buttonLabel="Log Exercise"
+              priority={2}
             />
             
             <MetricCard
@@ -110,6 +113,7 @@ const TrackingPage = () => {
               value={caloriesBurned}
               isPremium={isPremium}
               buttonLabel="Synced with Health"
+              priority={3}
             />
 
             <MetricCard
@@ -120,6 +124,7 @@ const TrackingPage = () => {
               value={steps}
               isPremium={isPremium}
               buttonLabel="Synced with Health"
+              priority={4}
             />
           </motion.div>
 

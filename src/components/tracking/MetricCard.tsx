@@ -12,6 +12,7 @@ interface MetricCardProps {
   onUpdate?: () => void;
   isPremium?: boolean;
   buttonLabel: string;
+  priority?: number; // Added priority prop for ordering
 }
 
 const MetricCard = ({
@@ -24,6 +25,7 @@ const MetricCard = ({
   onUpdate,
   isPremium,
   buttonLabel,
+  priority = 0,
 }: MetricCardProps) => {
   // Check if the buttonLabel is related to health sync
   const isHealthSync = buttonLabel.includes("Synced with Health");
