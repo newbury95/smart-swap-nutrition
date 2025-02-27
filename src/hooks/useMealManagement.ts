@@ -40,9 +40,10 @@ export const useMealManagement = (date: Date) => {
 
   const handleAddFood = (type: MealType) => async (food: any) => {
     try {
+      console.log('Adding food:', food); // Debug log
       const meal = await addMeal({
         food_name: food.name,
-        calories: food.calories,
+        calories: Math.round(food.calories), // Round to whole number for integer column
         protein: food.protein,
         carbs: food.carbs,
         fat: food.fat,
@@ -115,4 +116,3 @@ export const useMealManagement = (date: Date) => {
     getAllMealsNutrients
   };
 };
-
