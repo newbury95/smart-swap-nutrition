@@ -1,0 +1,81 @@
+
+import { motion } from "framer-motion";
+import { Activity, Flame, Footprints, Dumbbell } from "lucide-react";
+import { Exercise } from "@/hooks/useExerciseTracking";
+import { calculateBMI, getBMICategory } from "@/utils/healthCalculations";
+import MetricCard from "@/components/tracking/MetricCard";
+
+interface MetricsSectionProps {
+  latestBMI: number;
+  exercises: Exercise[];
+  caloriesBurned: number;
+  steps: number;
+  isPremium: boolean;
+  onShowExerciseDialog: () => void;
+}
+
+const MetricsSection = ({
+  latestBMI,
+  exercises,
+  caloriesBurned,
+  steps,
+  isPremium,
+  onShowExerciseDialog
+}: MetricsSectionProps) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="grid md:grid-cols-4 gap-4 mb-8"
+    >
+      {/* BMI first, Exercise second */}
+      <MetricCard
+        icon={Activity}
+        iconColor="text-green-600"
+        bgColor="bg-green-100"
+        title="Current BMI"
+        value={latestBMI}
+        buttonLabel={getBMICategory(latestBMI)}
+        isPremium={true}
+        priority={1}
+      />
+
+      <MetricCard
+        icon={Dumbbell}
+        iconColor="text-purple-600"
+        bgColor="bg-purple-100"
+        title="Exercise"
+        value={exercises.length}
+        onUpdate={onShowExerciseDialog}
+        isPremium={isPremium}
+        buttonLabel="Log Exercise"
+        priority={2}
+      />
+        
+      <MetricCard
+        icon={Flame}
+        iconColor="text-orange-600"
+        bgColor="bg-orange-100"
+        title="Calories Burned"
+        value={caloriesBurned}
+        isPremium={isPremium}
+        buttonLabel="Synced with Health"
+        priority={3}
+      />
+
+      <MetricCard
+        icon={Footprints}
+        iconColor="text-blue-600"
+        bgColor="bg-blue-100"
+        title="Daily Steps"
+        value={steps}
+        isPremium={isPremium}
+        buttonLabel="Synced with Health"
+        priority={4}
+      />
+    </motion.div>
+  );
+};
+
+export default MetricsSection;
