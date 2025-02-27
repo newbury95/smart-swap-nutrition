@@ -19,11 +19,11 @@ import ExerciseDialog from "@/components/tracking/ExerciseDialog";
 const TrackingPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { isPremium, addHealthMetric } = useSupabase();
   const [timeRange, setTimeRange] = useState<TimeRange>("daily");
   const [steps, setSteps] = useState(0);
   const [heartRate, setHeartRate] = useState(0);
   const [trackingData, setTrackingData] = useState<TrackingData[]>([]);
+  const { isPremium, addHealthMetric } = useSupabase();
   
   // Use the exercise tracking hook
   const { 
@@ -61,8 +61,6 @@ const TrackingPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <TopNavigation />
-      
       <header className="bg-white border-b">
         <div className="container mx-auto px-4 py-4">
           <button 
@@ -94,13 +92,24 @@ const TrackingPage = () => {
             />
 
             <MetricCard
+              icon={Dumbbell}
+              iconColor="text-purple-600"
+              bgColor="bg-purple-100"
+              title="Exercise"
+              value={exercises.length}
+              onUpdate={() => setShowExerciseDialog(true)}
+              isPremium={isPremium}
+              buttonLabel="Log Exercise"
+            />
+            
+            <MetricCard
               icon={Flame}
               iconColor="text-orange-600"
               bgColor="bg-orange-100"
               title="Calories Burned"
               value={caloriesBurned}
               isPremium={isPremium}
-              buttonLabel="View Details"
+              buttonLabel="Synced with Health"
             />
 
             <MetricCard
@@ -110,18 +119,7 @@ const TrackingPage = () => {
               title="Daily Steps"
               value={steps}
               isPremium={isPremium}
-              buttonLabel="View Details"
-            />
-            
-            <MetricCard
-              icon={Dumbbell}
-              iconColor="text-purple-600"
-              bgColor="bg-purple-100"
-              title="Exercise"
-              value={exercises.length}
-              onUpdate={() => setShowExerciseDialog(true)}
-              isPremium={isPremium}
-              buttonLabel="Log Exercise"
+              buttonLabel="Synced with Health"
             />
           </motion.div>
 

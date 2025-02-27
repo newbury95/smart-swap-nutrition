@@ -173,12 +173,7 @@ export const HealthMetrics = () => {
             </div>
           </div>
           <div className="mt-2">
-            <button 
-              onClick={() => handleMetricClick('activity')}
-              className="w-full px-2 py-1 text-sm bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition-colors"
-            >
-              View Details
-            </button>
+            <p className="text-xs text-gray-500 mb-1">Synced with Apple Health / Samsung Health</p>
           </div>
         </div>
 
@@ -193,12 +188,7 @@ export const HealthMetrics = () => {
             </div>
           </div>
           <div className="mt-2">
-            <button
-              onClick={handleLogHeartRate}
-              className="w-full px-2 py-1 text-sm bg-red-100 text-red-600 rounded hover:bg-red-200 transition-colors"
-            >
-              Log Heart Rate
-            </button>
+            <p className="text-xs text-gray-500 mb-1">Synced with Apple Health / Samsung Health</p>
           </div>
         </div>
 
@@ -213,12 +203,7 @@ export const HealthMetrics = () => {
             </div>
           </div>
           <div className="mt-2">
-            <button
-              onClick={handleLogSteps}
-              className="w-full px-2 py-1 text-sm bg-green-100 text-green-600 rounded hover:bg-green-200 transition-colors"
-            >
-              Log Steps (+1000)
-            </button>
+            <p className="text-xs text-gray-500 mb-1">Synced with Apple Health / Samsung Health</p>
           </div>
         </div>
 
@@ -233,12 +218,7 @@ export const HealthMetrics = () => {
             </div>
           </div>
           <div className="mt-2">
-            <button
-              onClick={handleLogActivity}
-              className="w-full px-2 py-1 text-sm bg-orange-100 text-orange-600 rounded hover:bg-orange-200 transition-colors"
-            >
-              Log Activity (+100)
-            </button>
+            <p className="text-xs text-gray-500 mb-1">Synced with Apple Health / Samsung Health</p>
           </div>
         </div>
 
@@ -257,7 +237,7 @@ export const HealthMetrics = () => {
               onClick={() => navigate('/tracking')}
               className="w-full px-2 py-1 text-sm bg-purple-100 text-purple-600 rounded hover:bg-purple-200 transition-colors"
             >
-              Track Exercise
+              Log Exercise
             </button>
           </div>
         </div>

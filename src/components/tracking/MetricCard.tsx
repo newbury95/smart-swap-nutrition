@@ -25,6 +25,9 @@ const MetricCard = ({
   isPremium,
   buttonLabel,
 }: MetricCardProps) => {
+  // Check if the buttonLabel is related to health sync
+  const isHealthSync = buttonLabel.includes("Synced with Health");
+  
   return (
     <div className="bg-white rounded-xl p-4 shadow-sm">
       <div className="flex items-center gap-3 mb-2">
@@ -37,14 +40,19 @@ const MetricCard = ({
         {value}
         {unit && <span className="text-sm ml-1">{unit}</span>}
       </p>
-      <Button 
-        onClick={onUpdate} 
-        variant="outline" 
-        size="sm"
-        className={!isPremium ? "cursor-not-allowed opacity-50" : ""}
-      >
-        {buttonLabel}
-      </Button>
+      
+      {isHealthSync ? (
+        <p className="text-xs text-gray-500">{buttonLabel}</p>
+      ) : (
+        <Button 
+          onClick={onUpdate} 
+          variant="outline" 
+          size="sm"
+          className={!isPremium ? "cursor-not-allowed opacity-50" : ""}
+        >
+          {buttonLabel}
+        </Button>
+      )}
     </div>
   );
 };
