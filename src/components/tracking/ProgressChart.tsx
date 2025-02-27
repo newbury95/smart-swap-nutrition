@@ -54,26 +54,30 @@ const ProgressChart = ({
               stroke="#22c55e"
               strokeWidth={2}
             />
-            {isPremium && (
-              <>
-                <Line
-                  yAxisId="right"
-                  type="monotone"
-                  dataKey="caloriesBurned"
-                  name="Calories"
-                  stroke="#f97316"
-                  strokeWidth={2}
-                />
-                <Line
-                  yAxisId="right"
-                  type="monotone"
-                  dataKey="steps"
-                  name="Steps"
-                  stroke="#3b82f6"
-                  strokeWidth={2}
-                />
-              </>
-            )}
+            <Line
+              yAxisId="right"
+              type="monotone"
+              dataKey="caloriesBurned"
+              name="Calories Burned"
+              stroke="#f97316"
+              strokeWidth={2}
+            />
+            <Line
+              yAxisId="right"
+              type="monotone"
+              dataKey="steps"
+              name="Steps"
+              stroke="#3b82f6"
+              strokeWidth={2}
+            />
+            <Line
+              yAxisId="left"
+              type="monotone"
+              dataKey="exerciseMinutes"
+              name="Exercise Mins"
+              stroke="#a855f7"
+              strokeWidth={2}
+            />
           </LineChart>
         </ResponsiveContainer>
       </TabsContent>
