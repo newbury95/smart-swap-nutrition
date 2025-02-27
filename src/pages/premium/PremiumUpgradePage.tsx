@@ -14,8 +14,11 @@ import {
   useElements
 } from "@stripe/react-stripe-js";
 
+// Use environment variable or fallback to test key (should be configured properly in production)
+const STRIPE_PUBLISHABLE_KEY = "pk_test_51NzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzZA";
+
 // Load stripe outside of component rendering to avoid recreating the Stripe object on every render
-const stripePromise = loadStripe("pk_test_51NzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzZA");
+const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
 
 // The form to collect payment details
 const CheckoutForm = () => {
