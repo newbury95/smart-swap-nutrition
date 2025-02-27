@@ -107,96 +107,6 @@ const TrackingPage = () => {
     });
   };
 
-  const handleUpdateActivity = async () => {
-    if (!isPremium) {
-      toast({
-        title: "Premium Feature",
-        description: "Upgrade to Premium to track activity and calories",
-        variant: "destructive",
-      });
-      return;
-    }
-    try {
-      await addHealthMetric({
-        metric_type: 'activity',
-        value: 100,
-        source: 'manual'
-      });
-      setCaloriesBurned(prev => prev + 100);
-      toast({
-        title: "Activity Logged",
-        description: "Your calories burned have been recorded",
-      });
-    } catch (error) {
-      console.error('Error logging activity:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to log activity",
-      });
-    }
-  };
-
-  const handleUpdateSteps = async () => {
-    if (!isPremium) {
-      toast({
-        title: "Premium Feature",
-        description: "Upgrade to Premium to track steps",
-        variant: "destructive",
-      });
-      return;
-    }
-    try {
-      await addHealthMetric({
-        metric_type: 'steps',
-        value: 1000,
-        source: 'manual'
-      });
-      setSteps(prev => prev + 1000);
-      toast({
-        title: "Steps Logged",
-        description: "Your steps have been recorded",
-      });
-    } catch (error) {
-      console.error('Error logging steps:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to log steps",
-      });
-    }
-  };
-
-  const handleUpdateHeartRate = async () => {
-    if (!isPremium) {
-      toast({
-        title: "Premium Feature",
-        description: "Upgrade to Premium to track heart rate",
-        variant: "destructive",
-      });
-      return;
-    }
-    try {
-      await addHealthMetric({
-        metric_type: 'heart-rate',
-        value: 75,
-        source: 'manual'
-      });
-      setHeartRate(75);
-      toast({
-        title: "Heart Rate Logged",
-        description: "Your heart rate has been recorded",
-      });
-    } catch (error) {
-      console.error('Error logging heart rate:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to log heart rate",
-      });
-    }
-  };
-
   const handleAddExercise = async () => {
     if (!isPremium) {
       toast({
@@ -306,9 +216,8 @@ const TrackingPage = () => {
               bgColor="bg-orange-100"
               title="Calories Burned"
               value={caloriesBurned}
-              onUpdate={handleUpdateActivity}
               isPremium={isPremium}
-              buttonLabel="Log Activity"
+              buttonLabel="View Details"
             />
 
             <MetricCard
@@ -317,9 +226,8 @@ const TrackingPage = () => {
               bgColor="bg-blue-100"
               title="Daily Steps"
               value={steps}
-              onUpdate={handleUpdateSteps}
               isPremium={isPremium}
-              buttonLabel="Log Steps"
+              buttonLabel="View Details"
             />
             
             <MetricCard
