@@ -15,7 +15,7 @@ import {
 } from "@stripe/react-stripe-js";
 
 // Use environment variable or fallback to test key (should be configured properly in production)
-const STRIPE_PUBLISHABLE_KEY = "pk_test_51NzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzZA";
+const STRIPE_PUBLISHABLE_KEY = "pk_test_51Qx8ZW2VssJgwMDKBMlrqlCvWJGssJw2DhQxKBYFetlue4dNUGESfKDVz9dOgThYSX1O4DvCWYAZIcQOWU8ebfF100JuLCHbao";
 
 // Load stripe outside of component rendering to avoid recreating the Stripe object on every render
 const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
