@@ -1,5 +1,5 @@
 
-import { MealPlan, Food, MealPlanType, DietaryRestriction } from '@/components/food/types';
+import { MealPlan, Food, MealPlanType, DietaryRestriction, Supermarket } from '@/components/food/types';
 
 // Helper function to create a food item
 const createFood = (
@@ -9,7 +9,7 @@ const createFood = (
   protein: number,
   carbs: number,
   fat: number,
-  supermarket = "Tesco" as const
+  supermarket: Supermarket = "Tesco"
 ): Food => ({
   id,
   name,
