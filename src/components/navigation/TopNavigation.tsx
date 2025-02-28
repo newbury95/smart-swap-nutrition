@@ -11,7 +11,7 @@ interface NavTileProps {
   isPremium?: boolean;
 }
 
-const NavTile = ({ icon, label, href, isPremium }: NavTileProps) => (
+const NavTile = ({ icon, label, href }: NavTileProps) => (
   <Link
     to={href}
     className={cn(
@@ -22,9 +22,7 @@ const NavTile = ({ icon, label, href, isPremium }: NavTileProps) => (
   >
     <div className="relative">
       {icon}
-      {isPremium && (
-        <Crown className="absolute -top-1.5 -right-1.5 w-3 h-3 text-yellow-500" />
-      )}
+      {/* Premium icons removed for testing */}
     </div>
     <span className="text-sm">{label}</span>
   </Link>
@@ -52,13 +50,11 @@ const TopNavigation = () => {
               icon={<Crown className="w-4 h-4" />}
               label="Meal Plans"
               href="/meal-plans"
-              isPremium={true}
             />
             <NavTile
               icon={<Dumbbell className="w-4 h-4" />}
               label="Workouts"
               href="/workout-plans"
-              isPremium={true}
             />
             <NavTile
               icon={<MessageSquare className="w-4 h-4" />}

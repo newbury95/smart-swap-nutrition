@@ -3,53 +3,22 @@ import { useState, useEffect } from 'react';
 import { supabase } from './useSupabase';
 
 export const usePremiumStatus = () => {
-  const [isPremium, setIsPremium] = useState(false);
-  const [loading, setLoading] = useState(true);
+  // Always return isPremium as true for testing
+  const [isPremium, setIsPremium] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (supabase) {
-      checkPremiumStatus();
-    } else {
-      setLoading(false);
-    }
+    // For testing, we're setting isPremium to true and not checking with Supabase
+    setIsPremium(true);
+    setLoading(false);
+    
+    // Store in localStorage for quick access
+    localStorage.setItem('isPremium', 'true');
   }, []);
 
-  const checkPremiumStatus = async () => {
-    if (!supabase) return;
-    
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('is_premium')
-          .eq('id', session.user.id)
-          .single();
-        
-        if (error) {
-          console.error('Error fetching premium status:', error);
-          setIsPremium(false);
-        } else {
-          setIsPremium(!!data?.is_premium);
-          
-          // Also store in localStorage for quick access
-          localStorage.setItem('isPremium', data?.is_premium ? 'true' : 'false');
-        }
-      } else {
-        setIsPremium(false);
-        localStorage.removeItem('isPremium');
-      }
-    } catch (error) {
-      console.error('Error in premium status check:', error);
-      setIsPremium(false);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const refreshPremiumStatus = () => {
-    setLoading(true);
-    checkPremiumStatus();
+    // For testing, this does nothing since we always want isPremium to be true
+    setIsPremium(true);
   };
 
   return { isPremium, loading, refreshPremiumStatus };

@@ -31,14 +31,15 @@ export const useExerciseTracking = ({ isPremium, addHealthMetric }: UseExerciseT
   }, [caloriesBurned]);
 
   const handleAddExercise = async (newExercise: NewExercise) => {
-    if (!isPremium) {
-      toast({
-        title: "Premium Feature",
-        description: "Upgrade to Premium to log exercises",
-        variant: "destructive",
-      });
-      return;
-    }
+    // Bypass premium check for testing
+    // if (!isPremium) {
+    //   toast({
+    //     title: "Premium Feature",
+    //     description: "Upgrade to Premium to log exercises",
+    //     variant: "destructive",
+    //   });
+    //   return;
+    // }
 
     if (!newExercise.description) {
       toast({
