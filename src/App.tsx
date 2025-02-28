@@ -1,127 +1,47 @@
-import { useEffect, useState, Suspense, lazy } from "react";
+
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import Header from "./components/Header";
-import { supabase } from "@/integrations/supabase/client";
+import Index from "./pages/Index";
+import SignUp from "./pages/SignUp";
+import AuthPage from "./pages/auth/AuthPage";
+import NotFound from "./pages/NotFound";
+import FoodDiary from "./pages/diary/FoodDiary";
+import TrackingPage from "./pages/tracking/TrackingPage";
+import ForumPage from "./pages/forum/ForumPage";
+import FitnessGoals from "./pages/goals/FitnessGoals";
+import PremiumUpgradePage from "./pages/premium/PremiumUpgradePage";
+import CustomFoodsPage from "./pages/custom-foods/CustomFoodsPage";
+import MealPlans from "./pages/premium/MealPlans";
+import WorkoutPlansPage from "./pages/premium/WorkoutPlansPage";
+import PersonalInfo from "./pages/signup/PersonalInfo";
+import ContactPage from "./pages/contact/ContactPage";
+import ActivityTracker from "./pages/activity/ActivityTracker";
 
-const Index = lazy(() => import("./pages/Index"));
-const SignUp = lazy(() => import("./pages/SignUp"));
-const NotFound = lazy(() => import("./pages/NotFound"));
-const PersonalInfo = lazy(() => import("./pages/signup/PersonalInfo"));
-const FoodDiary = lazy(() => import("./pages/diary/FoodDiary"));
-const TrackingPage = lazy(() => import("./pages/tracking/TrackingPage"));
-const ForumPage = lazy(() => import("./pages/forum/ForumPage"));
-const ContactPage = lazy(() => import("./pages/contact/ContactPage"));
-const MealPlansPage = lazy(() => import("./pages/premium/MealPlansPage"));
-const WorkoutPlansPage = lazy(() => import("./pages/premium/WorkoutPlansPage"));
-const AuthPage = lazy(() => import("./pages/auth/AuthPage"));
-const PremiumUpgradePage = lazy(() => import("./pages/premium/PremiumUpgradePage"));
-const CustomFoodsPage = lazy(() => import("./pages/custom-foods/CustomFoodsPage"));
+import "./App.css";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 60 * 1000,
-      gcTime: 5 * 60 * 1000,
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
-
-const LoadingFallback = () => (
-  <div className="flex items-center justify-center min-h-screen">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
-  </div>
-);
-
-const protectedRoutes = [
-  '/diary', 
-  '/tracking',
-  '/forum',
-  '/meal-plans',
-  '/workout-plans'
-];
-
-const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
-  
-  useEffect(() => {
-    const initializeAuth = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        setIsAuthenticated(!!session);
-        
-        if (!session && protectedRoutes.includes(location.pathname)) {
-          navigate('/auth');
-        }
-
-        const {
-          data: { subscription },
-        } = supabase.auth.onAuthStateChange((_event, session) => {
-          setIsAuthenticated(!!session);
-          if (!session && protectedRoutes.includes(location.pathname)) {
-            navigate('/auth');
-          }
-        });
-
-        setIsInitialized(true);
-        return () => subscription.unsubscribe();
-      } catch (error) {
-        console.error('Auth initialization error:', error);
-        setIsInitialized(true);
-      }
-    };
-
-    initializeAuth();
-  }, [navigate, location.pathname]);
-
-  if (!isInitialized) {
-    return <LoadingFallback />;
-  }
-
+function App() {
   return (
-    <>
-      {isAuthenticated && location.pathname !== '/' && <Header />}
-      {children}
-    </>
-  );
-};
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/diary" element={<FoodDiary />} />
+        <Route path="/tracking" element={<TrackingPage />} />
+        <Route path="/forum" element={<ForumPage />} />
+        <Route path="/goals" element={<FitnessGoals />} />
+        <Route path="/premium" element={<PremiumUpgradePage />} />
+        <Route path="/custom-foods" element={<CustomFoodsPage />} />
+        <Route path="/meal-plans" element={<MealPlans />} />
+        <Route path="/workout-plans" element={<WorkoutPlansPage />} />
+        <Route path="/personal-info" element={<PersonalInfo />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/activity" element={<ActivityTracker />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
       <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthWrapper>
-          <Suspense fallback={<LoadingFallback />}>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/signup" element={<SignUp />} />
-              <Route path="/signup/personal-info" element={<PersonalInfo />} />
-              <Route path="/diary" element={<FoodDiary />} />
-              <Route path="/tracking" element={<TrackingPage />} />
-              <Route path="/forum" element={<ForumPage />} />
-              <Route path="/contact" element={<ContactPage />} />
-              <Route path="/meal-plans" element={<MealPlansPage />} />
-              <Route path="/workout-plans" element={<WorkoutPlansPage />} />
-              <Route path="/auth" element={<AuthPage />} />
-              <Route path="/premium-upgrade" element={<PremiumUpgradePage />} />
-              <Route path="/custom-foods" element={<CustomFoodsPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </AuthWrapper>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+    </Router>
+  );
+}
 
 export default App;
