@@ -17,6 +17,7 @@ import PersonalInfo from "./pages/signup/PersonalInfo";
 import ContactPage from "./pages/contact/ContactPage";
 import ActivityTracker from "./pages/activity/ActivityTracker";
 import TopBanner from "./components/navigation/TopBanner";
+import TopNavigation from "./components/navigation/TopNavigation";
 
 import "./App.css";
 
@@ -24,6 +25,7 @@ function App() {
   return (
     <Router>
       <TopBanner />
+      <TopNavigation />
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/auth" element={<AuthPage />} />
