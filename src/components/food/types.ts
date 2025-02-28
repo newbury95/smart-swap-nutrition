@@ -91,3 +91,12 @@ export interface MealPlanDay {
   dinner: Food[];
   snacks: Food[];
 }
+
+export type Exercise = {
+  id: string;
+  type: string;
+  description: string;
+  duration: number;
+  caloriesBurned: number;
+  date: string;
+};

@@ -11,7 +11,7 @@ import ForumPage from "./pages/forum/ForumPage";
 import FitnessGoals from "./pages/goals/FitnessGoals";
 import PremiumUpgradePage from "./pages/premium/PremiumUpgradePage";
 import CustomFoodsPage from "./pages/custom-foods/CustomFoodsPage";
-import MealPlans from "./pages/premium/MealPlans";
+import MealPlansPage from "./pages/meal-plans/MealPlansPage";
 import WorkoutPlansPage from "./pages/premium/WorkoutPlansPage";
 import PersonalInfo from "./pages/signup/PersonalInfo";
 import ContactPage from "./pages/contact/ContactPage";
@@ -32,7 +32,7 @@ function App() {
         <Route path="/goals" element={<FitnessGoals />} />
         <Route path="/premium" element={<PremiumUpgradePage />} />
         <Route path="/custom-foods" element={<CustomFoodsPage />} />
-        <Route path="/meal-plans" element={<MealPlans />} />
+        <Route path="/meal-plans" element={<MealPlansPage />} />
         <Route path="/workout-plans" element={<WorkoutPlansPage />} />
         <Route path="/personal-info" element={<PersonalInfo />} />
         <Route path="/contact" element={<ContactPage />} />
