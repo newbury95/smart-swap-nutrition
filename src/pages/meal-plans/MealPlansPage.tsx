@@ -1,8 +1,8 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ChevronLeft, Plus, Utensils, Calendar, ArrowRight } from 'lucide-react';
+import { ChevronLeft, Plus, Utensils, Calendar, ArrowRight, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -10,13 +10,69 @@ import { MealPlan, MealPlanType, DietaryRestriction, Food } from '@/components/f
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { mockMealPlans } from '@/utils/mockData';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { supabase } from '@/integrations/supabase/client';
+import { useMealManagement } from '@/hooks/useMealManagement';
 
 const MealPlansPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [selectedMealPlan, setSelectedMealPlan] = useState<MealPlan | null>(null);
   const [showMealPlanDetails, setShowMealPlanDetails] = useState(false);
+  const [shuffledMeals, setShuffledMeals] = useState<MealPlan[]>([]);
+  const today = new Date();
+  const { handleAddFood } = useMealManagement(today);
+
+  // Initialize with shuffled meal plans
+  useEffect(() => {
+    regenerateMealPlans();
+  }, []);
+
+  // Function to shuffle an array (Fisher-Yates shuffle)
+  const shuffleArray = <T,>(array: T[]): T[] => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
+  // Regenerate meal plans with random meals
+  const regenerateMealPlans = () => {
+    const shuffled = mockMealPlans.map(plan => {
+      // Create a deep copy of the plan
+      const newPlan = { ...plan };
+      
+      // Shuffle days for each plan to create variation
+      newPlan.days = plan.days.map(day => {
+        // For each day, shuffle the breakfast, lunch, dinner, and snacks arrays
+        return {
+          ...day,
+          breakfast: shuffleArray([...day.breakfast]),
+          lunch: shuffleArray([...day.lunch]),
+          dinner: shuffleArray([...day.dinner]),
+          snacks: shuffleArray([...day.snacks]),
+        };
+      });
+      
+      // Recalculate the nutritional totals based on the new meal combinations
+      const allFoods = newPlan.days.flatMap(day => [
+        ...day.breakfast, 
+        ...day.lunch, 
+        ...day.dinner, 
+        ...day.snacks
+      ]);
+      
+      // Calculate the average nutritional values across all days
+      newPlan.calories = Math.round(allFoods.reduce((sum, food) => sum + food.calories, 0) / newPlan.days.length);
+      newPlan.protein = Math.round(allFoods.reduce((sum, food) => sum + food.protein, 0) / newPlan.days.length);
+      newPlan.carbs = Math.round(allFoods.reduce((sum, food) => sum + food.carbs, 0) / newPlan.days.length);
+      newPlan.fat = Math.round(allFoods.reduce((sum, food) => sum + food.fat, 0) / newPlan.days.length);
+      
+      return newPlan;
+    });
+    
+    setShuffledMeals(shuffled);
+  };
 
   const handleOpenMealPlan = (mealPlan: MealPlan) => {
     setSelectedMealPlan(mealPlan);
@@ -34,6 +90,38 @@ const MealPlansPage = () => {
     }
   };
 
+  const handleAddSingleMeal = (meal: Food, mealType: string) => {
+    let mealTypeForDiary: "breakfast" | "lunch" | "dinner" | "snack" = "snack";
+    
+    switch(mealType.toLowerCase()) {
+      case "breakfast":
+        mealTypeForDiary = "breakfast";
+        break;
+      case "lunch":
+        mealTypeForDiary = "lunch";
+        break;
+      case "dinner":
+        mealTypeForDiary = "dinner";
+        break;
+      default:
+        mealTypeForDiary = "snack";
+    }
+    
+    handleAddFood(mealTypeForDiary)({
+      name: meal.name,
+      calories: meal.calories,
+      protein: meal.protein,
+      carbs: meal.carbs,
+      fat: meal.fat,
+      servingSize: meal.servingSize,
+    });
+    
+    toast({
+      title: "Meal added to diary",
+      description: `${meal.name} has been added to your ${mealTypeForDiary}`,
+    });
+  };
+
   const mealPlanTypes: { type: MealPlanType; icon: React.ReactNode; color: string }[] = [
     { type: "Low Calorie", icon: <Utensils className="h-5 w-5" />, color: "bg-blue-100 text-blue-700" },
     { type: "High Protein", icon: <Utensils className="h-5 w-5" />, color: "bg-green-100 text-green-700" },
@@ -46,9 +134,9 @@ const MealPlansPage = () => {
     { type: "Dairy Free", icon: <Utensils className="h-5 w-5" />, color: "bg-indigo-100 text-indigo-700" },
   ];
 
-  const renderMealPlanItem = (item: Food, index: number) => (
+  const renderMealPlanItem = (item: Food, index: number, mealType: string) => (
     <div key={index} className="flex justify-between items-center p-2 border-b last:border-0">
-      <div>
+      <div className="flex-1">
         <p className="font-medium">{item.name}</p>
         <div className="text-xs text-gray-500 flex gap-2">
           <span>{item.calories} kcal</span>
@@ -57,6 +145,14 @@ const MealPlansPage = () => {
           <span>{item.fat}g fat</span>
         </div>
       </div>
+      <Button 
+        size="sm" 
+        variant="ghost" 
+        className="h-8 w-8 p-0" 
+        onClick={() => handleAddSingleMeal(item, mealType)}
+      >
+        <Plus className="h-4 w-4" />
+      </Button>
     </div>
   );
 
@@ -77,7 +173,18 @@ const MealPlansPage = () => {
 
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-5xl mx-auto">
-          <h2 className="text-2xl font-bold mb-6">Choose Your Meal Plan</h2>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold">Choose Your Meal Plan</h2>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={regenerateMealPlans}
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Refresh Plans
+            </Button>
+          </div>
           
           <Tabs defaultValue="category">
             <TabsList className="mb-6">
@@ -97,7 +204,7 @@ const MealPlansPage = () => {
                     <Card 
                       className="cursor-pointer hover:shadow-md transition-shadow"
                       onClick={() => {
-                        const filteredPlans = mockMealPlans.filter(p => p.type === planType.type);
+                        const filteredPlans = shuffledMeals.filter(p => p.type === planType.type);
                         if (filteredPlans.length > 0) {
                           handleOpenMealPlan(filteredPlans[0]);
                         }
@@ -220,21 +327,21 @@ const MealPlansPage = () => {
                   <div>
                     <h4 className="font-medium text-sm text-gray-600 mb-1">Breakfast</h4>
                     <div className="bg-gray-50 rounded-lg overflow-hidden">
-                      {day.breakfast.map((item, i) => renderMealPlanItem(item, i))}
+                      {day.breakfast.map((item, i) => renderMealPlanItem(item, i, "breakfast"))}
                     </div>
                   </div>
                   
                   <div>
                     <h4 className="font-medium text-sm text-gray-600 mb-1">Lunch</h4>
                     <div className="bg-gray-50 rounded-lg overflow-hidden">
-                      {day.lunch.map((item, i) => renderMealPlanItem(item, i))}
+                      {day.lunch.map((item, i) => renderMealPlanItem(item, i, "lunch"))}
                     </div>
                   </div>
                   
                   <div>
                     <h4 className="font-medium text-sm text-gray-600 mb-1">Dinner</h4>
                     <div className="bg-gray-50 rounded-lg overflow-hidden">
-                      {day.dinner.map((item, i) => renderMealPlanItem(item, i))}
+                      {day.dinner.map((item, i) => renderMealPlanItem(item, i, "dinner"))}
                     </div>
                   </div>
                   
@@ -242,7 +349,7 @@ const MealPlansPage = () => {
                     <div>
                       <h4 className="font-medium text-sm text-gray-600 mb-1">Snacks</h4>
                       <div className="bg-gray-50 rounded-lg overflow-hidden">
-                        {day.snacks.map((item, i) => renderMealPlanItem(item, i))}
+                        {day.snacks.map((item, i) => renderMealPlanItem(item, i, "snack"))}
                       </div>
                     </div>
                   )}
