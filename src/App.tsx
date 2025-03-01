@@ -26,7 +26,7 @@ const AppLayout = () => {
   const location = useLocation();
   const path = location.pathname;
   
-  // Only show TopBanner on specific pages
+  // Only show TopBanner on these specific pages (and ONLY these pages)
   const showBanner = [
     '/workout-plans',
     '/meal-plans',
@@ -36,9 +36,18 @@ const AppLayout = () => {
     '/forum'
   ].some(route => path === route || path.startsWith(route + '/'));
 
+  // Double-check to ensure these specific paths do NOT show the banner
+  const indexPage = path === '/' || path === '';
+  const signUpPage = path === '/signup';
+  const goalsPage = path === '/goals';
+  const authPage = path === '/auth';
+
+  // Extra safety check to ensure these pages never show the banner
+  const shouldShowBanner = showBanner && !indexPage && !signUpPage && !goalsPage && !authPage;
+
   return (
     <>
-      {showBanner && <TopBanner />}
+      {shouldShowBanner && <TopBanner />}
       <TopNavigation />
       <Routes>
         <Route path="/" element={<Index />} />
