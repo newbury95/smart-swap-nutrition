@@ -65,8 +65,8 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-soft-green/20 to-white">
-      {/* Top Banner */}
-      <header className="border-b bg-white">
+      {/* Top Banner removed */}
+      <header className="bg-white shadow">
         <div className="container mx-auto px-4 h-16 flex justify-between items-center">
           <h1 className="text-xl font-semibold text-green-600">NutriTrack</h1>
           <button

@@ -61,8 +61,17 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-soft-green/20 to-white flex items-center justify-center">
-      <div className="w-full max-w-md p-8 bg-white rounded-xl shadow-lg">
+    <div className="min-h-screen bg-gradient-to-br from-white via-soft-green/20 to-white">
+      <div className="p-4">
+        <button 
+          onClick={() => navigate('/')}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
+        >
+          <span>Back to Home</span>
+        </button>
+      </div>
+      
+      <div className="w-full max-w-md p-8 bg-white rounded-xl shadow-lg mx-auto">
         <h1 className="text-2xl font-semibold text-center mb-6">
           {isResetMode ? "Reset Password" : "Sign In"}
         </h1>
@@ -115,7 +124,7 @@ const AuthPage = () => {
             <p className="text-sm text-gray-600">
               Don't have an account?{" "}
               <button
-                onClick={() => navigate("/signup")}
+                onClick={() => navigate('/signup')}
                 className="text-green-600 hover:text-green-700 font-medium"
               >
                 Sign Up

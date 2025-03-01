@@ -47,11 +47,17 @@ const MuscleGroupGrid: React.FC<MuscleGroupGridProps> = ({
             p-6 rounded-lg text-center transition-all
             ${isPremium 
               ? 'hover:bg-green-50 hover:shadow-md bg-white border border-gray-200' 
-              : 'opacity-50 cursor-not-allowed bg-gray-100'}
+              : 'relative opacity-75 bg-gray-100 border border-gray-200'}
           `}
         >
           <div className="text-3xl mb-2">{muscle.icon}</div>
           <h3 className="font-medium">{muscle.name}</h3>
+          
+          {!isPremium && (
+            <div className="absolute top-2 right-2 text-yellow-500">
+              <Crown className="w-4 h-4" />
+            </div>
+          )}
         </button>
       ))}
       
