@@ -21,34 +21,45 @@ import TopNavigation from "./components/navigation/TopNavigation";
 
 import "./App.css";
 
-// Wrapper component to conditionally render TopBanner
+// Wrapper component to conditionally render TopBanner and TopNavigation
 const AppLayout = () => {
   const location = useLocation();
   const path = location.pathname;
   
-  // Only show TopBanner on these specific pages (and ONLY these pages)
-  const showBanner = [
+  // Define the specific pages that should show navigation components
+  const navigationRoutes = [
     '/workout-plans',
     '/meal-plans',
     '/diary',
     '/tracking',
     '/contact',
-    '/forum'
-  ].some(route => path === route || path.startsWith(route + '/'));
+    '/forum',
+    '/custom-foods',
+    '/activity',
+    '/premium'
+  ];
+  
+  // Check if current path matches any of the navigation routes
+  const showNavigation = navigationRoutes.some(route => 
+    path === route || path.startsWith(route + '/')
+  );
 
-  // Double-check to ensure these specific paths do NOT show the banner
-  const indexPage = path === '/' || path === '';
-  const signUpPage = path === '/signup';
-  const goalsPage = path === '/goals';
-  const authPage = path === '/auth';
+  // Pages that should never show banner or navigation
+  const isExcludedPage = [
+    '/', 
+    '/signup', 
+    '/goals', 
+    '/auth',
+    '/personal-info'
+  ].includes(path);
 
-  // Extra safety check to ensure these pages never show the banner
-  const shouldShowBanner = showBanner && !indexPage && !signUpPage && !goalsPage && !authPage;
+  // Final check - only show navigation components on appropriate pages
+  const shouldShowComponents = showNavigation && !isExcludedPage;
 
   return (
     <>
-      {shouldShowBanner && <TopBanner />}
-      <TopNavigation />
+      {shouldShowComponents && <TopBanner />}
+      {shouldShowComponents && <TopNavigation />}
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/auth" element={<AuthPage />} />
