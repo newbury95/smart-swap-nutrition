@@ -1,5 +1,5 @@
 
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import Index from "./pages/Index";
 import SignUp from "./pages/SignUp";
@@ -21,10 +21,24 @@ import TopNavigation from "./components/navigation/TopNavigation";
 
 import "./App.css";
 
-function App() {
+// Wrapper component to conditionally render TopBanner
+const AppLayout = () => {
+  const location = useLocation();
+  const path = location.pathname;
+  
+  // Only show TopBanner on specific pages
+  const showBanner = [
+    '/workout-plans',
+    '/meal-plans',
+    '/diary',
+    '/tracking',
+    '/contact',
+    '/forum'
+  ].some(route => path === route || path.startsWith(route + '/'));
+
   return (
-    <Router>
-      <TopBanner />
+    <>
+      {showBanner && <TopBanner />}
       <TopNavigation />
       <Routes>
         <Route path="/" element={<Index />} />
@@ -44,6 +58,14 @@ function App() {
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster />
+    </>
+  );
+};
+
+function App() {
+  return (
+    <Router>
+      <AppLayout />
     </Router>
   );
 }
