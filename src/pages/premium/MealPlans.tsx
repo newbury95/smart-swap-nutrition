@@ -6,7 +6,7 @@ import { ChevronLeft, Plus, Utensils, Calendar, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { MealPlan, MealPlanType, DietaryRestriction } from '@/components/food/types';
+import { MealPlan, MealPlanType, DietaryRestriction, Food } from '@/components/food/types';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { mockMealPlans } from '@/utils/mockData';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
