@@ -8,7 +8,7 @@ interface FitnessGoal {
   id: string;
   title: string;
   description: string;
-  icon: JSX.Element;
+  icon: React.ReactNode;
 }
 
 const fitnessGoals: FitnessGoal[] = [

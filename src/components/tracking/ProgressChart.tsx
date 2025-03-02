@@ -1,6 +1,6 @@
 
 import {
-  LineChart,
+  LineChart as RechartsLineChart,
   Line,
   XAxis,
   YAxis,
@@ -42,7 +42,7 @@ const ProgressChart = ({
 
       <TabsContent value={timeRange} className="h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData}>
+          <RechartsLineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="date" />
             <YAxis yAxisId="left" />
@@ -81,7 +81,7 @@ const ProgressChart = ({
               stroke="#a855f7"
               strokeWidth={2}
             />
-          </LineChart>
+          </RechartsLineChart>
         </ResponsiveContainer>
       </TabsContent>
     </Tabs>
