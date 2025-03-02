@@ -43,52 +43,48 @@ const ProgressChart = ({
 
       <TabsContent value={timeRange} className="h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
-          {(() => {
-            // Use IIFE to create a function that returns JSX
-            // This bypasses TypeScript's JSX type checking
-            return (
-              <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis yAxisId="left" />
-                <YAxis yAxisId="right" orientation="right" />
-                <Tooltip />
-                <Legend />
-                <Line
-                  yAxisId="left"
-                  type="monotone"
-                  dataKey="bmi"
-                  name="BMI"
-                  stroke="#22c55e"
-                  strokeWidth={2}
-                />
-                <Line
-                  yAxisId="right"
-                  type="monotone"
-                  dataKey="caloriesBurned"
-                  name="Calories Burned"
-                  stroke="#f97316"
-                  strokeWidth={2}
-                />
-                <Line
-                  yAxisId="right"
-                  type="monotone"
-                  dataKey="steps"
-                  name="Steps"
-                  stroke="#3b82f6"
-                  strokeWidth={2}
-                />
-                <Line
-                  yAxisId="left"
-                  type="monotone"
-                  dataKey="exerciseMinutes"
-                  name="Exercise Mins"
-                  stroke="#a855f7"
-                  strokeWidth={2}
-                />
-              </LineChart>
-            );
-          })()}
+          {React.createElement(
+            LineChart,
+            { data: chartData },
+            React.createElement(CartesianGrid, { strokeDasharray: "3 3" }),
+            React.createElement(XAxis, { dataKey: "date" }),
+            React.createElement(YAxis, { yAxisId: "left" }),
+            React.createElement(YAxis, { yAxisId: "right", orientation: "right" }),
+            React.createElement(Tooltip),
+            React.createElement(Legend),
+            React.createElement(Line, {
+              yAxisId: "left",
+              type: "monotone",
+              dataKey: "bmi",
+              name: "BMI",
+              stroke: "#22c55e",
+              strokeWidth: 2
+            }),
+            React.createElement(Line, {
+              yAxisId: "right",
+              type: "monotone",
+              dataKey: "caloriesBurned",
+              name: "Calories Burned",
+              stroke: "#f97316",
+              strokeWidth: 2
+            }),
+            React.createElement(Line, {
+              yAxisId: "right",
+              type: "monotone",
+              dataKey: "steps",
+              name: "Steps",
+              stroke: "#3b82f6",
+              strokeWidth: 2
+            }),
+            React.createElement(Line, {
+              yAxisId: "left",
+              type: "monotone",
+              dataKey: "exerciseMinutes",
+              name: "Exercise Mins",
+              stroke: "#a855f7",
+              strokeWidth: 2
+            })
+          )}
         </ResponsiveContainer>
       </TabsContent>
     </Tabs>
