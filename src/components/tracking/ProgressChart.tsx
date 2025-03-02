@@ -8,7 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
-  LineChart,
+  LineChart as RechartsLineChart,
 } from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TrackingData, TimeRange } from "@/types/tracking";
@@ -43,7 +43,7 @@ const ProgressChart = ({
 
       <TabsContent value={timeRange} className="h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData}>
+          <RechartsLineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="date" />
             <YAxis yAxisId="left" />
@@ -82,7 +82,7 @@ const ProgressChart = ({
               stroke="#a855f7"
               strokeWidth={2}
             />
-          </LineChart>
+          </RechartsLineChart>
         </ResponsiveContainer>
       </TabsContent>
     </Tabs>
