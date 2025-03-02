@@ -8,7 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
-  LineChart,
+  LineChart as RechartsLineChart,
 } from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TrackingData, TimeRange } from "@/types/tracking";
@@ -43,39 +43,43 @@ const ProgressChart = ({
 
       <TabsContent value={timeRange} className="h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
-          {/* Using LineChart directly from recharts */}
-          <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
-            <YAxis yAxisId="left" />
-            <YAxis yAxisId="right" orientation="right" />
-            <Tooltip />
-            <Legend />
+          {/* Using a different syntax to avoid JSX component error */}
+          {React.createElement(RechartsLineChart, { data: chartData }, [
+            <CartesianGrid key="grid" strokeDasharray="3 3" />,
+            <XAxis key="x-axis" dataKey="date" />,
+            <YAxis key="y-axis-left" yAxisId="left" />,
+            <YAxis key="y-axis-right" yAxisId="right" orientation="right" />,
+            <Tooltip key="tooltip" />,
+            <Legend key="legend" />,
             <Line
+              key="bmi"
               yAxisId="left"
               type="monotone"
               dataKey="bmi"
               name="BMI"
               stroke="#22c55e"
               strokeWidth={2}
-            />
+            />,
             <Line
+              key="calories"
               yAxisId="right"
               type="monotone"
               dataKey="caloriesBurned"
               name="Calories Burned"
               stroke="#f97316"
               strokeWidth={2}
-            />
+            />,
             <Line
+              key="steps"
               yAxisId="right"
               type="monotone"
               dataKey="steps"
               name="Steps"
               stroke="#3b82f6"
               strokeWidth={2}
-            />
+            />,
             <Line
+              key="exercise"
               yAxisId="left"
               type="monotone"
               dataKey="exerciseMinutes"
@@ -83,7 +87,7 @@ const ProgressChart = ({
               stroke="#a855f7"
               strokeWidth={2}
             />
-          </LineChart>
+          ])}
         </ResponsiveContainer>
       </TabsContent>
     </Tabs>

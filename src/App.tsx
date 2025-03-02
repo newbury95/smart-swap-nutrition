@@ -50,7 +50,7 @@ const AppLayout = () => {
     '/signup', 
     '/goals', 
     '/auth',
-    '/personal-info'
+    '/signup/personal-info'
   ].includes(path);
 
   // Final check - only show navigation components on appropriate pages
@@ -72,7 +72,7 @@ const AppLayout = () => {
         <Route path="/custom-foods" element={<CustomFoodsPage />} />
         <Route path="/meal-plans" element={<MealPlansPage />} />
         <Route path="/workout-plans" element={<WorkoutPlansPage />} />
-        <Route path="/personal-info" element={<PersonalInfo />} />
+        <Route path="/signup/personal-info" element={<PersonalInfo />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/activity" element={<ActivityTracker />} />
         <Route path="*" element={<NotFound />} />
