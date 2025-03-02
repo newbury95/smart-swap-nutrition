@@ -43,13 +43,15 @@ const ProgressChart = ({
 
       <TabsContent value={timeRange} className="h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
-            <YAxis yAxisId="left" />
-            <YAxis yAxisId="right" orientation="right" />
-            <Tooltip />
-            <Legend />
+          {React.createElement(
+            LineChart,
+            { data: chartData },
+            <CartesianGrid strokeDasharray="3 3" />,
+            <XAxis dataKey="date" />,
+            <YAxis yAxisId="left" />,
+            <YAxis yAxisId="right" orientation="right" />,
+            <Tooltip />,
+            <Legend />,
             <Line
               yAxisId="left"
               type="monotone"
@@ -57,7 +59,7 @@ const ProgressChart = ({
               name="BMI"
               stroke="#22c55e"
               strokeWidth={2}
-            />
+            />,
             <Line
               yAxisId="right"
               type="monotone"
@@ -65,7 +67,7 @@ const ProgressChart = ({
               name="Calories Burned"
               stroke="#f97316"
               strokeWidth={2}
-            />
+            />,
             <Line
               yAxisId="right"
               type="monotone"
@@ -73,7 +75,7 @@ const ProgressChart = ({
               name="Steps"
               stroke="#3b82f6"
               strokeWidth={2}
-            />
+            />,
             <Line
               yAxisId="left"
               type="monotone"
@@ -82,7 +84,7 @@ const ProgressChart = ({
               stroke="#a855f7"
               strokeWidth={2}
             />
-          </LineChart>
+          )}
         </ResponsiveContainer>
       </TabsContent>
     </Tabs>
