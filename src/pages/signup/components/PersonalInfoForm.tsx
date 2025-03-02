@@ -11,6 +11,7 @@ interface PersonalInfoFormProps {
     height: string;
     weight: string;
     isPremium: boolean;
+    password?: string;
   };
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handlePremiumToggle: (checked: boolean) => void;
