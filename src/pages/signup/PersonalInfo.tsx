@@ -27,6 +27,7 @@ const PersonalInfo = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<PersonalInfoForm>({
     firstName: "",
     lastName: "",
@@ -55,8 +56,15 @@ const PersonalInfo = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     try {
+      console.log("Starting signup process with data:", {
+        email: formData.email,
+        firstName: formData.firstName,
+        lastName: formData.lastName
+      });
+
       // First sign up the user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
@@ -69,9 +77,13 @@ const PersonalInfo = () => {
         }
       });
 
-      if (authError) throw authError;
+      if (authError) {
+        console.error('Auth error:', authError);
+        throw authError;
+      }
 
       if (!authData.user) {
+        console.error('No user data returned from signup');
         throw new Error("No user data returned from signup");
       }
 
@@ -110,6 +122,8 @@ const PersonalInfo = () => {
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to create profile",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -153,9 +167,10 @@ const PersonalInfo = () => {
             <div className="mt-8 text-center">
               <button 
                 type="submit"
-                className="bg-gradient-to-r from-green-600 to-green-400 text-white px-8 py-4 rounded-full font-medium hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl"
+                disabled={isSubmitting}
+                className={`bg-gradient-to-r from-green-600 to-green-400 text-white px-8 py-4 rounded-full font-medium hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
               >
-                Create Profile
+                {isSubmitting ? 'Creating Profile...' : 'Create Profile'}
               </button>
             </div>
           </form>
@@ -175,4 +190,3 @@ const PersonalInfo = () => {
 };
 
 export default PersonalInfo;
-
