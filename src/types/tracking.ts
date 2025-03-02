@@ -10,3 +10,9 @@ export type TrackingData = {
   exerciseMinutes: number;
   caloriesBurned: number;
 };
+
+export type UserPreferences = {
+  theme: "light" | "dark" | "system";
+  notifications: boolean;
+  units: "metric" | "imperial";
+};

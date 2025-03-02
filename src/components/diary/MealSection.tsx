@@ -15,28 +15,56 @@ interface MealSectionProps {
   onDeleteFood: (mealId: string) => void;
 }
 
-export const MealSection = ({ type, title, meals, onAddFood, onDeleteFood }: MealSectionProps) => {
+export const MealSection = ({ type, title, meals = [], onAddFood, onDeleteFood }: MealSectionProps) => {
   const { toast } = useToast();
+  
+  // Ensure meals is always an array, even if it's undefined or null
+  const safeMeals = Array.isArray(meals) ? meals : [];
+  
+  const handleDeleteFood = async (mealId: string) => {
+    try {
+      await onDeleteFood(mealId);
+    } catch (error) {
+      console.error(`Error deleting ${type} meal:`, error);
+      toast({
+        title: "Error",
+        description: `Could not delete food item. Please try again.`,
+        variant: "destructive",
+      });
+    }
+  };
+  
+  const handleAddFood = async (food: any) => {
+    try {
+      await onAddFood(food);
+    } catch (error) {
+      console.error(`Error adding ${type} meal:`, error);
+      toast({
+        title: "Error",
+        description: `Could not add food item. Please try again.`,
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm">
-      <MealSectionHeader title={title} onFoodSelect={onAddFood} />
+      <MealSectionHeader title={title} onFoodSelect={handleAddFood} />
       
-      {meals.length === 0 ? (
+      {safeMeals.length === 0 ? (
         <p className="text-gray-500 text-sm">No foods added yet</p>
       ) : (
         <div className="space-y-3">
-          {meals.map((meal) => (
+          {safeMeals.map((meal) => (
             <MealItem 
               key={meal.id} 
               meal={meal} 
-              onDelete={onDeleteFood}
+              onDelete={handleDeleteFood}
             />
           ))}
-          <MealSectionSummary meals={meals} />
+          <MealSectionSummary meals={safeMeals} />
         </div>
       )}
     </div>
   );
 };
-

@@ -22,6 +22,14 @@ export const DiaryContent: React.FC<DiaryContentProps> = ({
   onDeleteFood,
   onComplete,
 }) => {
+  // Ensure meals object is fully populated with all meal types
+  const safetyMeals: Record<MealType, Meal[]> = {
+    breakfast: Array.isArray(meals.breakfast) ? meals.breakfast : [],
+    lunch: Array.isArray(meals.lunch) ? meals.lunch : [],
+    dinner: Array.isArray(meals.dinner) ? meals.dinner : [],
+    snack: Array.isArray(meals.snack) ? meals.snack : []
+  };
+
   return (
     <div className="space-y-6">
       {[
@@ -39,7 +47,7 @@ export const DiaryContent: React.FC<DiaryContentProps> = ({
           <MealSection
             type={type as MealType}
             title={title}
-            meals={meals[type as MealType]}
+            meals={safetyMeals[type as MealType]}
             onAddFood={onAddFood(type as MealType)}
             onDeleteFood={(mealId) => onDeleteFood(type as MealType, mealId)}
           />
