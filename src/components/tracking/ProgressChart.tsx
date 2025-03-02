@@ -44,19 +44,19 @@ const ProgressChart = ({
       <TabsContent value={timeRange} className="h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
           {/* 
-            Using React.createElement to bypass TypeScript's strict type checking 
-            for Recharts components
+            Using React.createElement with type assertions to bypass TypeScript's 
+            strict type checking for Recharts components
           */}
           {React.createElement(
-            LineChart,
+            LineChart as any,
             { data: chartData },
-            React.createElement(CartesianGrid, { strokeDasharray: "3 3" }),
-            React.createElement(XAxis, { dataKey: "date" }),
-            React.createElement(YAxis, { yAxisId: "left" }),
-            React.createElement(YAxis, { yAxisId: "right", orientation: "right" }),
-            React.createElement(Tooltip),
-            React.createElement(Legend),
-            React.createElement(Line, {
+            React.createElement(CartesianGrid as any, { strokeDasharray: "3 3" }),
+            React.createElement(XAxis as any, { dataKey: "date" }),
+            React.createElement(YAxis as any, { yAxisId: "left" }),
+            React.createElement(YAxis as any, { yAxisId: "right", orientation: "right" }),
+            React.createElement(Tooltip as any),
+            React.createElement(Legend as any),
+            React.createElement(Line as any, {
               yAxisId: "left",
               type: "monotone",
               dataKey: "bmi",
@@ -64,7 +64,7 @@ const ProgressChart = ({
               stroke: "#22c55e",
               strokeWidth: 2
             }),
-            React.createElement(Line, {
+            React.createElement(Line as any, {
               yAxisId: "right",
               type: "monotone",
               dataKey: "caloriesBurned",
@@ -72,7 +72,7 @@ const ProgressChart = ({
               stroke: "#f97316",
               strokeWidth: 2
             }),
-            React.createElement(Line, {
+            React.createElement(Line as any, {
               yAxisId: "right",
               type: "monotone",
               dataKey: "steps",
@@ -80,7 +80,7 @@ const ProgressChart = ({
               stroke: "#3b82f6",
               strokeWidth: 2
             }),
-            React.createElement(Line, {
+            React.createElement(Line as any, {
               yAxisId: "left",
               type: "monotone",
               dataKey: "exerciseMinutes",
