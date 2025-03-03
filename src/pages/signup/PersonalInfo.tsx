@@ -72,7 +72,7 @@ const PersonalInfo = () => {
         throw new Error("Password is required");
       }
 
-      // First sign up the user
+      // First sign up the user with Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -96,11 +96,11 @@ const PersonalInfo = () => {
 
       console.log("Auth success, user ID:", authData.user.id);
 
-      // Then create their profile using the ID from the signup response
+      // Create the profile using the user ID from the auth response
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
-          id: authData.user.id, // Use the ID from the signup response
+          id: authData.user.id,
           first_name: formData.firstName,
           last_name: formData.lastName,
           email: formData.email,
@@ -165,27 +165,13 @@ const PersonalInfo = () => {
               handlePremiumToggle={handlePremiumToggle}
             />
 
-            <div className="grid md:grid-cols-1 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  required
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-400 focus:border-transparent"
-                />
-              </div>
-            </div>
-
-            <PaymentSection
-              isPremium={formData.isPremium}
-              formData={formData}
-              handleInputChange={handleInputChange}
-            />
+            {formData.isPremium && (
+              <PaymentSection
+                isPremium={formData.isPremium}
+                formData={formData}
+                handleInputChange={handleInputChange}
+              />
+            )}
 
             <div className="mt-8 text-center">
               <button 

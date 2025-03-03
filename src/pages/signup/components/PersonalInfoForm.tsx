@@ -1,5 +1,7 @@
 
 import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface PersonalInfoFormProps {
   formData: {
@@ -11,7 +13,7 @@ interface PersonalInfoFormProps {
     height: string;
     weight: string;
     isPremium: boolean;
-    password?: string;
+    password: string;
   };
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handlePremiumToggle: (checked: boolean) => void;
@@ -65,6 +67,22 @@ export const PersonalInfoForm = ({ formData, handleInputChange, handlePremiumTog
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
+            Password
+          </label>
+          <input
+            type="password"
+            name="password"
+            required
+            value={formData.password}
+            onChange={handleInputChange}
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-400 focus:border-transparent"
+          />
+        </div>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             Nickname
           </label>
           <input
@@ -76,9 +94,6 @@ export const PersonalInfoForm = ({ formData, handleInputChange, handlePremiumTog
             className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-400 focus:border-transparent"
           />
         </div>
-      </div>
-
-      <div className="grid md:grid-cols-3 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Date of Birth
@@ -92,6 +107,9 @@ export const PersonalInfoForm = ({ formData, handleInputChange, handlePremiumTog
             className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-400 focus:border-transparent"
           />
         </div>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Starting Height (cm)
