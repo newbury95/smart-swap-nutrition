@@ -56,6 +56,36 @@ const PersonalInfo = () => {
     setFormData(prev => ({ ...prev, isPremium: checked }));
   };
 
+  const createProfile = async (userId: string) => {
+    try {
+      console.log("Creating profile with user ID:", userId);
+      
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: userId,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          nickname: formData.nickname,
+          date_of_birth: formData.dateOfBirth,
+          height: parseFloat(formData.height),
+          weight: parseFloat(formData.weight),
+          is_premium: formData.isPremium
+        });
+
+      if (profileError) {
+        console.error('Profile creation error:', profileError);
+        throw new Error(`Failed to create profile: ${JSON.stringify(profileError)}`);
+      }
+      
+      return true;
+    } catch (error) {
+      console.error("Error in createProfile:", error);
+      throw error;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -72,7 +102,7 @@ const PersonalInfo = () => {
         throw new Error("Password is required");
       }
 
-      // First sign up the user with Auth
+      // Sign up the user with Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -95,52 +125,42 @@ const PersonalInfo = () => {
       }
 
       console.log("Auth success, user ID:", authData.user.id);
-
-      // Add a longer delay to ensure the auth user is fully created in the database
-      // This is important because the profiles table has a foreign key constraint on the auth.users table
-      console.log("Waiting for user to be fully created in the database...");
-      await new Promise(resolve => setTimeout(resolve, 3000));
       
-      // Check if the user actually exists in auth.users before continuing
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError) {
-        console.error('Session error:', sessionError);
-        throw new Error("Failed to get session after signup");
-      }
+      // Implement a retry mechanism for profile creation
+      let retryCount = 0;
+      const maxRetries = 3;
+      let profileCreated = false;
       
-      // If we don't have a session or user, we need to wait longer or handle differently
-      if (!sessionData.session) {
-        console.log("No session available yet, using original user ID");
-        // We'll continue with the original ID but with caution
-      }
-      
-      const userId = authData.user.id;
-      console.log("Creating profile with user ID:", userId);
-
-      // Create the profile using the user ID from the auth response
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: userId,
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          email: formData.email,
-          nickname: formData.nickname,
-          date_of_birth: formData.dateOfBirth,
-          height: parseFloat(formData.height),
-          weight: parseFloat(formData.weight),
-          is_premium: formData.isPremium
-        });
-
-      if (profileError) {
-        console.error('Profile creation error:', profileError);
-        throw new Error(`Failed to create profile: ${JSON.stringify(profileError)}`);
+      while (!profileCreated && retryCount < maxRetries) {
+        try {
+          // Wait an increasing amount of time between retries
+          const delay = 2000 * (retryCount + 1);
+          console.log(`Attempt ${retryCount + 1}: Waiting ${delay}ms before creating profile...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          
+          // Try to create the profile
+          await createProfile(authData.user.id);
+          profileCreated = true;
+          console.log("Profile created successfully!");
+        } catch (error) {
+          retryCount++;
+          console.error(`Profile creation attempt ${retryCount} failed:`, error);
+          
+          if (retryCount >= maxRetries) {
+            throw new Error(`Failed to create profile after ${maxRetries} attempts`);
+          }
+        }
       }
 
       toast({
         title: "Success!",
         description: `Your ${formData.isPremium ? 'premium' : 'free'} profile has been created.`,
       });
+      
+      // Store that the user has premium in localStorage (for demo purposes)
+      if (formData.isPremium) {
+        localStorage.setItem('isPremium', 'true');
+      }
       
       navigate("/diary");
     } catch (error) {
