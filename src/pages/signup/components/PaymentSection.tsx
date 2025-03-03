@@ -23,25 +23,6 @@ export const PaymentSection = ({ isPremium, formData, handleInputChange }: Payme
     >
       <h3 className="text-lg font-medium text-gray-900 mb-4">Payment Details</h3>
       
-      {/* Payment Method Buttons */}
-      <div className="flex gap-4 mb-6">
-        <button className="flex-1 py-3 px-4 border rounded-lg hover:bg-gray-50 transition-colors">
-          <img src="/apple-pay.svg" alt="Apple Pay" className="h-8 mx-auto" />
-        </button>
-        <button className="flex-1 py-3 px-4 border rounded-lg hover:bg-gray-50 transition-colors">
-          <img src="/google-pay.svg" alt="Google Pay" className="h-8 mx-auto" />
-        </button>
-      </div>
-      
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-200" />
-        </div>
-        <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-white text-gray-500">Or pay with card</span>
-        </div>
-      </div>
-
       <div className="mt-6 space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">

@@ -96,6 +96,9 @@ const PersonalInfo = () => {
 
       console.log("Auth success, user ID:", authData.user.id);
 
+      // Add a delay to ensure the auth user is fully created
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
       // Create the profile using the user ID from the auth response
       const { error: profileError } = await supabase
         .from('profiles')
