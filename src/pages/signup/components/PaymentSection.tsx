@@ -1,13 +1,9 @@
-
 import { motion } from "framer-motion";
+import { SignupFormData } from "../hooks/useSignup";
 
 interface PaymentSectionProps {
   isPremium: boolean;
-  formData: {
-    cardNumber?: string;
-    expiryDate?: string;
-    cvv?: string;
-  };
+  formData: Pick<SignupFormData, 'cardNumber' | 'expiryDate' | 'cvv'>;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 

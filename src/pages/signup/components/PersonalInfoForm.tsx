@@ -1,20 +1,10 @@
-
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { SignupFormData } from "../hooks/useSignup";
 
 interface PersonalInfoFormProps {
-  formData: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    nickname: string;
-    dateOfBirth: string;
-    height: string;
-    weight: string;
-    isPremium: boolean;
-    password: string;
-  };
+  formData: SignupFormData;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handlePremiumToggle: (checked: boolean) => void;
 }
