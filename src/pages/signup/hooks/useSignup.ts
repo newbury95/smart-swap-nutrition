@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -25,7 +25,8 @@ export function useSignup() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSignup = async (formData: SignupFormData) => {
+  const handleSignup = useCallback(async (formData: SignupFormData) => {
+    if (isSubmitting) return false; // Prevent multiple submissions
     setIsSubmitting(true);
 
     try {
@@ -117,7 +118,7 @@ export function useSignup() {
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [navigate, toast, isSubmitting]);
 
   return {
     handleSignup,

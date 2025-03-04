@@ -1,4 +1,5 @@
 
+import { memo } from "react";
 import { useTrackingData } from "@/hooks/useTrackingData";
 import TrackingHeader from "@/components/tracking/TrackingHeader";
 import MetricsSection from "@/components/tracking/MetricsSection";
@@ -22,7 +23,8 @@ const TrackingPage = () => {
     handleBMISubmit
   } = useTrackingData();
 
-  const latestBMI = trackingData[trackingData.length - 1]?.bmi || 0;
+  const latestBMI = trackingData.length > 0 ? 
+    trackingData[trackingData.length - 1]?.bmi || 0 : 0;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -39,7 +41,9 @@ const TrackingPage = () => {
             onShowExerciseDialog={() => setShowExerciseDialog(true)}
           />
 
-          <RecentExercises exercises={exercises} />
+          {exercises.length > 0 && (
+            <RecentExercises exercises={exercises} />
+          )}
 
           <BMIFormSection onSubmit={handleBMISubmit} />
 
@@ -62,4 +66,4 @@ const TrackingPage = () => {
   );
 };
 
-export default TrackingPage;
+export default memo(TrackingPage);

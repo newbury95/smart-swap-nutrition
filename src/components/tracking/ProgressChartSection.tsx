@@ -1,4 +1,5 @@
 
+import { memo } from "react";
 import { motion } from "framer-motion";
 import { TimeRange, TrackingData } from "@/types/tracking";
 import ProgressChart from "@/components/tracking/ProgressChart";
@@ -10,7 +11,7 @@ interface ProgressChartSectionProps {
   isPremium: boolean;
 }
 
-const ProgressChartSection = ({
+const ProgressChartSection = memo(({
   data,
   timeRange,
   onTimeRangeChange,
@@ -31,6 +32,8 @@ const ProgressChartSection = ({
       />
     </motion.div>
   );
-};
+});
+
+ProgressChartSection.displayName = 'ProgressChartSection';
 
 export default ProgressChartSection;

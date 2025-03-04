@@ -1,4 +1,5 @@
 
+import { memo } from "react";
 import { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -12,10 +13,10 @@ interface MetricCardProps {
   onUpdate?: () => void;
   isPremium?: boolean;
   buttonLabel: string;
-  priority?: number; // Added priority prop for ordering
+  priority?: number;
 }
 
-const MetricCard = ({
+const MetricCard = memo(({
   icon: Icon,
   iconColor,
   bgColor,
@@ -57,6 +58,8 @@ const MetricCard = ({
       )}
     </div>
   );
-};
+});
+
+MetricCard.displayName = 'MetricCard';
 
 export default MetricCard;

@@ -1,8 +1,9 @@
 
+import { memo } from "react";
 import { motion } from "framer-motion";
 import { Activity, Flame, Footprints, Dumbbell } from "lucide-react";
 import { Exercise } from "@/hooks/useExerciseTracking";
-import { calculateBMI, getBMICategory } from "@/utils/healthCalculations";
+import { getBMICategory } from "@/utils/healthCalculations";
 import MetricCard from "@/components/tracking/MetricCard";
 
 interface MetricsSectionProps {
@@ -14,7 +15,7 @@ interface MetricsSectionProps {
   onShowExerciseDialog: () => void;
 }
 
-const MetricsSection = ({
+const MetricsSection = memo(({
   latestBMI,
   exercises,
   caloriesBurned,
@@ -76,6 +77,8 @@ const MetricsSection = ({
       />
     </motion.div>
   );
-};
+});
+
+MetricsSection.displayName = 'MetricsSection';
 
 export default MetricsSection;

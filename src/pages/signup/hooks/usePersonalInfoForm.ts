@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { SignupFormData } from "./useSignup";
 
 export function usePersonalInfoForm() {
@@ -20,20 +20,20 @@ export function usePersonalInfoForm() {
     recaptchaToken: ""
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : value
     }));
-  };
+  }, []);
 
-  const handlePremiumToggle = (checked: boolean) => {
+  const handlePremiumToggle = useCallback((checked: boolean) => {
     if (!checked && !showPremiumDialog) {
       setShowPremiumDialog(true);
     }
     setFormData(prev => ({ ...prev, isPremium: checked }));
-  };
+  }, [showPremiumDialog]);
 
   return {
     formData,

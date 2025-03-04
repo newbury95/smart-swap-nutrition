@@ -7,13 +7,21 @@ import { TrackingData, TimeRange } from "@/types/tracking";
  */
 export const useFormattedChartData = (data: TrackingData[], timeRange: TimeRange) => {
   return useMemo(() => {
-    // Return the data as is for now, but this hook can be expanded to:
-    // - Aggregate data for different time ranges (weekly, monthly, yearly)
-    // - Format dates for better display
-    // - Calculate averages or other metrics
-    // - Filter data points based on selected ranges
+    if (!data || data.length === 0) {
+      return [];
+    }
     
-    return data.map(item => ({
+    // For optimization, limit the number of data points based on time range
+    let limitedData = [...data];
+    
+    // Limit data points to improve performance
+    if (timeRange === "daily" && data.length > 30) {
+      limitedData = data.slice(-30); // Only show last 30 days
+    } else if (timeRange === "weekly" && data.length > 52) {
+      limitedData = data.slice(-52); // Only show last 52 weeks
+    }
+    
+    return limitedData.map(item => ({
       ...item,
       // Format date based on time range
       date: formatDateByTimeRange(item.date, timeRange)

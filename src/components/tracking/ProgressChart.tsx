@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { memo } from "react";
 import {
   Line,
   XAxis,
@@ -21,7 +21,7 @@ interface ProgressChartProps {
   isPremium: boolean;
 }
 
-const ProgressChart = ({
+const ProgressChart = memo(({
   data,
   timeRange,
   onTimeRangeChange,
@@ -62,7 +62,9 @@ const ProgressChart = ({
               dataKey: "bmi",
               name: "BMI",
               stroke: "#22c55e",
-              strokeWidth: 2
+              strokeWidth: 2,
+              dot: false,
+              isAnimationActive: false
             }),
             React.createElement(Line as any, {
               yAxisId: "right",
@@ -70,7 +72,9 @@ const ProgressChart = ({
               dataKey: "caloriesBurned",
               name: "Calories Burned",
               stroke: "#f97316",
-              strokeWidth: 2
+              strokeWidth: 2,
+              dot: false,
+              isAnimationActive: false
             }),
             React.createElement(Line as any, {
               yAxisId: "right",
@@ -78,7 +82,9 @@ const ProgressChart = ({
               dataKey: "steps",
               name: "Steps",
               stroke: "#3b82f6",
-              strokeWidth: 2
+              strokeWidth: 2,
+              dot: false,
+              isAnimationActive: false
             }),
             React.createElement(Line as any, {
               yAxisId: "left",
@@ -86,13 +92,17 @@ const ProgressChart = ({
               dataKey: "exerciseMinutes",
               name: "Exercise Mins",
               stroke: "#a855f7",
-              strokeWidth: 2
+              strokeWidth: 2,
+              dot: false,
+              isAnimationActive: false
             })
           )}
         </ResponsiveContainer>
       </TabsContent>
     </Tabs>
   );
-};
+});
+
+ProgressChart.displayName = 'ProgressChart';
 
 export default ProgressChart;
