@@ -2,6 +2,7 @@
 import { lazy, Suspense } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { FeatureCarousel } from "@/components/home/FeatureCarousel";
 
 // Lazy load components for better code splitting
 const FreePlanCard = lazy(() => import("@/components/pricing/FreePlanCard"));
@@ -99,6 +100,19 @@ const Index = () => {
             Join our community of health enthusiasts and achieve your fitness goals
             with personalized nutrition tracking.
           </motion.p>
+        </motion.div>
+
+        {/* Feature Carousel */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="my-16"
+        >
+          <h2 className="text-2xl md:text-3xl font-semibold text-center mb-8 text-green-700">
+            Explore Our Features
+          </h2>
+          <FeatureCarousel />
         </motion.div>
 
         {/* Pricing Tiles */}

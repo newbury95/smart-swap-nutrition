@@ -1,5 +1,5 @@
 
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import { motion } from "framer-motion";
 import { TimeRange, TrackingData } from "@/types/tracking";
 import ProgressChart from "@/components/tracking/ProgressChart";
@@ -17,6 +17,9 @@ const ProgressChartSection = memo(({
   onTimeRangeChange,
   isPremium
 }: ProgressChartSectionProps) => {
+  // Memoize the data to prevent unnecessary rerenders
+  const memoizedData = useMemo(() => data, [JSON.stringify(data)]);
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -25,7 +28,7 @@ const ProgressChartSection = memo(({
       className="bg-white rounded-xl p-6 shadow-sm"
     >
       <ProgressChart 
-        data={data}
+        data={memoizedData}
         timeRange={timeRange}
         onTimeRangeChange={onTimeRangeChange}
         isPremium={isPremium}
