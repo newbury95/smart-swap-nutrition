@@ -12,6 +12,7 @@ const PersonalInfo = () => {
   const navigate = useNavigate();
   const { 
     formData, 
+    setFormData,  // Added setFormData here
     showPremiumDialog, 
     setShowPremiumDialog, 
     handleInputChange, 
