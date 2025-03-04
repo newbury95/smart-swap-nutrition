@@ -14,6 +14,10 @@ export function usePersonalInfoForm() {
     weight: "",
     isPremium: false,
     password: "",
+    cardNumber: "",
+    expiryDate: "",
+    cvv: "",
+    recaptchaToken: ""
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -7,12 +7,16 @@ import { PaymentSection } from "./components/PaymentSection";
 import { PremiumDialog } from "./components/PremiumDialog";
 import { usePersonalInfoForm } from "./hooks/usePersonalInfoForm";
 import { useSignup } from "./hooks/useSignup";
+import ReCAPTCHA from "react-google-recaptcha";
+import { useState } from "react";
+
+const RECAPTCHA_SITE_KEY = "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"; // Test key - replace with your actual key in production
 
 const PersonalInfo = () => {
   const navigate = useNavigate();
   const { 
     formData, 
-    setFormData,  // Added setFormData here
+    setFormData,
     showPremiumDialog, 
     setShowPremiumDialog, 
     handleInputChange, 
@@ -20,9 +24,25 @@ const PersonalInfo = () => {
   } = usePersonalInfoForm();
   
   const { handleSignup, isSubmitting } = useSignup();
+  const [recaptchaError, setRecaptchaError] = useState("");
+
+  const handleRecaptchaChange = (token: string | null) => {
+    if (token) {
+      setFormData(prev => ({ ...prev, recaptchaToken: token }));
+      setRecaptchaError("");
+    } else {
+      setRecaptchaError("Please complete the reCAPTCHA verification");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!formData.recaptchaToken) {
+      setRecaptchaError("Please complete the reCAPTCHA verification");
+      return;
+    }
+    
     await handleSignup(formData);
   };
 
@@ -63,6 +83,19 @@ const PersonalInfo = () => {
                 formData={formData}
                 handleInputChange={handleInputChange}
               />
+            )}
+
+            <div className="mt-6 flex justify-center">
+              <ReCAPTCHA
+                sitekey={RECAPTCHA_SITE_KEY}
+                onChange={handleRecaptchaChange}
+              />
+            </div>
+            
+            {recaptchaError && (
+              <div className="text-red-500 text-center text-sm">
+                {recaptchaError}
+              </div>
             )}
 
             <div className="mt-8 text-center">
