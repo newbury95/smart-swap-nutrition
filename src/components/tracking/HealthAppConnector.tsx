@@ -4,11 +4,9 @@ import { useHealthIntegration } from "@/hooks/useHealthIntegration";
 import { Button } from "@/components/ui/button";
 import { Activity, Apple, Smartphone } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 
 const HealthAppConnector = () => {
   const { toast } = useToast();
-  const { isPremium } = usePremiumStatus();
   const [isConnecting, setIsConnecting] = useState(false);
   
   const {
@@ -21,15 +19,6 @@ const HealthAppConnector = () => {
   } = useHealthIntegration();
 
   const handleConnect = async (provider: 'apple' | 'samsung') => {
-    if (!isPremium) {
-      toast({
-        title: "Premium Feature",
-        description: "Health app integration is available for premium users only.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
     setIsConnecting(true);
     
     try {
@@ -100,14 +89,13 @@ const HealthAppConnector = () => {
         <div className="space-y-4">
           <p className="text-gray-500 text-sm">
             Connect to your health app to automatically sync your activity data.
-            {!isPremium && " (Premium feature)"}
           </p>
           
           <div className="grid grid-cols-2 gap-3">
             <Button
               variant="outline"
               className="flex items-center justify-center gap-2"
-              disabled={isConnecting || !availableProviders.apple || !isPremium}
+              disabled={isConnecting || !availableProviders.apple}
               onClick={() => handleConnect('apple')}
             >
               <Apple className="w-4 h-4" />
@@ -117,19 +105,13 @@ const HealthAppConnector = () => {
             <Button
               variant="outline"
               className="flex items-center justify-center gap-2"
-              disabled={isConnecting || !availableProviders.samsung || !isPremium}
+              disabled={isConnecting || !availableProviders.samsung}
               onClick={() => handleConnect('samsung')}
             >
               <Smartphone className="w-4 h-4" />
               <span>Samsung Health</span>
             </Button>
           </div>
-          
-          {!isPremium && (
-            <p className="text-xs text-amber-600 italic">
-              Health app integration is available for premium users only.
-            </p>
-          )}
         </div>
       )}
     </div>
