@@ -7,6 +7,7 @@ import RecentExercises from "@/components/tracking/RecentExercises";
 import BMIFormSection from "@/components/tracking/BMIFormSection";
 import ProgressChartSection from "@/components/tracking/ProgressChartSection";
 import ExerciseDialog from "@/components/tracking/ExerciseDialog";
+import HealthAppConnector from "@/components/tracking/HealthAppConnector";
 
 const TrackingPage = () => {
   const {
@@ -44,6 +45,10 @@ const TrackingPage = () => {
           {exercises.length > 0 && (
             <RecentExercises exercises={exercises} />
           )}
+
+          <div className="mb-8">
+            <HealthAppConnector />
+          </div>
 
           <BMIFormSection onSubmit={handleBMISubmit} />
 

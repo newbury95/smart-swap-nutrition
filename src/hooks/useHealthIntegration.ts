@@ -23,6 +23,14 @@ export const useHealthIntegration = () => {
   });
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [connectedProvider, setConnectedProvider] = useState<'apple' | 'samsung' | null>(null);
+  const [availableProviders, setAvailableProviders] = useState<{
+    apple: boolean;
+    samsung: boolean;
+  }>({
+    apple: isIOS ? true : false,
+    samsung: isAndroid ? true : false,
+  });
 
   // Check if health is available
   const isHealthAvailable = useCallback(() => {
@@ -37,15 +45,14 @@ export const useHealthIntegration = () => {
     return false;
   }, []);
 
-  // Connect to health app
-  const connectToHealth = useCallback(async () => {
+  // Connect to a specific health provider
+  const connectToProvider = useCallback(async (provider: 'apple' | 'samsung'): Promise<boolean> => {
     setIsLoading(true);
     try {
-      if (isIOS) {
-        // For iOS devices
+      if (provider === 'apple' && isIOS) {
         console.log("Connecting to Apple Health...");
-        // Here we would use the AppleHealthKit API
-        // This is just a mockup since we don't have the actual implementation
+        // Mock successful connection
+        setConnectedProvider('apple');
         setIsConnected(true);
         // Mock health data
         setHealthData({
@@ -54,16 +61,11 @@ export const useHealthIntegration = () => {
           distance: 5.2,
           heartRate: 72,
         });
-        
-        toast({
-          title: "Success",
-          description: "Connected to Apple Health",
-        });
-      } else if (isAndroid) {
-        // For Android devices
-        console.log("Connecting to Google Fit...");
-        // Here we would use the Google Fit API
-        // This is just a mockup since we don't have the actual implementation
+        return true;
+      } else if (provider === 'samsung' && isAndroid) {
+        console.log("Connecting to Samsung Health...");
+        // Mock successful connection
+        setConnectedProvider('samsung');
         setIsConnected(true);
         // Mock health data
         setHealthData({
@@ -72,33 +74,88 @@ export const useHealthIntegration = () => {
           distance: 6.1,
           heartRate: 68,
         });
-        
-        toast({
-          title: "Success",
-          description: "Connected to Google Fit",
-        });
+        return true;
       } else {
-        // For non-mobile devices or unsupported platforms
         toast({
           variant: "destructive",
           title: "Error",
-          description: "Health integration is only available on iOS and Android devices",
+          description: `Health integration for ${provider} is not available on this device`,
         });
+        return false;
       }
     } catch (error) {
-      console.error("Error connecting to health app:", error);
+      console.error(`Error connecting to ${provider} health app:`, error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to connect to health app. Please try again.",
+        description: `Failed to connect to ${provider} health app. Please try again.`,
       });
+      return false;
     } finally {
       setIsLoading(false);
     }
   }, [toast]);
 
+  // Connect to health app (legacy method)
+  const connectToHealth = useCallback(async () => {
+    // Determine which provider to connect to based on platform
+    const provider = isIOS ? 'apple' : (isAndroid ? 'samsung' : null);
+    if (provider) {
+      return await connectToProvider(provider);
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Health integration is only available on iOS and Android devices",
+      });
+      return false;
+    }
+  }, [connectToProvider, toast]);
+
+  // Sync health data from the connected provider
+  const syncHealthData = useCallback(async (): Promise<boolean> => {
+    if (!connectedProvider) return false;
+    
+    setIsLoading(true);
+    try {
+      if (connectedProvider === 'apple') {
+        // For iOS, we would fetch from Apple Health
+        console.log("Refreshing data from Apple Health...");
+        // Mock updating the data
+        setHealthData(prev => ({
+          ...prev,
+          steps: prev.steps + Math.floor(Math.random() * 1000),
+          caloriesBurned: prev.caloriesBurned + Math.floor(Math.random() * 50),
+        }));
+        return true;
+      } else if (connectedProvider === 'samsung') {
+        // For Android, we would fetch from Samsung Health
+        console.log("Refreshing data from Samsung Health...");
+        // Mock updating the data
+        setHealthData(prev => ({
+          ...prev,
+          steps: prev.steps + Math.floor(Math.random() * 1000),
+          caloriesBurned: prev.caloriesBurned + Math.floor(Math.random() * 50),
+        }));
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error refreshing health data:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to refresh health data",
+      });
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [connectedProvider, toast]);
+
   // Disconnect from health app
   const disconnectFromHealth = useCallback(() => {
+    setConnectedProvider(null);
     setIsConnected(false);
     setHealthData({
       steps: 0,
@@ -113,50 +170,22 @@ export const useHealthIntegration = () => {
     });
   }, [toast]);
 
-  // Refresh health data
+  // Refresh health data (legacy method)
   const refreshHealthData = useCallback(async () => {
-    if (!isConnected) return;
-    
-    setIsLoading(true);
-    try {
-      if (isIOS) {
-        // For iOS, we would fetch from Apple Health
-        console.log("Refreshing data from Apple Health...");
-        // Mock updating the data
-        setHealthData(prev => ({
-          ...prev,
-          steps: prev.steps + Math.floor(Math.random() * 1000),
-          caloriesBurned: prev.caloriesBurned + Math.floor(Math.random() * 50),
-        }));
-      } else if (isAndroid) {
-        // For Android, we would fetch from Google Fit
-        console.log("Refreshing data from Google Fit...");
-        // Mock updating the data
-        setHealthData(prev => ({
-          ...prev,
-          steps: prev.steps + Math.floor(Math.random() * 1000),
-          caloriesBurned: prev.caloriesBurned + Math.floor(Math.random() * 50),
-        }));
-      }
-    } catch (error) {
-      console.error("Error refreshing health data:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to refresh health data",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [isConnected, toast]);
+    return await syncHealthData();
+  }, [syncHealthData]);
 
   // Initialize health integration if available
   useEffect(() => {
     // Check for stored connection status
     const storedConnectionStatus = localStorage.getItem('healthConnected');
-    if (storedConnectionStatus === 'true') {
+    const storedProvider = localStorage.getItem('healthProvider');
+    
+    if (storedConnectionStatus === 'true' && storedProvider) {
       // If previously connected, try to reconnect
       setIsConnected(true);
+      setConnectedProvider(storedProvider as 'apple' | 'samsung');
+      
       // Set some initial mock data
       setHealthData({
         steps: 6000 + Math.floor(Math.random() * 4000),
@@ -170,16 +199,25 @@ export const useHealthIntegration = () => {
   // Store connection status when it changes
   useEffect(() => {
     localStorage.setItem('healthConnected', isConnected.toString());
-  }, [isConnected]);
+    if (connectedProvider) {
+      localStorage.setItem('healthProvider', connectedProvider);
+    } else {
+      localStorage.removeItem('healthProvider');
+    }
+  }, [isConnected, connectedProvider]);
 
   return {
     healthData,
     isConnected,
     isLoading,
+    connectedProvider,
+    availableProviders,
     isHealthAvailable,
     connectToHealth,
+    connectToProvider,
     disconnectFromHealth,
     refreshHealthData,
+    syncHealthData,
   };
 };
 
