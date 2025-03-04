@@ -1,8 +1,11 @@
 
-import { BookOpen, Activity, MessageSquare, PhoneCall, Crown, Dumbbell } from "lucide-react";
-import { Link } from "react-router-dom";
+import { BookOpen, Activity, MessageSquare, PhoneCall, Crown, Dumbbell, LogOut } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { useSupabase } from "@/hooks/useSupabase";
 import { cn } from "@/lib/utils";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 
 interface NavTileProps {
   icon: React.ReactNode;
@@ -34,6 +37,30 @@ const NavTile = ({ icon, label, href, isPremium }: NavTileProps) => (
 
 const TopNavigation = () => {
   const { isPremium } = useSupabase();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession();
+      setIsLoggedIn(!!data.session);
+    };
+    
+    checkAuth();
+    
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsLoggedIn(!!session);
+    });
+    
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
+  };
 
   return (
     <nav className="bg-white border-b">
@@ -73,6 +100,18 @@ const TopNavigation = () => {
               href="/contact"
             />
           </div>
+          
+          {isLoggedIn && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleSignOut}
+              className="flex items-center gap-1 text-gray-600"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Sign Out</span>
+            </Button>
+          )}
         </div>
       </div>
     </nav>

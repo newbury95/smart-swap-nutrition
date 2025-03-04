@@ -2,7 +2,8 @@
 import { lazy, Suspense } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { FeatureCarousel } from "@/components/home/FeatureCarousel";
+import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect } from "react";
 
 // Lazy load components for better code splitting
 const FreePlanCard = lazy(() => import("@/components/pricing/FreePlanCard"));
@@ -23,6 +24,34 @@ const CardPlaceholder = () => (
 
 const Index = () => {
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // Check if user is logged in
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession();
+      setIsLoggedIn(!!data.session);
+    };
+    
+    checkAuth();
+    
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsLoggedIn(!!session);
+    });
+    
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
+  const handleAuthAction = async () => {
+    if (isLoggedIn) {
+      await supabase.auth.signOut();
+      navigate('/');
+    } else {
+      navigate('/auth');
+    }
+  };
 
   // Memoize these values to prevent unnecessary re-renders
   const premiumFeatures = [
@@ -66,15 +95,14 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-soft-green/20 to-white">
-      {/* Top Banner removed */}
       <header className="bg-white shadow">
         <div className="container mx-auto px-4 h-16 flex justify-between items-center">
           <h1 className="text-xl font-semibold text-green-600">NutriTrack</h1>
           <button
-            onClick={() => navigate('/auth')}
+            onClick={handleAuthAction}
             className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
           >
-            <span>Sign In</span>
+            <span>{isLoggedIn ? "Sign Out" : "Sign In"}</span>
           </button>
         </div>
       </header>
@@ -100,19 +128,6 @@ const Index = () => {
             Join our community of health enthusiasts and achieve your fitness goals
             with personalized nutrition tracking.
           </motion.p>
-        </motion.div>
-
-        {/* Feature Carousel */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="my-16"
-        >
-          <h2 className="text-2xl md:text-3xl font-semibold text-center mb-8 text-green-700">
-            Explore Our Features
-          </h2>
-          <FeatureCarousel />
         </motion.div>
 
         {/* Pricing Tiles */}

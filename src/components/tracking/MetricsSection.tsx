@@ -49,7 +49,7 @@ const MetricsSection = memo(({
         title="Exercise"
         value={exercises.length}
         onUpdate={onShowExerciseDialog}
-        isPremium={isPremium}
+        isPremium={true} // Changed from isPremium to always true to ensure button is not disabled
         buttonLabel="Log Exercise"
         priority={2}
       />
