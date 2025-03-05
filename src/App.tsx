@@ -13,6 +13,7 @@ import { default as SignupPage } from "@/pages/SignUp";
 import PersonalInfo from "@/pages/signup/PersonalInfo";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import ForumPage from "@/pages/forum/ForumPage";
+import ContactPage from "@/pages/contact/ContactPage";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ function App() {
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/personal-info" element={<PersonalInfo />} />
               <Route path="/forum" element={<ForumPage />} />
+              <Route path="/contact" element={<ContactPage />} />
             </Routes>
           </ErrorBoundary>
         </Router>
