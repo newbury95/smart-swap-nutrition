@@ -11,7 +11,6 @@ interface ContactEmailRequest {
   email: string;
   subject: string;
   message: string;
-  recipientEmail: string;
 }
 
 serve(async (req) => {
@@ -21,13 +20,14 @@ serve(async (req) => {
   }
 
   try {
-    const { name, email, subject, message, recipientEmail }: ContactEmailRequest = await req.json();
+    const { name, email, subject, message }: ContactEmailRequest = await req.json();
+    const recipientEmail = "contact@nutritrack.co.uk";
 
     // Log the received data
     console.log('Contact form submission received:', { name, email, subject, recipientEmail });
 
     // Validate inputs
-    if (!name || !email || !subject || !message || !recipientEmail) {
+    if (!name || !email || !subject || !message) {
       throw new Error('Missing required fields');
     }
 
