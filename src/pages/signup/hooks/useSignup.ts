@@ -24,10 +24,12 @@ export function useSignup() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSignup = useCallback(async (formData: SignupFormData) => {
     if (isSubmitting) return false; // Prevent multiple submissions
     setIsSubmitting(true);
+    setError(null);
 
     try {
       console.log("Starting signup process with data:", {
@@ -105,10 +107,23 @@ export function useSignup() {
         description: `Your ${formData.isPremium ? 'premium' : 'free'} profile has been created.`,
       });
       
-      navigate("/diary");
+      // Ensure the auth state is set
+      const { data: { session }} = await supabase.auth.getSession();
+      
+      if (session) {
+        navigate("/diary");
+      } else {
+        // If email confirmation is required, navigate to a confirmation page
+        toast({
+          title: "Check your email",
+          description: "We've sent you a confirmation email. Please verify your email to complete registration.",
+        });
+        navigate("/auth");
+      }
       return true;
     } catch (error) {
       console.error('Error during signup:', error);
+      setError(error instanceof Error ? error.message : "Failed to create profile");
       toast({
         variant: "destructive",
         title: "Error",
@@ -122,6 +137,7 @@ export function useSignup() {
 
   return {
     handleSignup,
-    isSubmitting
+    isSubmitting,
+    error
   };
 }

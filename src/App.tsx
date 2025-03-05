@@ -11,6 +11,7 @@ import { default as PremiumPage } from "@/pages/premium/PremiumUpgradePage";
 import AuthPage from "@/pages/auth/AuthPage";
 import { default as SignupPage } from "@/pages/SignUp";
 import PersonalInfo from "@/pages/signup/PersonalInfo";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const queryClient = new QueryClient();
 
@@ -19,17 +20,19 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Router>
-          <TopBanner />
-          <Routes>
-            <Route path="/" element={<TrackingPage />} />
-            <Route path="/tracking" element={<TrackingPage />} />
-            <Route path="/diary" element={<DiaryPage />} />
-            <Route path="/meal-plans" element={<MealPlansPage />} />
-            <Route path="/premium" element={<PremiumPage />} />
-            <Route path="/auth" element={<AuthPage />} />
-            <Route path="/signup" element={<SignupPage />} />
-            <Route path="/personal-info" element={<PersonalInfo />} />
-          </Routes>
+          <ErrorBoundary fallback={<div className="p-4 bg-red-100 text-red-700">Something went wrong with the application. Please refresh the page.</div>}>
+            <TopBanner />
+            <Routes>
+              <Route path="/" element={<TrackingPage />} />
+              <Route path="/tracking" element={<TrackingPage />} />
+              <Route path="/diary" element={<DiaryPage />} />
+              <Route path="/meal-plans" element={<MealPlansPage />} />
+              <Route path="/premium" element={<PremiumPage />} />
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/signup" element={<SignupPage />} />
+              <Route path="/personal-info" element={<PersonalInfo />} />
+            </Routes>
+          </ErrorBoundary>
         </Router>
         <Toaster />
       </AuthProvider>
