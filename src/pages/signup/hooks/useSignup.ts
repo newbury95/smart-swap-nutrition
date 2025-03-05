@@ -60,7 +60,7 @@ export function useSignup() {
             date_of_birth: formData.dateOfBirth,
             height: formData.height,
             weight: formData.weight,
-            is_premium: formData.isPremium ? 'true' : 'false'
+            is_premium: formData.isPremium
           }
         }
       });
@@ -76,6 +76,26 @@ export function useSignup() {
       }
 
       console.log("Auth success, user ID:", authData.user.id);
+      
+      // Create user profile
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert([{
+          id: authData.user.id,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          nickname: formData.nickname,
+          date_of_birth: formData.dateOfBirth,
+          height: parseFloat(formData.height) || 0,
+          weight: parseFloat(formData.weight) || 0,
+          is_premium: formData.isPremium
+        }]);
+
+      if (profileError) {
+        console.error('Profile creation error:', profileError);
+        throw new Error(`Failed to create profile: ${profileError.message}`);
+      }
       
       // Process payment if premium is selected
       if (formData.isPremium) {
@@ -108,6 +128,7 @@ export function useSignup() {
       });
       
       // Ensure the auth state is set
+      await supabase.auth.refreshSession();
       const { data: { session }} = await supabase.auth.getSession();
       
       if (session) {
