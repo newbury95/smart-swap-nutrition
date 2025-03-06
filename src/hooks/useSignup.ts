@@ -27,32 +27,31 @@ export function useSignup() {
   const [error, setError] = useState<string | null>(null);
 
  const handleSignup = useCallback(async (formData: SignupFormData) => {
-  if (isSubmitting) return false;
+  if (isSubmitting) return false; // Prevent multiple submissions
   setIsSubmitting(true);
   setError(null);
 
   try {
-    console.log("Starting signup with:", formData);
+    console.log("FormData before signup:", JSON.stringify(formData, null, 2));  // Line 47
 
-    // Ensure recaptcha and password are provided
-    if (!formData.recaptchaToken) throw new Error("Please complete the reCAPTCHA verification");
-    if (!formData.password) throw new Error("Password is required");
-
-    // ✅ Ensure `date_of_birth` is provided
-    if (!formData.dateOfBirth) {
-      throw new Error("Date of Birth is required.");
+    // Validate reCAPTCHA
+    if (!formData.recaptchaToken) {
+      throw new Error("Please complete the reCAPTCHA verification");
     }
 
-    // ✅ Convert `DD-MM-YYYY` to `YYYY-MM-DD`
-    const dobParts = formData.dateOfBirth.split("-");
+    // Ensure we have a password
+    if (!formData.password) {
+      throw new Error("Password is required");
+    }
+
+    // Convert date to YYYY-MM-DD format (INSERT HERE)
+    const dobParts = formData.dateOfBirth.split("-"); // Line 57
     if (dobParts.length !== 3) {
       throw new Error("Invalid date format. Please use DD-MM-YYYY.");
     }
-    const formattedDOB = `${dobParts[2]}-${dobParts[1]}-${dobParts[0]}`; // Convert to YYYY-MM-DD
+    const formattedDOB = `${dobParts[2]}-${dobParts[1]}-${dobParts[0]}`; // Line 60
 
-    const isPremiumValue = formData.isPremium ?? false;
-
-    // Sign up user in Supabase Auth
+    // Sign up the user with Supabase Auth
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: formData.email,
       password: formData.password,
@@ -61,55 +60,24 @@ export function useSignup() {
           first_name: formData.firstName,
           last_name: formData.lastName,
           nickname: formData.nickname,
-          date_of_birth: formattedDOB, // ✅ Fixed date format
+          date_of_birth: formattedDOB,  // ✅ Use the correctly formatted date
           height: formData.height,
           weight: formData.weight,
-          is_premium: isPremiumValue
+          is_premium: formData.isPremium ?? false,
         }
       }
     });
 
-    if (authError) throw authError;
-    if (!authData.user) throw new Error("No user data returned from signup");
+    if (authError) {
+      console.error('Auth error:', authError);
+      throw authError;
+    }
 
-    console.log("User signed up:", authData.user.id);
+    console.log("Auth success, user ID:", authData.user?.id);
 
-    // Insert profile into `profiles` table
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .insert([{
-        id: authData.user.id,
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        email: formData.email,
-        nickname: formData.nickname,
-        date_of_birth: formattedDOB, // ✅ Fixed date format
-        height: parseFloat(formData.height) || 0,
-        weight: parseFloat(formData.weight) || 0,
-        is_premium: isPremiumValue
-      }]);
-
-    if (profileError) throw new Error(`Profile creation failed: ${profileError.message}`);
-
-    console.log("Profile created successfully!");
-
-    toast({
-      title: "Success!",
-      description: `Your ${isPremiumValue ? 'premium' : 'free'} profile has been created.`,
-    });
-
-    navigate("/diary");
-
-    return true;
   } catch (error) {
-    console.error('Signup error:', error);
-    setError(error instanceof Error ? error.message : "Signup failed.");
-    toast({
-      variant: "destructive",
-      title: "Error",
-      description: error instanceof Error ? error.message : "Signup failed.",
-    });
-    return false;
+    console.error('Error during signup:', error);
+    setError(error instanceof Error ? error.message : "Failed to create profile");
   } finally {
     setIsSubmitting(false);
   }
