@@ -26,140 +26,91 @@ export function useSignup() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSignup = useCallback(async (formData: SignupFormData) => {
-    if (isSubmitting) return false; // Prevent multiple submissions
-    setIsSubmitting(true);
-    setError(null);
+ const handleSignup = useCallback(async (formData: SignupFormData) => {
+  if (isSubmitting) return false;
+  setIsSubmitting(true);
+  setError(null);
 
-    try {
-      console.log("Starting signup process with data:", {
-        email: formData.email,
-        firstName: formData.firstName,
-        lastName: formData.lastName
-      });
+  try {
+    console.log("Starting signup with:", formData);
 
-      // Validate recaptcha
-      if (!formData.recaptchaToken) {
-        throw new Error("Please complete the reCAPTCHA verification");
-      }
+    // Ensure recaptcha and password are provided
+    if (!formData.recaptchaToken) throw new Error("Please complete the reCAPTCHA verification");
+    if (!formData.password) throw new Error("Password is required");
 
-      // Ensure we have a password
-      if (!formData.password) {
-        throw new Error("Password is required");
-      }
+    // ✅ Ensure `date_of_birth` is provided
+    if (!formData.dateOfBirth) {
+      throw new Error("Date of Birth is required.");
+    }
 
-      // Sign up the user with Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            nickname: formData.nickname,
-            date_of_birth: formData.dateOfBirth,
-            height: formData.height,
-            weight: formData.weight,
-            is_premium: formData.isPremium
-          }
-        }
-      });
+    // ✅ Convert `DD-MM-YYYY` to `YYYY-MM-DD`
+    const dobParts = formData.dateOfBirth.split("-");
+    if (dobParts.length !== 3) {
+      throw new Error("Invalid date format. Please use DD-MM-YYYY.");
+    }
+    const formattedDOB = `${dobParts[2]}-${dobParts[1]}-${dobParts[0]}`; // Convert to YYYY-MM-DD
 
-      if (authError) {
-        console.error('Auth error:', authError);
-        throw authError;
-      }
+    const isPremiumValue = formData.isPremium ?? false;
 
-      if (!authData.user) {
-        console.error('No user data returned from signup');
-        throw new Error("No user data returned from signup");
-      }
-
-      console.log("Auth success, user ID:", authData.user.id);
-      
-      // Create user profile
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert([{
-          id: authData.user.id,
+    // Sign up user in Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email: formData.email,
+      password: formData.password,
+      options: {
+        data: {
           first_name: formData.firstName,
           last_name: formData.lastName,
-          email: formData.email,
           nickname: formData.nickname,
-          date_of_birth: formData.dateOfBirth,
-          height: parseFloat(formData.height) || 0,
-          weight: parseFloat(formData.weight) || 0,
-          is_premium: formData.isPremium
-        }]);
-
-      if (profileError) {
-        console.error('Profile creation error:', profileError);
-        throw new Error(`Failed to create profile: ${profileError.message}`);
-      }
-      
-      // Process payment if premium is selected
-      if (formData.isPremium) {
-        if (!formData.cardNumber || !formData.expiryDate || !formData.cvv) {
-          throw new Error("Payment details are required for premium subscription");
+          date_of_birth: formattedDOB, // ✅ Fixed date format
+          height: formData.height,
+          weight: formData.weight,
+          is_premium: isPremiumValue
         }
-        
-        // Process Stripe payment
-        const { error: paymentError } = await supabase
-          .from('payment_history')
-          .insert([{
-            user_id: authData.user.id,
-            amount: 7.99,
-            payment_method: 'card',
-            status: 'completed'
-          }]);
-          
-        if (paymentError) {
-          console.error('Payment processing error:', paymentError);
-          throw new Error("Failed to process payment. Please try again.");
-        }
-        
-        // Store premium status in localStorage
-        localStorage.setItem('isPremium', 'true');
       }
+    });
 
-      toast({
-        title: "Success!",
-        description: `Your ${formData.isPremium ? 'premium' : 'free'} profile has been created.`,
-      });
-      
-      // Ensure the auth state is set
-      await supabase.auth.refreshSession();
-      const { data: { session }} = await supabase.auth.getSession();
-      
-      if (session) {
-        navigate("/diary");
-      } else {
-        // If email confirmation is required, navigate to a confirmation page
-        toast({
-          variant: "default", // Fixed the variant type error here
-          title: "Check your email",
-          description: "We've sent you a confirmation email. Please verify your email to complete registration.",
-        });
-        navigate("/auth");
-      }
-      return true;
-    } catch (error) {
-      console.error('Error during signup:', error);
-      setError(error instanceof Error ? error.message : "Failed to create profile");
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to create profile",
-      });
-      return false;
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [navigate, toast, isSubmitting]);
+    if (authError) throw authError;
+    if (!authData.user) throw new Error("No user data returned from signup");
 
-  return {
-    handleSignup,
-    isSubmitting,
-    error
-  };
-}
+    console.log("User signed up:", authData.user.id);
+
+    // Insert profile into `profiles` table
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .insert([{
+        id: authData.user.id,
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        email: formData.email,
+        nickname: formData.nickname,
+        date_of_birth: formattedDOB, // ✅ Fixed date format
+        height: parseFloat(formData.height) || 0,
+        weight: parseFloat(formData.weight) || 0,
+        is_premium: isPremiumValue
+      }]);
+
+    if (profileError) throw new Error(`Profile creation failed: ${profileError.message}`);
+
+    console.log("Profile created successfully!");
+
+    toast({
+      title: "Success!",
+      description: `Your ${isPremiumValue ? 'premium' : 'free'} profile has been created.`,
+    });
+
+    navigate("/diary");
+
+    return true;
+  } catch (error) {
+    console.error('Signup error:', error);
+    setError(error instanceof Error ? error.message : "Signup failed.");
+    toast({
+      variant: "destructive",
+      title: "Error",
+      description: error instanceof Error ? error.message : "Signup failed.",
+    });
+    return false;
+  } finally {
+    setIsSubmitting(false);
+  }
+}, [navigate, toast, isSubmitting]);
