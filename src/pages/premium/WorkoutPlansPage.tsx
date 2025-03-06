@@ -56,7 +56,10 @@ const WorkoutPlansPage = () => {
   return (
     <ErrorBoundary fallback={<div className="p-4 bg-red-100 text-red-700">There was an error loading the workout plans. Please refresh the page.</div>}>
       <div className="min-h-screen bg-gray-50">
-        <Header title="Workout Plans" subtitle="Discover workout routines tailored to your goals" />
+        <Header 
+          title="Workout Plans" 
+          subtitle="Discover workout routines tailored to your goals" 
+        />
 
         <main className="container mx-auto px-4 py-8">
           <div className="max-w-5xl mx-auto">

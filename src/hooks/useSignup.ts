@@ -77,34 +77,24 @@ export function useSignup() {
 
       console.log("Auth success, user ID:", authData.user.id);
       
-      // Create user profile manually
-      try {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert([{
-            id: authData.user.id,
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            email: formData.email,
-            nickname: formData.nickname,
-            date_of_birth: formData.dateOfBirth,
-            height: parseFloat(formData.height) || 0,
-            weight: parseFloat(formData.weight) || 0,
-            is_premium: formData.isPremium
-          }]);
+      // Create user profile
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert([{
+          id: authData.user.id,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          nickname: formData.nickname,
+          date_of_birth: formData.dateOfBirth,
+          height: parseFloat(formData.height) || 0,
+          weight: parseFloat(formData.weight) || 0,
+          is_premium: formData.isPremium
+        }]);
 
-        if (profileError) {
-          console.error('Profile creation error:', profileError);
-          // Don't throw here, continue with the process
-          toast({
-            variant: "destructive",
-            title: "Profile creation warning",
-            description: `Note: ${profileError.message}. You may need to update your profile later.`,
-          });
-        }
-      } catch (profileCreationError) {
-        console.error('Profile creation exception:', profileCreationError);
-        // Continue with the signup process despite profile creation issues
+      if (profileError) {
+        console.error('Profile creation error:', profileError);
+        throw new Error(`Failed to create profile: ${profileError.message}`);
       }
       
       // Process payment if premium is selected
@@ -113,29 +103,19 @@ export function useSignup() {
           throw new Error("Payment details are required for premium subscription");
         }
         
-        try {
-          // Process Stripe payment
-          const { error: paymentError } = await supabase
-            .from('payment_history')
-            .insert([{
-              user_id: authData.user.id,
-              amount: 7.99,
-              payment_method: 'card',
-              status: 'completed'
-            }]);
-            
-          if (paymentError) {
-            console.error('Payment processing error:', paymentError);
-            // Continue with the signup process
-            toast({
-              variant: "warning",
-              title: "Payment processing warning",
-              description: "Your payment is being processed. Premium features may be delayed.",
-            });
-          }
-        } catch (paymentError) {
-          console.error('Payment exception:', paymentError);
-          // Continue with the signup process despite payment issues
+        // Process Stripe payment
+        const { error: paymentError } = await supabase
+          .from('payment_history')
+          .insert([{
+            user_id: authData.user.id,
+            amount: 7.99,
+            payment_method: 'card',
+            status: 'completed'
+          }]);
+          
+        if (paymentError) {
+          console.error('Payment processing error:', paymentError);
+          throw new Error("Failed to process payment. Please try again.");
         }
         
         // Store premium status in localStorage
@@ -156,6 +136,7 @@ export function useSignup() {
       } else {
         // If email confirmation is required, navigate to a confirmation page
         toast({
+          variant: "default", // Fixed the variant type error here
           title: "Check your email",
           description: "We've sent you a confirmation email. Please verify your email to complete registration.",
         });

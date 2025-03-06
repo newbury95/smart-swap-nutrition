@@ -1,9 +1,9 @@
 
 import React, { Suspense, lazy } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
-import { AuthProvider } from "@/hooks/useAuth";
+import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import TopBanner from "@/components/navigation/TopBanner";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
@@ -26,6 +26,21 @@ const PageLoading = () => (
   </div>
 );
 
+// ProtectedRoute component to handle authentication
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return <PageLoading />;
+  }
+  
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+  
+  return <>{children}</>;
+};
+
 // Configure query client with optimized settings
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,6 +48,7 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: false, // Disable refetching data on window focus
       retry: 1, // Only retry failed queries once
       staleTime: 60000, // Consider data fresh for 1 minute
+      gcTime: 300000, // Garbage collect after 5 minutes
     },
   },
 });
@@ -48,15 +64,36 @@ function App() {
               <Routes>
                 <Route path="/" element={<TrackingPage />} />
                 <Route path="/tracking" element={<TrackingPage />} />
-                <Route path="/diary" element={<DiaryPage />} />
-                <Route path="/meal-plans" element={<MealPlansPage />} />
+                <Route 
+                  path="/diary" 
+                  element={
+                    <ProtectedRoute>
+                      <DiaryPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/meal-plans" 
+                  element={
+                    <ProtectedRoute>
+                      <MealPlansPage />
+                    </ProtectedRoute>
+                  } 
+                />
                 <Route path="/premium" element={<PremiumPage />} />
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/personal-info" element={<PersonalInfo />} />
                 <Route path="/forum" element={<ForumPage />} />
                 <Route path="/contact" element={<ContactPage />} />
-                <Route path="/workouts" element={<WorkoutPlansPage />} />
+                <Route 
+                  path="/workouts" 
+                  element={
+                    <ProtectedRoute>
+                      <WorkoutPlansPage />
+                    </ProtectedRoute>
+                  } 
+                />
               </Routes>
             </Suspense>
           </ErrorBoundary>

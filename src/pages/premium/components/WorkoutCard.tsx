@@ -1,43 +1,88 @@
 
 import React from 'react';
-import WorkoutTable from './WorkoutTable';
-
-export type Difficulty = 'beginner' | 'intermediate' | 'advanced';
+import { Button } from '@/components/ui/button';
+import { Exercise } from '../data/workoutData';
 
 export interface Workout {
   id: string;
   name: string;
   description: string;
-  difficulty: Difficulty;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
   duration: string;
-  exercises: {
-    name: string;
-    sets: number;
-    reps: string;
-    rest: string;
-  }[];
+  primaryMuscleGroups: string[];
+  secondaryMuscleGroups: string[];
+  exercises: Exercise[];
+  imageUrl?: string;
 }
 
-interface WorkoutCardProps {
+export interface WorkoutCardProps {
   workout: Workout;
+  onSave?: () => void;
 }
 
-const WorkoutCard: React.FC<WorkoutCardProps> = ({ workout }) => {
+const WorkoutCard: React.FC<WorkoutCardProps> = ({ workout, onSave }) => {
+  // Function to get the badge color based on difficulty
+  const getDifficultyColor = (difficulty: string) => {
+    switch(difficulty) {
+      case 'beginner':
+        return 'bg-green-100 text-green-800';
+      case 'intermediate':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'advanced':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   return (
-    <div key={workout.id} className="border rounded-lg p-6">
-      <div className="flex justify-between items-start mb-4">
-        <div>
+    <div className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+      <div className="p-4">
+        <div className="flex justify-between items-start mb-2">
           <h3 className="text-lg font-semibold">{workout.name}</h3>
-          <p className="text-gray-600">{workout.description}</p>
-        </div>
-        <div className="flex items-center gap-2 text-sm">
-          <span className="bg-green-100 text-green-800 px-2 py-1 rounded">
-            {workout.duration}
+          <span className={`px-2 py-1 rounded text-xs font-medium ${getDifficultyColor(workout.difficulty)}`}>
+            {workout.difficulty.charAt(0).toUpperCase() + workout.difficulty.slice(1)}
           </span>
         </div>
+        
+        <p className="text-gray-600 text-sm mb-3">{workout.description}</p>
+        
+        <div className="flex flex-wrap gap-2 mb-3">
+          <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">
+            {workout.duration}
+          </span>
+          {workout.primaryMuscleGroups.map((muscle, index) => (
+            <span key={index} className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs">
+              {muscle.charAt(0).toUpperCase() + muscle.slice(1)}
+            </span>
+          ))}
+        </div>
+        
+        <div className="mt-4">
+          <h4 className="text-sm font-medium mb-2">Exercises:</h4>
+          <ul className="text-sm text-gray-600 space-y-1">
+            {workout.exercises.slice(0, 2).map((exercise, index) => (
+              <li key={index} className="flex justify-between">
+                <span>{exercise.name}</span>
+                <span>{exercise.sets} sets × {exercise.reps}</span>
+              </li>
+            ))}
+            {workout.exercises.length > 2 && (
+              <li className="text-green-600 text-xs">+{workout.exercises.length - 2} more exercises</li>
+            )}
+          </ul>
+        </div>
+        
+        {onSave && (
+          <Button 
+            className="w-full mt-4"
+            variant="outline"
+            onClick={onSave}
+          >
+            Save Workout
+          </Button>
+        )}
       </div>
-      
-      <WorkoutTable exercises={workout.exercises} />
     </div>
   );
 };

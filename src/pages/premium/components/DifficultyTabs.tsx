@@ -1,32 +1,28 @@
 
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import WorkoutList from './WorkoutList';
-import { Workout, Difficulty } from './WorkoutCard';
 
-interface DifficultyTabsProps {
-  workouts: Workout[];
-  onDifficultyChange: (difficulty: Difficulty) => void;
+export interface DifficultyTabsProps {
+  selectedDifficulty: string;
+  onSelectDifficulty: (difficulty: string) => void;
 }
 
-const DifficultyTabs: React.FC<DifficultyTabsProps> = ({ workouts, onDifficultyChange }) => {
+const DifficultyTabs: React.FC<DifficultyTabsProps> = ({ 
+  selectedDifficulty, 
+  onSelectDifficulty 
+}) => {
   return (
-    <Tabs defaultValue="beginner" onValueChange={(value) => onDifficultyChange(value as Difficulty)}>
-      <TabsList className="grid grid-cols-3 mb-6">
-        <TabsTrigger value="beginner">Beginner</TabsTrigger>
-        <TabsTrigger value="intermediate">Intermediate</TabsTrigger>
-        <TabsTrigger value="advanced">Advanced</TabsTrigger>
-      </TabsList>
-      
-      {['beginner', 'intermediate', 'advanced'].map((level) => (
-        <TabsContent key={level} value={level}>
-          <WorkoutList 
-            workouts={workouts} 
-            difficulty={level as Difficulty} 
-          />
-        </TabsContent>
-      ))}
-    </Tabs>
+    <div className="mb-8">
+      <h2 className="text-lg font-medium mb-4">Filter by Difficulty</h2>
+      <Tabs value={selectedDifficulty} onValueChange={onSelectDifficulty}>
+        <TabsList className="grid grid-cols-4 mb-6">
+          <TabsTrigger value="all">All</TabsTrigger>
+          <TabsTrigger value="beginner">Beginner</TabsTrigger>
+          <TabsTrigger value="intermediate">Intermediate</TabsTrigger>
+          <TabsTrigger value="advanced">Advanced</TabsTrigger>
+        </TabsList>
+      </Tabs>
+    </div>
   );
 };
 

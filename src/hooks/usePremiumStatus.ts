@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { supabase } from './useSupabase';
+import { supabase } from '@/integrations/supabase/client';
 
 export const usePremiumStatus = () => {
   // Initialize premium status from localStorage or default to false
@@ -17,10 +17,25 @@ export const usePremiumStatus = () => {
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session?.user) {
-          // Check premium status from user metadata or subscription table
-          // For demo purposes, we're just using localStorage
-          const premium = localStorage.getItem('isPremium') === 'true';
-          setIsPremium(premium);
+          // Try to get profile information from profiles table
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('is_premium')
+            .eq('id', session.user.id)
+            .single();
+          
+          if (profileError) {
+            console.error('Error fetching premium status from profile:', profileError);
+            // Fallback to localStorage if we can't get from database
+            const premium = localStorage.getItem('isPremium') === 'true';
+            setIsPremium(premium);
+          } else if (profileData) {
+            // Update localStorage with the latest from database
+            setIsPremium(profileData.is_premium);
+            localStorage.setItem('isPremium', profileData.is_premium.toString());
+          } else {
+            setIsPremium(false);
+          }
         } else {
           setIsPremium(false);
         }
@@ -36,9 +51,24 @@ export const usePremiumStatus = () => {
   }, []);
 
   const refreshPremiumStatus = async () => {
-    // In a real app, this would check with the server
-    const premium = localStorage.getItem('isPremium') === 'true';
-    setIsPremium(premium);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.user) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('is_premium')
+          .eq('id', session.user.id)
+          .single();
+        
+        if (data) {
+          setIsPremium(data.is_premium);
+          localStorage.setItem('isPremium', data.is_premium.toString());
+        }
+      }
+    } catch (error) {
+      console.error('Error refreshing premium status:', error);
+    }
   };
 
   return { isPremium, loading, refreshPremiumStatus };
