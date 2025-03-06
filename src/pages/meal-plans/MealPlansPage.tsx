@@ -10,7 +10,7 @@ import MealPlanCategoryTabs from './components/MealPlanCategoryTabs';
 import MealPlanDetails from './components/MealPlanDetails';
 import { useMealPlanManagement } from './hooks/useMealPlanManagement';
 import { MealPlanProvider, useMealPlanContext } from './context/MealPlanContext';
-import { MealPlanActions } from './components/MealPlanActions';
+import { useMealPlanActions } from './components/MealPlanActions';
 
 const MealPlansPageContent = () => {
   const today = new Date();
@@ -23,7 +23,7 @@ const MealPlansPageContent = () => {
     setShowMealPlanDetails 
   } = useMealPlanContext();
   
-  const { handleAddToDiary, handleAddSingleMeal } = MealPlanActions({ handleAddFood });
+  const { handleAddToDiary, handleAddSingleMeal } = useMealPlanActions({ handleAddFood });
 
   const handleOpenMealPlan = (mealPlan: MealPlan) => {
     setSelectedMealPlan(mealPlan);

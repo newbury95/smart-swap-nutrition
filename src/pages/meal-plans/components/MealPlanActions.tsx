@@ -9,7 +9,7 @@ interface MealPlanActionsProps {
   handleAddFood: (type: string) => (food: Food) => void;
 }
 
-export const MealPlanActions: React.FC<MealPlanActionsProps> = ({ handleAddFood }) => {
+export const useMealPlanActions = ({ handleAddFood }: MealPlanActionsProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { selectedMealPlan, setShowMealPlanDetails } = useMealPlanContext();
