@@ -9,7 +9,12 @@ interface MealPlanActionsProps {
   handleAddFood: (type: string) => (food: Food) => void;
 }
 
-export const useMealPlanActions = ({ handleAddFood }: MealPlanActionsProps) => {
+interface MealPlanActionsReturn {
+  handleAddToDiary: () => void;
+  handleAddSingleMeal: (meal: Food, mealType: string) => void;
+}
+
+export const useMealPlanActions = ({ handleAddFood }: MealPlanActionsProps): MealPlanActionsReturn => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { selectedMealPlan, setShowMealPlanDetails } = useMealPlanContext();
