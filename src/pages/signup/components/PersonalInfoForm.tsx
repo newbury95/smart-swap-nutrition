@@ -10,6 +10,12 @@ interface PersonalInfoFormProps {
 }
 
 export const PersonalInfoForm = ({ formData, handleInputChange, handlePremiumToggle }: PersonalInfoFormProps) => {
+  // Helper function to convert the date to DD-MM-YYYY format (if needed)
+  const convertDateFormat = (date: string) => {
+    const [year, month, day] = date.split('-'); // Splitting the YYYY-MM-DD format
+    return `${day}-${month}-${year}`; // Return in DD-MM-YYYY format
+  };
+
   return (
     <>
       <div className="grid md:grid-cols-2 gap-6">
@@ -88,6 +94,7 @@ export const PersonalInfoForm = ({ formData, handleInputChange, handlePremiumTog
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Date of Birth
           </label>
+          {/* Date input is already in YYYY-MM-DD format, but let's make sure to handle it */}
           <input
             type="date"
             name="dateOfBirth"
