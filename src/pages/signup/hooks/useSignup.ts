@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,28 +26,19 @@ export function useSignup() {
   const [error, setError] = useState<string | null>(null);
 
   const handleSignup = useCallback(async (formData: SignupFormData) => {
-    if (isSubmitting) return false; // Prevent multiple submissions
+    if (isSubmitting) return false;
     setIsSubmitting(true);
     setError(null);
 
     try {
-      console.log("Starting signup process with data:", {
-        email: formData.email,
-        firstName: formData.firstName,
-        lastName: formData.lastName
-      });
+      if (!formData.email || !formData.password) {
+        throw new Error("Email and password are required");
+      }
 
-      // Validate recaptcha
       if (!formData.recaptchaToken) {
         throw new Error("Please complete the reCAPTCHA verification");
       }
 
-      // Ensure we have a password
-      if (!formData.password) {
-        throw new Error("Password is required");
-      }
-
-      // Sign up the user with Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -71,39 +61,27 @@ export function useSignup() {
       }
 
       if (!authData.user) {
-        console.error('No user data returned from signup');
         throw new Error("No user data returned from signup");
       }
 
-      console.log("Auth success, user ID:", authData.user.id);
-      
-      // Create user profile
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert([{
-          id: authData.user.id,
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          email: formData.email,
-          nickname: formData.nickname,
-          date_of_birth: formData.dateOfBirth,
-          height: parseFloat(formData.height) || 0,
-          weight: parseFloat(formData.weight) || 0,
-          is_premium: formData.isPremium
-        }]);
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-      if (profileError) {
-        console.error('Profile creation error:', profileError);
-        throw new Error(`Failed to create profile: ${profileError.message}`);
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', authData.user.id)
+        .maybeSingle();
+
+      if (profileError || !profileData) {
+        console.error('Profile verification error:', profileError);
+        throw new Error("Failed to verify profile creation. Please try again.");
       }
-      
-      // Process payment if premium is selected
+
       if (formData.isPremium) {
         if (!formData.cardNumber || !formData.expiryDate || !formData.cvv) {
           throw new Error("Payment details are required for premium subscription");
         }
         
-        // Process Stripe payment
         const { error: paymentError } = await supabase
           .from('payment_history')
           .insert([{
@@ -114,11 +92,10 @@ export function useSignup() {
           }]);
           
         if (paymentError) {
-          console.error('Payment processing error:', paymentError);
+          console.error('Payment error:', paymentError);
           throw new Error("Failed to process payment. Please try again.");
         }
         
-        // Store premium status in localStorage
         localStorage.setItem('isPremium', 'true');
       }
 
@@ -126,15 +103,13 @@ export function useSignup() {
         title: "Success!",
         description: `Your ${formData.isPremium ? 'premium' : 'free'} profile has been created.`,
       });
-      
-      // Ensure the auth state is set
+
       await supabase.auth.refreshSession();
       const { data: { session }} = await supabase.auth.getSession();
       
       if (session) {
         navigate("/diary");
       } else {
-        // If email confirmation is required, navigate to a confirmation page
         toast({
           title: "Check your email",
           description: "We've sent you a confirmation email. Please verify your email to complete registration.",

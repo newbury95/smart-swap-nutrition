@@ -1,9 +1,10 @@
 
 import { useState, useEffect } from 'react';
+import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
 export const usePremiumStatus = () => {
-  // Initialize premium status from localStorage or default to false
+  const { toast } = useToast();
   const [isPremium, setIsPremium] = useState(() => {
     const storedValue = localStorage.getItem('isPremium');
     return storedValue ? storedValue === 'true' : false;
@@ -11,63 +12,96 @@ export const usePremiumStatus = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
     const checkPremiumStatus = async () => {
-      setLoading(true);
       try {
         const { data: { session } } = await supabase.auth.getSession();
         
-        if (session?.user) {
-          // Try to get profile information from profiles table
-          const { data: profileData, error: profileError } = await supabase
-            .from('profiles')
-            .select('is_premium')
-            .eq('id', session.user.id)
-            .single();
-          
-          if (profileError) {
-            console.error('Error fetching premium status from profile:', profileError);
-            // Fallback to localStorage if we can't get from database
-            const premium = localStorage.getItem('isPremium') === 'true';
-            setIsPremium(premium);
-          } else if (profileData) {
-            // Update localStorage with the latest from database
-            setIsPremium(profileData.is_premium);
-            localStorage.setItem('isPremium', profileData.is_premium.toString());
-          } else {
+        if (!session?.user) {
+          if (mounted) {
             setIsPremium(false);
+            setLoading(false);
           }
-        } else {
-          setIsPremium(false);
+          return;
+        }
+
+        // Use maybeSingle instead of single to handle no rows gracefully
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('is_premium')
+          .eq('id', session.user.id)
+          .maybeSingle();
+        
+        if (profileError) {
+          console.error('Error fetching premium status:', profileError);
+          throw profileError;
+        }
+
+        if (mounted) {
+          const premium = !!profileData?.is_premium;
+          setIsPremium(premium);
+          localStorage.setItem('isPremium', premium.toString());
         }
       } catch (error) {
         console.error('Error checking premium status:', error);
-        setIsPremium(false);
+        if (mounted) {
+          setIsPremium(false);
+          toast({
+            variant: "destructive",
+            title: "Error checking premium status",
+            description: "Please try refreshing the page",
+          });
+        }
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
     checkPremiumStatus();
-  }, []);
+
+    // Set up auth state change listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      checkPremiumStatus();
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [toast]);
 
   const refreshPremiumStatus = async () => {
+    setLoading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       
-      if (session?.user) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('is_premium')
-          .eq('id', session.user.id)
-          .single();
-        
-        if (data) {
-          setIsPremium(data.is_premium);
-          localStorage.setItem('isPremium', data.is_premium.toString());
-        }
+      if (!session?.user) {
+        setIsPremium(false);
+        return;
+      }
+
+      const { data } = await supabase
+        .from('profiles')
+        .select('is_premium')
+        .eq('id', session.user.id)
+        .maybeSingle();
+      
+      if (data) {
+        setIsPremium(data.is_premium);
+        localStorage.setItem('isPremium', data.is_premium.toString());
       }
     } catch (error) {
       console.error('Error refreshing premium status:', error);
+      toast({
+        variant: "destructive",
+        title: "Error refreshing premium status",
+        description: "Please try again",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
