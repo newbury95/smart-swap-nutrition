@@ -67,7 +67,7 @@ const AppRoutes = () => {
       <TopBanner />
       <Suspense fallback={<PageLoading />}>
         <Routes>
-          <Route path="/" element={user ? <TrackingPage /> : <IndexPage />} />
+          <Route path="/" element={user ? <Navigate to="/tracking" /> : <IndexPage />} />
           <Route path="/tracking" element={<TrackingPage />} />
           <Route 
             path="/diary" 

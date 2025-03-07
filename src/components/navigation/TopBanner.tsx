@@ -38,6 +38,12 @@ const TopBanner = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isIndexPage = location.pathname === "/";
+  const isAuthPage = location.pathname === "/auth";
+  
+  // Hide banner completely on auth page
+  if (isAuthPage) {
+    return null;
+  }
   
   const handleSignOut = async () => {
     await signOut();
