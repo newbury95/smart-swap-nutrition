@@ -27,6 +27,18 @@ const PageLoading = () => (
   </div>
 );
 
+// Configure query client with optimized settings
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false, // Disable refetching data on window focus
+      retry: 1, // Only retry failed queries once
+      staleTime: 60000, // Consider data fresh for 1 minute
+      gcTime: 300000, // Garbage collect after 5 minutes
+    },
+  },
+});
+
 // ProtectedRoute component to handle authentication
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -42,67 +54,66 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// Configure query client with optimized settings
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false, // Disable refetching data on window focus
-      retry: 1, // Only retry failed queries once
-      staleTime: 60000, // Consider data fresh for 1 minute
-      gcTime: 300000, // Garbage collect after 5 minutes
-    },
-  },
-});
-
-function App() {
+// AppRoutes component to handle routing after auth is available
+const AppRoutes = () => {
   const { user, loading } = useAuth();
 
+  if (loading) {
+    return <PageLoading />;
+  }
+
+  return (
+    <ErrorBoundary fallback={<div className="p-4 bg-red-100 text-red-700">Something went wrong with the application. Please refresh the page.</div>}>
+      <TopBanner />
+      <Suspense fallback={<PageLoading />}>
+        <Routes>
+          <Route path="/" element={user ? <TrackingPage /> : <IndexPage />} />
+          <Route path="/tracking" element={<TrackingPage />} />
+          <Route 
+            path="/diary" 
+            element={
+              <ProtectedRoute>
+                <DiaryPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/meal-plans" 
+            element={
+              <ProtectedRoute>
+                <MealPlansPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route path="/premium" element={<PremiumPage />} />
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/signup/personal-info" element={<PersonalInfo />} />
+          <Route path="/personal-info" element={<Navigate to="/signup/personal-info" replace />} />
+          <Route path="/forum" element={<ForumPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route 
+            path="/workouts" 
+            element={
+              <ProtectedRoute>
+                <WorkoutPlansPage />
+              </ProtectedRoute>
+            } 
+          />
+        </Routes>
+      </Suspense>
+      <Toaster />
+    </ErrorBoundary>
+  );
+};
+
+function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Router>
-          <ErrorBoundary fallback={<div className="p-4 bg-red-100 text-red-700">Something went wrong with the application. Please refresh the page.</div>}>
-            <TopBanner />
-            <Suspense fallback={<PageLoading />}>
-              <Routes>
-                <Route path="/" element={user ? <TrackingPage /> : <IndexPage />} />
-                <Route path="/tracking" element={<TrackingPage />} />
-                <Route 
-                  path="/diary" 
-                  element={
-                    <ProtectedRoute>
-                      <DiaryPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/meal-plans" 
-                  element={
-                    <ProtectedRoute>
-                      <MealPlansPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route path="/premium" element={<PremiumPage />} />
-                <Route path="/auth" element={<AuthPage />} />
-                <Route path="/signup" element={<SignupPage />} />
-                <Route path="/signup/personal-info" element={<PersonalInfo />} />
-                <Route path="/personal-info" element={<Navigate to="/signup/personal-info" replace />} />
-                <Route path="/forum" element={<ForumPage />} />
-                <Route path="/contact" element={<ContactPage />} />
-                <Route 
-                  path="/workouts" 
-                  element={
-                    <ProtectedRoute>
-                      <WorkoutPlansPage />
-                    </ProtectedRoute>
-                  } 
-                />
-              </Routes>
-            </Suspense>
-          </ErrorBoundary>
+          <AppRoutes />
         </Router>
-        <Toaster />
       </AuthProvider>
     </QueryClientProvider>
   );
