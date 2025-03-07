@@ -232,7 +232,7 @@ export type Database = {
           id: string
           is_premium: boolean
           last_name: string
-          nickname: string
+          nickname: string | null
           weight: number
         }
         Insert: {
@@ -244,7 +244,7 @@ export type Database = {
           id: string
           is_premium?: boolean
           last_name: string
-          nickname: string
+          nickname?: string | null
           weight: number
         }
         Update: {
@@ -256,7 +256,7 @@ export type Database = {
           id?: string
           is_premium?: boolean
           last_name?: string
-          nickname?: string
+          nickname?: string | null
           weight?: number
         }
         Relationships: []

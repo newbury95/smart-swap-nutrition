@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,6 +40,20 @@ export function useSignup() {
         throw new Error("Please complete the reCAPTCHA verification");
       }
 
+      // Ensure all required fields have values
+      if (!formData.firstName || !formData.lastName || !formData.nickname || 
+          !formData.dateOfBirth || !formData.height || !formData.weight) {
+        throw new Error("All fields are required");
+      }
+
+      // Format date to ensure it's in the correct format for Supabase
+      // No need to change format as DATE inputs already use YYYY-MM-DD which is what Postgres expects
+
+      console.log("Signing up with data:", {
+        ...formData,
+        password: "******", // Don't log the actual password
+      });
+
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -47,9 +62,9 @@ export function useSignup() {
             first_name: formData.firstName,
             last_name: formData.lastName,
             nickname: formData.nickname,
-            date_of_birth: formData.dateOfBirth,
-            height: formData.height,
-            weight: formData.weight,
+            date_of_birth: formData.dateOfBirth, // Already in YYYY-MM-DD format
+            height: parseFloat(formData.height),
+            weight: parseFloat(formData.weight),
             is_premium: formData.isPremium
           }
         }
@@ -64,19 +79,26 @@ export function useSignup() {
         throw new Error("No user data returned from signup");
       }
 
+      console.log("User created successfully:", authData.user.id);
+
+      // Wait a moment for the trigger to create the profile
       await new Promise(resolve => setTimeout(resolve, 1000));
 
+      // Verify profile was created
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', authData.user.id)
         .maybeSingle();
 
-      if (profileError || !profileData) {
+      if (profileError) {
         console.error('Profile verification error:', profileError);
         throw new Error("Failed to verify profile creation. Please try again.");
       }
 
+      console.log("Profile verification:", profileData);
+
+      // Handle premium subscription
       if (formData.isPremium) {
         if (!formData.cardNumber || !formData.expiryDate || !formData.cvv) {
           throw new Error("Payment details are required for premium subscription");
@@ -104,6 +126,7 @@ export function useSignup() {
         description: `Your ${formData.isPremium ? 'premium' : 'free'} profile has been created.`,
       });
 
+      // Refresh session to ensure we have the latest data
       await supabase.auth.refreshSession();
       const { data: { session }} = await supabase.auth.getSession();
       

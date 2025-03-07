@@ -83,7 +83,8 @@ function App() {
                 <Route path="/premium" element={<PremiumPage />} />
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/signup" element={<SignupPage />} />
-                <Route path="/personal-info" element={<PersonalInfo />} />
+                <Route path="/signup/personal-info" element={<PersonalInfo />} />
+                <Route path="/personal-info" element={<Navigate to="/signup/personal-info" replace />} />
                 <Route path="/forum" element={<ForumPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route 

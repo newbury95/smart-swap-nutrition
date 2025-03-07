@@ -1,3 +1,4 @@
+
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,127 +11,128 @@ interface PersonalInfoFormProps {
 }
 
 export const PersonalInfoForm = ({ formData, handleInputChange, handlePremiumToggle }: PersonalInfoFormProps) => {
-  // Helper function to convert the date to DD-MM-YYYY format (if needed)
-  const convertDateFormat = (date: string) => {
-    const [year, month, day] = date.split('-'); // Splitting the YYYY-MM-DD format
-    return `${day}-${month}-${year}`; // Return in DD-MM-YYYY format
-  };
-
   return (
     <>
       <div className="grid md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <Label htmlFor="firstName" className="mb-2">
             First Name
-          </label>
-          <input
+          </Label>
+          <Input
+            id="firstName"
             type="text"
             name="firstName"
             required
             value={formData.firstName}
             onChange={handleInputChange}
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-400 focus:border-transparent"
+            className="w-full"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <Label htmlFor="lastName" className="mb-2">
             Last Name
-          </label>
-          <input
+          </Label>
+          <Input
+            id="lastName"
             type="text"
             name="lastName"
             required
             value={formData.lastName}
             onChange={handleInputChange}
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-400 focus:border-transparent"
+            className="w-full"
           />
         </div>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <Label htmlFor="email" className="mb-2">
             Email
-          </label>
-          <input
+          </Label>
+          <Input
+            id="email"
             type="email"
             name="email"
             required
             value={formData.email}
             onChange={handleInputChange}
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-400 focus:border-transparent"
+            className="w-full"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <Label htmlFor="password" className="mb-2">
             Password
-          </label>
-          <input
+          </Label>
+          <Input
+            id="password"
             type="password"
             name="password"
             required
             value={formData.password}
             onChange={handleInputChange}
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-400 focus:border-transparent"
+            className="w-full"
           />
         </div>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <Label htmlFor="nickname" className="mb-2">
             Nickname
-          </label>
-          <input
+          </Label>
+          <Input
+            id="nickname"
             type="text"
             name="nickname"
             required
             value={formData.nickname}
             onChange={handleInputChange}
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-400 focus:border-transparent"
+            className="w-full"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <Label htmlFor="dateOfBirth" className="mb-2">
             Date of Birth
-          </label>
-          {/* Date input is already in YYYY-MM-DD format, but let's make sure to handle it */}
-          <input
+          </Label>
+          <Input
+            id="dateOfBirth"
             type="date"
             name="dateOfBirth"
             required
             value={formData.dateOfBirth}
             onChange={handleInputChange}
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-400 focus:border-transparent"
+            className="w-full"
           />
         </div>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <Label htmlFor="height" className="mb-2">
             Starting Height (cm)
-          </label>
-          <input
+          </Label>
+          <Input
+            id="height"
             type="number"
             name="height"
             required
             value={formData.height}
             onChange={handleInputChange}
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-400 focus:border-transparent"
+            className="w-full"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <Label htmlFor="weight" className="mb-2">
             Starting Weight (kg)
-          </label>
-          <input
+          </Label>
+          <Input
+            id="weight"
             type="number"
             name="weight"
             required
             value={formData.weight}
             onChange={handleInputChange}
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-400 focus:border-transparent"
+            className="w-full"
           />
         </div>
       </div>
