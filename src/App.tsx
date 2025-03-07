@@ -8,6 +8,7 @@ import TopBanner from "@/components/navigation/TopBanner";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 // Use lazy loading for routes to improve initial load performance
+const IndexPage = lazy(() => import("@/pages/Index"));
 const TrackingPage = lazy(() => import("@/pages/tracking/TrackingPage"));
 const DiaryPage = lazy(() => import("@/pages/diary/FoodDiary"));
 const MealPlansPage = lazy(() => import("@/pages/meal-plans/MealPlansPage"));
@@ -54,6 +55,8 @@ const queryClient = new QueryClient({
 });
 
 function App() {
+  const { user, loading } = useAuth();
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
@@ -62,7 +65,7 @@ function App() {
             <TopBanner />
             <Suspense fallback={<PageLoading />}>
               <Routes>
-                <Route path="/" element={<TrackingPage />} />
+                <Route path="/" element={user ? <TrackingPage /> : <IndexPage />} />
                 <Route path="/tracking" element={<TrackingPage />} />
                 <Route 
                   path="/diary" 

@@ -73,7 +73,7 @@ const TopBanner = () => {
                   <NavTile
                     icon={<Dumbbell className="w-4 h-4" />}
                     label="Workouts"
-                    href="/workout-plans"
+                    href="/workouts"
                     isPremium={true}
                   />
                   <NavTile
@@ -90,14 +90,19 @@ const TopBanner = () => {
               ) : (
                 <>
                   <NavTile
-                    icon={<BookOpen className="w-4 h-4" />}
-                    label="Food Diary"
-                    href="/diary"
-                  />
-                  <NavTile
                     icon={<Activity className="w-4 h-4" />}
                     label="Tracking"
                     href="/tracking"
+                  />
+                  <NavTile
+                    icon={<MessageSquare className="w-4 h-4" />}
+                    label="Forum"
+                    href="/forum"
+                  />
+                  <NavTile
+                    icon={<PhoneCall className="w-4 h-4" />}
+                    label="Contact"
+                    href="/contact"
                   />
                 </>
               )}
