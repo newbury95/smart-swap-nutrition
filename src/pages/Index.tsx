@@ -24,34 +24,6 @@ const CardPlaceholder = () => (
 
 const Index = () => {
   const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  // Check if user is logged in
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data } = await supabase.auth.getSession();
-      setIsLoggedIn(!!data.session);
-    };
-    
-    checkAuth();
-    
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      setIsLoggedIn(!!session);
-    });
-    
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, []);
-
-  const handleAuthAction = async () => {
-    if (isLoggedIn) {
-      await supabase.auth.signOut();
-      navigate('/');
-    } else {
-      navigate('/auth');
-    }
-  };
 
   // Memoize these values to prevent unnecessary re-renders
   const premiumFeatures = [
@@ -95,18 +67,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-soft-green/20 to-white">
-      <header className="bg-white shadow">
-        <div className="container mx-auto px-4 h-16 flex justify-between items-center">
-          <h1 className="text-xl font-semibold text-green-600">NutriTrack</h1>
-          <button
-            onClick={handleAuthAction}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
-          >
-            <span>{isLoggedIn ? "Sign Out" : "Sign In"}</span>
-          </button>
-        </div>
-      </header>
-
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-12">
         <motion.div 

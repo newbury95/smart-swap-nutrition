@@ -1,6 +1,6 @@
 
 import { BookOpen, Activity, MessageSquare, PhoneCall, Crown, Dumbbell, LogOut } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -36,6 +36,8 @@ const NavTile = ({ icon, label, href, isPremium }: NavTileProps) => (
 const TopBanner = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isIndexPage = location.pathname === "/";
   
   const handleSignOut = async () => {
     await signOut();
@@ -51,91 +53,119 @@ const TopBanner = () => {
           </Link>
           
           <div className="flex items-center">
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-4">
-              {user ? (
-                <>
-                  <NavTile
-                    icon={<BookOpen className="w-4 h-4" />}
-                    label="Food Diary"
-                    href="/diary"
-                  />
-                  <NavTile
-                    icon={<Activity className="w-4 h-4" />}
-                    label="Tracking"
-                    href="/tracking"
-                  />
-                  <NavTile
-                    icon={<Crown className="w-4 h-4" />}
-                    label="Meal Plans"
-                    href="/meal-plans"
-                    isPremium={true}
-                  />
-                  <NavTile
-                    icon={<Dumbbell className="w-4 h-4" />}
-                    label="Workouts"
-                    href="/workouts"
-                    isPremium={true}
-                  />
-                  <NavTile
-                    icon={<MessageSquare className="w-4 h-4" />}
-                    label="Forum"
-                    href="/forum"
-                  />
-                  <NavTile
-                    icon={<PhoneCall className="w-4 h-4" />}
-                    label="Contact"
-                    href="/contact"
-                  />
-                </>
-              ) : (
-                <>
-                  <NavTile
-                    icon={<Activity className="w-4 h-4" />}
-                    label="Tracking"
-                    href="/tracking"
-                  />
-                  <NavTile
-                    icon={<MessageSquare className="w-4 h-4" />}
-                    label="Forum"
-                    href="/forum"
-                  />
-                  <NavTile
-                    icon={<PhoneCall className="w-4 h-4" />}
-                    label="Contact"
-                    href="/contact"
-                  />
-                </>
-              )}
-            </div>
-            
-            <div className="ml-4 md:ml-8">
-              {user ? (
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={handleSignOut}
-                  className="flex items-center gap-1 text-gray-600"
+            {isIndexPage && !user ? (
+              // Show only sign in/sign up on index page for non-authenticated users
+              <div className="flex gap-2">
+                <Link
+                  to="/auth"
+                  className="text-sm hover:text-green-600 transition-colors"
                 >
-                  <LogOut className="w-4 h-4" />
-                  <span className="hidden md:inline">Sign Out</span>
-                </Button>
-              ) : (
-                <div className="flex gap-2">
-                  <Link
-                    to="/auth"
-                    className="text-sm hover:text-green-600 transition-colors"
-                  >
-                    Sign In
-                  </Link>
-                  <Link
-                    to="/signup"
-                    className="bg-green-600 text-white px-3 py-1 rounded-md text-sm hover:bg-green-700 transition-colors"
-                  >
-                    Sign Up
-                  </Link>
+                  Sign In
+                </Link>
+                <Link
+                  to="/signup"
+                  className="bg-green-600 text-white px-3 py-1 rounded-md text-sm hover:bg-green-700 transition-colors"
+                >
+                  Sign Up
+                </Link>
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-4">
+                  {user ? (
+                    <>
+                      {/* Free features */}
+                      <NavTile
+                        icon={<BookOpen className="w-4 h-4" />}
+                        label="Food Diary"
+                        href="/diary"
+                      />
+                      <NavTile
+                        icon={<Activity className="w-4 h-4" />}
+                        label="Tracking"
+                        href="/tracking"
+                      />
+                      
+                      {/* Premium features */}
+                      <NavTile
+                        icon={<Crown className="w-4 h-4" />}
+                        label="Meal Plans"
+                        href="/meal-plans"
+                        isPremium={true}
+                      />
+                      <NavTile
+                        icon={<Dumbbell className="w-4 h-4" />}
+                        label="Workouts"
+                        href="/workouts"
+                        isPremium={true}
+                      />
+                      
+                      {/* General features */}
+                      <NavTile
+                        icon={<MessageSquare className="w-4 h-4" />}
+                        label="Forum"
+                        href="/forum"
+                      />
+                      <NavTile
+                        icon={<PhoneCall className="w-4 h-4" />}
+                        label="Contact"
+                        href="/contact"
+                      />
+                    </>
+                  ) : !isIndexPage && (
+                    <>
+                      {/* Show limited options for non-authenticated users on non-index pages */}
+                      <NavTile
+                        icon={<Activity className="w-4 h-4" />}
+                        label="Tracking"
+                        href="/tracking"
+                      />
+                      <NavTile
+                        icon={<MessageSquare className="w-4 h-4" />}
+                        label="Forum"
+                        href="/forum"
+                      />
+                      <NavTile
+                        icon={<PhoneCall className="w-4 h-4" />}
+                        label="Contact"
+                        href="/contact"
+                      />
+                    </>
+                  )}
                 </div>
-              )}
-            </div>
+                
+                {user && (
+                  <div className="ml-4 md:ml-8">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={handleSignOut}
+                      className="flex items-center gap-1 text-gray-600"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span className="hidden md:inline">Sign Out</span>
+                    </Button>
+                  </div>
+                )}
+                
+                {!user && !isIndexPage && (
+                  <div className="ml-4 md:ml-8 flex gap-2">
+                    <Link
+                      to="/auth"
+                      className="text-sm hover:text-green-600 transition-colors"
+                    >
+                      Sign In
+                    </Link>
+                    <Link
+                      to="/signup"
+                      className="bg-green-600 text-white px-3 py-1 rounded-md text-sm hover:bg-green-700 transition-colors"
+                    >
+                      Sign Up
+                    </Link>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>
