@@ -45,6 +45,12 @@ const MealPlanCard: React.FC<MealPlanCardProps> = ({
     }
   };
 
+  const handleClick = () => {
+    if (filteredPlans && filteredPlans.length > 0) {
+      onOpenMealPlan(filteredPlans[0]);
+    }
+  };
+
   return (
     <motion.div
       key={planType.type}
@@ -54,11 +60,7 @@ const MealPlanCard: React.FC<MealPlanCardProps> = ({
     >
       <Card 
         className="cursor-pointer hover:shadow-md transition-shadow"
-        onClick={() => {
-          if (filteredPlans.length > 0) {
-            onOpenMealPlan(filteredPlans[0]);
-          }
-        }}
+        onClick={handleClick}
       >
         <CardHeader className="pb-2">
           <div className={`w-10 h-10 rounded-full ${planType.color} flex items-center justify-center mb-2`}>

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Clock, Save } from 'lucide-react';
+import { Clock, Info } from 'lucide-react';
 import { Workout } from '../data/workoutData';
 
 export interface WorkoutListProps {
@@ -61,8 +61,8 @@ const WorkoutList: React.FC<WorkoutListProps> = ({ workouts, onSave }) => {
               onClick={() => onSave(workout.id)}
               className="md:self-center whitespace-nowrap"
             >
-              <Save className="w-4 h-4 mr-2" />
-              Save
+              <Info className="w-4 h-4 mr-2" />
+              Details
             </Button>
           )}
         </div>

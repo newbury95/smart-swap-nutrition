@@ -1,5 +1,5 @@
 
-import React, { Suspense, lazy } from "react";
+import React, { Suspense, lazy, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -42,13 +42,20 @@ const queryClient = new QueryClient({
 // ProtectedRoute component to handle authentication
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/auth", { replace: true });
+    }
+  }, [user, loading, navigate]);
   
   if (loading) {
     return <PageLoading />;
   }
   
   if (!user) {
-    return <Navigate to="/auth" replace />;
+    return null;
   }
   
   return <>{children}</>;
@@ -69,7 +76,7 @@ const AppRoutes = () => {
       {!isAuthPage && <TopBanner />}
       <Suspense fallback={<PageLoading />}>
         <Routes>
-          <Route path="/" element={user ? <Navigate to="/tracking" /> : <IndexPage />} />
+          <Route path="/" element={user ? <Navigate to="/diary" /> : <IndexPage />} />
           <Route path="/tracking" element={<TrackingPage />} />
           <Route 
             path="/diary" 
@@ -88,9 +95,9 @@ const AppRoutes = () => {
             } 
           />
           <Route path="/premium" element={<PremiumPage />} />
-          <Route path="/auth" element={<AuthPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/signup/personal-info" element={<PersonalInfo />} />
+          <Route path="/auth" element={user ? <Navigate to="/diary" /> : <AuthPage />} />
+          <Route path="/signup" element={user ? <Navigate to="/diary" /> : <SignupPage />} />
+          <Route path="/signup/personal-info" element={user ? <Navigate to="/diary" /> : <PersonalInfo />} />
           <Route path="/personal-info" element={<Navigate to="/signup/personal-info" replace />} />
           <Route path="/forum" element={<ForumPage />} />
           <Route path="/contact" element={<ContactPage />} />
@@ -102,6 +109,7 @@ const AppRoutes = () => {
               </ProtectedRoute>
             } 
           />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
       <Toaster />
