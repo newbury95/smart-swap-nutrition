@@ -14,12 +14,14 @@ interface MuscleGroupGridProps {
   muscleGroups: MuscleGroup[];
   isPremium: boolean;
   onMuscleGroupSelect: (id: string) => void;
+  selectedMuscleGroup?: string;
 }
 
 const MuscleGroupGrid: React.FC<MuscleGroupGridProps> = ({ 
   muscleGroups, 
   isPremium, 
-  onMuscleGroupSelect 
+  onMuscleGroupSelect,
+  selectedMuscleGroup 
 }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -38,20 +40,22 @@ const MuscleGroupGrid: React.FC<MuscleGroupGridProps> = ({
   };
 
   return (
-    <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+    <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
       {muscleGroups.map((muscle) => (
         <button
           key={muscle.id}
           onClick={() => handleMuscleClick(muscle.id)}
           className={`
-            p-3 rounded-lg text-center transition-all
+            p-2 rounded-lg text-center transition-all
             ${isPremium 
-              ? 'hover:bg-green-50 hover:shadow-md bg-white border border-gray-200' 
+              ? selectedMuscleGroup === muscle.id 
+                ? 'bg-green-50 shadow-md border border-green-200' 
+                : 'hover:bg-green-50 hover:shadow-sm bg-white border border-gray-200' 
               : 'relative opacity-75 bg-gray-100 border border-gray-200'}
           `}
         >
-          <div className="text-2xl mb-1">{muscle.icon}</div>
-          <h3 className="text-sm font-medium">{muscle.name}</h3>
+          <div className="text-xl mb-1">{muscle.icon}</div>
+          <h3 className="text-xs font-medium">{muscle.name}</h3>
           
           {!isPremium && (
             <div className="absolute top-1 right-1 text-yellow-500">

@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { ChevronLeft, Plus } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ChevronLeft, Plus, Filter } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { workoutData } from './data/workoutData';
 import DifficultyTabs from './components/DifficultyTabs';
@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import WorkoutList from './components/WorkoutList';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 const WorkoutPlansPage = () => {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ const WorkoutPlansPage = () => {
   const [selectedWorkout, setSelectedWorkout] = useState(null);
   const [showWorkoutDetails, setShowWorkoutDetails] = useState(false);
   const [savedWorkouts, setSavedWorkouts] = useState<string[]>([]);
+  const [isFilterExpanded, setIsFilterExpanded] = useState(false);
 
   // Filter workouts based on selection
   const filteredWorkouts = workoutData.filter(workout => {
@@ -26,6 +28,11 @@ const WorkoutPlansPage = () => {
     const matchesDifficulty = !selectedDifficulty || workout.difficulty === selectedDifficulty;
     return matchesMuscleGroup && matchesDifficulty;
   });
+
+  // Get recommended workouts (show 3 top workouts when no filter is applied)
+  const recommendedWorkouts = (!selectedMuscleGroup && !selectedDifficulty) 
+    ? workoutData.slice(0, 3)
+    : filteredWorkouts;
 
   const handleWorkoutSelect = (workoutId) => {
     const workout = workoutData.find(w => w.id === workoutId);
@@ -40,6 +47,7 @@ const WorkoutPlansPage = () => {
         title: "Workout Saved",
         description: "This workout has been added to your saved workouts.",
       });
+      setShowWorkoutDetails(false);
     } else {
       toast({
         title: "Already Saved",
@@ -62,43 +70,65 @@ const WorkoutPlansPage = () => {
         </button>
         
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4">Filter Workouts</h2>
-          
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-md font-medium mb-3">Muscle Groups</h3>
-              <MuscleGroupGrid 
-                muscleGroups={[
-                  { id: "chest", name: "Chest", icon: "💪" },
-                  { id: "back", name: "Back", icon: "🔙" },
-                  { id: "legs", name: "Legs", icon: "🦵" },
-                  { id: "shoulders", name: "Shoulders", icon: "🏋️" },
-                  { id: "arms", name: "Arms", icon: "💪" },
-                  { id: "core", name: "Core", icon: "🧠" }
-                ]}
-                isPremium={true}
-                onMuscleGroupSelect={setSelectedMuscleGroup}
-              />
+          <Collapsible 
+            open={isFilterExpanded} 
+            onOpenChange={setIsFilterExpanded}
+            className="space-y-4"
+          >
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold">Filter Workouts</h2>
+              <CollapsibleTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-1">
+                  <Filter className="h-4 w-4" />
+                  {isFilterExpanded ? 'Hide Filters' : 'Show Filters'}
+                </Button>
+              </CollapsibleTrigger>
             </div>
             
-            <div>
-              <h3 className="text-md font-medium mb-3">Difficulty Level</h3>
-              <DifficultyTabs 
-                selectedDifficulty={selectedDifficulty || "all"} 
-                onSelectDifficulty={setSelectedDifficulty}
-              />
-            </div>
-          </div>
+            <CollapsibleContent className="space-y-6">
+              <div>
+                <h3 className="text-md font-medium mb-3">Muscle Groups</h3>
+                <MuscleGroupGrid 
+                  muscleGroups={[
+                    { id: "chest", name: "Chest", icon: "💪" },
+                    { id: "back", name: "Back", icon: "🔙" },
+                    { id: "legs", name: "Legs", icon: "🦵" },
+                    { id: "shoulders", name: "Shoulders", icon: "🏋️" },
+                    { id: "arms", name: "Arms", icon: "💪" },
+                    { id: "core", name: "Core", icon: "🧠" },
+                    { id: "biceps", name: "Biceps", icon: "💪" },
+                    { id: "triceps", name: "Triceps", icon: "💪" },
+                    { id: "cardio", name: "Cardio", icon: "🏃" },
+                  ]}
+                  isPremium={true}
+                  onMuscleGroupSelect={setSelectedMuscleGroup}
+                  selectedMuscleGroup={selectedMuscleGroup}
+                />
+              </div>
+              
+              <div>
+                <h3 className="text-md font-medium mb-3">Difficulty Level</h3>
+                <DifficultyTabs 
+                  selectedDifficulty={selectedDifficulty || "all"} 
+                  onSelectDifficulty={setSelectedDifficulty}
+                />
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
         </div>
         
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Recommended Workouts</h2>
+            <h2 className="text-xl font-semibold">
+              {selectedMuscleGroup || selectedDifficulty 
+                ? "Filtered Workouts" 
+                : "Recommended Workouts"}
+            </h2>
             <span className="text-sm text-gray-500">{filteredWorkouts.length} workouts</span>
           </div>
           
           <WorkoutList 
-            workouts={filteredWorkouts} 
+            workouts={recommendedWorkouts} 
             onSelect={handleWorkoutSelect} 
           />
         </div>

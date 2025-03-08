@@ -1,15 +1,16 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Clock, Info } from 'lucide-react';
+import { Clock, Info, Plus } from 'lucide-react';
 import { Workout } from '../data/workoutData';
 
 export interface WorkoutListProps {
   workouts: Workout[];
   onSelect?: (workoutId: string) => void;
+  onAddToWorkouts?: (workoutId: string) => void;
 }
 
-const WorkoutList: React.FC<WorkoutListProps> = ({ workouts, onSelect }) => {
+const WorkoutList: React.FC<WorkoutListProps> = ({ workouts, onSelect, onAddToWorkouts }) => {
   // Function to get the badge color based on difficulty
   const getDifficultyColor = (difficulty: string) => {
     switch(difficulty) {
@@ -32,9 +33,14 @@ const WorkoutList: React.FC<WorkoutListProps> = ({ workouts, onSelect }) => {
     );
   }
 
+  // Only show the first 3 workouts if there are many
+  const displayedWorkouts = workouts.length > 3 && !onAddToWorkouts
+    ? workouts.slice(0, 3)
+    : workouts;
+
   return (
     <div className="space-y-4">
-      {workouts.map((workout) => (
+      {displayedWorkouts.map((workout) => (
         <div key={workout.id} className="border rounded-lg p-4 flex flex-col md:flex-row md:items-center gap-4 hover:bg-gray-50 transition-colors">
           <div className="flex-grow">
             <div className="flex flex-wrap items-center gap-2 mb-1">
@@ -54,19 +60,41 @@ const WorkoutList: React.FC<WorkoutListProps> = ({ workouts, onSelect }) => {
             </div>
           </div>
           
-          {onSelect && (
-            <Button 
-              variant="outline"
-              size="sm"
-              onClick={() => onSelect(workout.id)}
-              className="md:self-center whitespace-nowrap"
-            >
-              <Info className="w-4 h-4 mr-2" />
-              Details
-            </Button>
-          )}
+          <div className="flex gap-2">
+            {onSelect && (
+              <Button 
+                variant="outline"
+                size="sm"
+                onClick={() => onSelect(workout.id)}
+                className="md:self-center whitespace-nowrap"
+              >
+                <Info className="w-4 h-4 mr-2" />
+                Details
+              </Button>
+            )}
+            
+            {onAddToWorkouts && (
+              <Button 
+                variant="default"
+                size="sm"
+                onClick={() => onAddToWorkouts(workout.id)}
+                className="md:self-center whitespace-nowrap"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add to Workouts
+              </Button>
+            )}
+          </div>
         </div>
       ))}
+      
+      {workouts.length > 3 && !onAddToWorkouts && (
+        <div className="text-center mt-4">
+          <Button variant="outline" onClick={() => {}}>
+            View All {workouts.length} Workouts
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

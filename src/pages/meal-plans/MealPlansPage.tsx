@@ -9,7 +9,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { mockMealPlans } from '@/utils/mockData';
-import { MealPlan } from '@/components/food/types';
+import { MealPlan, DietaryRestriction, Food } from '@/components/food/types';
 
 // Meal plan categories
 const mealPlanTypes = [
@@ -22,7 +22,7 @@ const mealPlanTypes = [
 ];
 
 // Dietary restrictions
-const dietaryRestrictions = [
+const dietaryRestrictions: DietaryRestriction[] = [
   "Vegetarian", "Vegan", "Gluten-Free", "Dairy-Free", "Low-Carb", "Diabetic-Friendly"
 ];
 
@@ -33,6 +33,7 @@ const MealPlansPage = () => {
   const [mealPlans, setMealPlans] = useState<MealPlan[]>(mockMealPlans);
   const [selectedMealPlan, setSelectedMealPlan] = useState<MealPlan | null>(null);
   const [showMealPlanDetails, setShowMealPlanDetails] = useState(false);
+  const [selectedFoods, setSelectedFoods] = useState<Food[]>([]);
 
   const handleRefreshPlans = () => {
     setIsLoading(true);
@@ -75,8 +76,22 @@ const MealPlansPage = () => {
     }
   };
 
+  const handleAddFoodToDiary = (food: Food) => {
+    toast({
+      title: "Food Added",
+      description: `${food.name} has been added to your food diary`
+    });
+  };
+
   const handleAddToDiary = () => {
-    if (selectedMealPlan) {
+    if (selectedFoods.length > 0) {
+      toast({
+        title: "Foods Added",
+        description: `${selectedFoods.length} items have been added to your food diary`
+      });
+      setSelectedFoods([]);
+      setShowMealPlanDetails(false);
+    } else if (selectedMealPlan) {
       toast({
         title: "Meal Plan Added",
         description: `${selectedMealPlan.name} has been added to your food diary`
@@ -85,10 +100,19 @@ const MealPlansPage = () => {
     }
   };
 
+  const toggleFoodSelection = (food: Food) => {
+    setSelectedFoods(prev => {
+      const exists = prev.some(f => f.id === food.id);
+      return exists 
+        ? prev.filter(f => f.id !== food.id) 
+        : [...prev, food];
+    });
+  };
+
   const renderMealPlansByCategory = () => {
     return (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        {mealPlanTypes.map((planType, idx) => (
+        {mealPlanTypes.map((planType) => (
           <Card 
             key={planType.type}
             className="cursor-pointer hover:shadow-md transition-shadow"
@@ -131,7 +155,7 @@ const MealPlansPage = () => {
   const renderMealPlansByRestriction = () => {
     return (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {dietaryRestrictions.map((restriction, idx) => (
+        {dietaryRestrictions.map((restriction) => (
           <Card 
             key={restriction}
             className="cursor-pointer hover:shadow-md transition-shadow"
@@ -278,9 +302,9 @@ const MealPlansPage = () => {
                   {selectedMealPlan.days.map((day, index) => (
                     <TabsContent key={index} value={`day${day.day}`} className="space-y-4">
                       <div>
-                        <h4 className="font-medium text-sm text-gray-600 mb-1">Breakfast</h4>
+                        <h4 className="font-medium text-sm text-gray-600 mb-1">Breakfast - Option 1</h4>
                         <div className="bg-gray-50 rounded-lg overflow-hidden">
-                          {day.breakfast.map((item, i) => (
+                          {day.breakfast.slice(0, Math.ceil(day.breakfast.length/2)).map((item, i) => (
                             <div key={i} className="flex justify-between items-center p-2 border-b last:border-0">
                               <div className="flex-1">
                                 <p className="font-medium">{item.name}</p>
@@ -289,15 +313,54 @@ const MealPlansPage = () => {
                                   <span>{item.protein}g protein</span>
                                 </div>
                               </div>
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddFoodToDiary(item);
+                                }}
+                              >
+                                Add
+                              </Button>
                             </div>
                           ))}
                         </div>
+                        
+                        {day.breakfast.length > 1 && (
+                          <>
+                            <h4 className="font-medium text-sm text-gray-600 mb-1 mt-3">Breakfast - Option 2</h4>
+                            <div className="bg-gray-50 rounded-lg overflow-hidden">
+                              {day.breakfast.slice(Math.ceil(day.breakfast.length/2)).map((item, i) => (
+                                <div key={i} className="flex justify-between items-center p-2 border-b last:border-0">
+                                  <div className="flex-1">
+                                    <p className="font-medium">{item.name}</p>
+                                    <div className="text-xs text-gray-500 flex gap-2">
+                                      <span>{item.calories} kcal</span>
+                                      <span>{item.protein}g protein</span>
+                                    </div>
+                                  </div>
+                                  <Button 
+                                    size="sm" 
+                                    variant="ghost"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleAddFoodToDiary(item);
+                                    }}
+                                  >
+                                    Add
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          </>
+                        )}
                       </div>
                       
                       <div>
-                        <h4 className="font-medium text-sm text-gray-600 mb-1">Lunch</h4>
+                        <h4 className="font-medium text-sm text-gray-600 mb-1">Lunch - Option 1</h4>
                         <div className="bg-gray-50 rounded-lg overflow-hidden">
-                          {day.lunch.map((item, i) => (
+                          {day.lunch.slice(0, Math.ceil(day.lunch.length/2)).map((item, i) => (
                             <div key={i} className="flex justify-between items-center p-2 border-b last:border-0">
                               <div className="flex-1">
                                 <p className="font-medium">{item.name}</p>
@@ -306,15 +369,54 @@ const MealPlansPage = () => {
                                   <span>{item.protein}g protein</span>
                                 </div>
                               </div>
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddFoodToDiary(item);
+                                }}
+                              >
+                                Add
+                              </Button>
                             </div>
                           ))}
                         </div>
+                        
+                        {day.lunch.length > 1 && (
+                          <>
+                            <h4 className="font-medium text-sm text-gray-600 mb-1 mt-3">Lunch - Option 2</h4>
+                            <div className="bg-gray-50 rounded-lg overflow-hidden">
+                              {day.lunch.slice(Math.ceil(day.lunch.length/2)).map((item, i) => (
+                                <div key={i} className="flex justify-between items-center p-2 border-b last:border-0">
+                                  <div className="flex-1">
+                                    <p className="font-medium">{item.name}</p>
+                                    <div className="text-xs text-gray-500 flex gap-2">
+                                      <span>{item.calories} kcal</span>
+                                      <span>{item.protein}g protein</span>
+                                    </div>
+                                  </div>
+                                  <Button 
+                                    size="sm" 
+                                    variant="ghost"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleAddFoodToDiary(item);
+                                    }}
+                                  >
+                                    Add
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          </>
+                        )}
                       </div>
                       
                       <div>
-                        <h4 className="font-medium text-sm text-gray-600 mb-1">Dinner</h4>
+                        <h4 className="font-medium text-sm text-gray-600 mb-1">Dinner - Option 1</h4>
                         <div className="bg-gray-50 rounded-lg overflow-hidden">
-                          {day.dinner.map((item, i) => (
+                          {day.dinner.slice(0, Math.ceil(day.dinner.length/2)).map((item, i) => (
                             <div key={i} className="flex justify-between items-center p-2 border-b last:border-0">
                               <div className="flex-1">
                                 <p className="font-medium">{item.name}</p>
@@ -323,9 +425,48 @@ const MealPlansPage = () => {
                                   <span>{item.protein}g protein</span>
                                 </div>
                               </div>
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddFoodToDiary(item);
+                                }}
+                              >
+                                Add
+                              </Button>
                             </div>
                           ))}
                         </div>
+                        
+                        {day.dinner.length > 1 && (
+                          <>
+                            <h4 className="font-medium text-sm text-gray-600 mb-1 mt-3">Dinner - Option 2</h4>
+                            <div className="bg-gray-50 rounded-lg overflow-hidden">
+                              {day.dinner.slice(Math.ceil(day.dinner.length/2)).map((item, i) => (
+                                <div key={i} className="flex justify-between items-center p-2 border-b last:border-0">
+                                  <div className="flex-1">
+                                    <p className="font-medium">{item.name}</p>
+                                    <div className="text-xs text-gray-500 flex gap-2">
+                                      <span>{item.calories} kcal</span>
+                                      <span>{item.protein}g protein</span>
+                                    </div>
+                                  </div>
+                                  <Button 
+                                    size="sm" 
+                                    variant="ghost"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleAddFoodToDiary(item);
+                                    }}
+                                  >
+                                    Add
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          </>
+                        )}
                       </div>
                     </TabsContent>
                   ))}
@@ -334,7 +475,7 @@ const MealPlansPage = () => {
               
               <div className="mt-6">
                 <Button onClick={handleAddToDiary} className="w-full">
-                  Add to My Food Diary
+                  Add All Selected to My Food Diary
                 </Button>
               </div>
             </>
