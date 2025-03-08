@@ -1,64 +1,62 @@
 
 import { useState, useEffect } from 'react';
-import { useToast } from '@/hooks/use-toast';
 import { Workout } from '@/pages/premium/data/workoutData';
+import { useAuth } from './useAuth';
 
 export const useWorkoutManagement = () => {
-  const { toast } = useToast();
-  const [savedWorkouts, setSavedWorkouts] = useState<string[]>([]);
+  const { user } = useAuth();
+  const [savedWorkouts, setSavedWorkouts] = useState<Workout[]>([]);
   
-  // Load saved workouts from localStorage on init
+  // Load saved workouts from localStorage on component mount
   useEffect(() => {
-    const stored = localStorage.getItem('savedWorkouts');
-    if (stored) {
-      try {
-        setSavedWorkouts(JSON.parse(stored));
-      } catch (error) {
-        console.error('Error loading saved workouts:', error);
+    if (user) {
+      const storedWorkouts = localStorage.getItem(`user_workouts_${user.id}`);
+      if (storedWorkouts) {
+        try {
+          setSavedWorkouts(JSON.parse(storedWorkouts));
+        } catch (error) {
+          console.error('Error parsing saved workouts:', error);
+          localStorage.removeItem(`user_workouts_${user.id}`);
+        }
       }
     }
-  }, []);
+  }, [user]);
   
   // Save workouts to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem('savedWorkouts', JSON.stringify(savedWorkouts));
-  }, [savedWorkouts]);
-  
-  const addWorkout = (workoutId: string) => {
-    if (!savedWorkouts.includes(workoutId)) {
-      setSavedWorkouts(prev => [...prev, workoutId]);
-      toast({
-        title: "Workout Saved",
-        description: "This workout has been added to your saved workouts."
-      });
-      return true;
-    } else {
-      toast({
-        title: "Already Saved",
-        description: "This workout is already in your saved workouts."
-      });
-      return false;
+    if (user && savedWorkouts.length > 0) {
+      localStorage.setItem(`user_workouts_${user.id}`, JSON.stringify(savedWorkouts));
     }
-  };
+  }, [savedWorkouts, user]);
   
-  const removeWorkout = (workoutId: string) => {
-    setSavedWorkouts(prev => prev.filter(id => id !== workoutId));
-    toast({
-      title: "Workout Removed",
-      description: "This workout has been removed from your saved workouts."
+  const addWorkout = (workout: Workout) => {
+    setSavedWorkouts(prevWorkouts => {
+      // Check if workout already exists
+      const exists = prevWorkouts.some(w => w.id === workout.id);
+      if (exists) {
+        return prevWorkouts;
+      }
+      return [...prevWorkouts, workout];
     });
   };
   
-  const isWorkoutSaved = (workoutId: string) => {
-    return savedWorkouts.includes(workoutId);
+  const removeWorkout = (workoutId: string) => {
+    setSavedWorkouts(prevWorkouts => 
+      prevWorkouts.filter(workout => workout.id !== workoutId)
+    );
+  };
+  
+  const clearWorkouts = () => {
+    setSavedWorkouts([]);
+    if (user) {
+      localStorage.removeItem(`user_workouts_${user.id}`);
+    }
   };
   
   return {
     savedWorkouts,
     addWorkout,
     removeWorkout,
-    isWorkoutSaved
+    clearWorkouts
   };
 };
-
-export default useWorkoutManagement;

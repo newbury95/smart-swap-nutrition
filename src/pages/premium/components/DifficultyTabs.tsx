@@ -22,9 +22,9 @@ const DifficultyTabs: React.FC<DifficultyTabsProps> = ({
       {difficulties.map((difficulty) => (
         <button
           key={difficulty.id}
-          onClick={() => onSelectDifficulty(difficulty.id === 'all' ? null : difficulty.id)}
+          onClick={() => onSelectDifficulty(difficulty.id)}
           className={`px-3 py-1 rounded-full text-sm transition-colors ${
-            selectedDifficulty === difficulty.id || (selectedDifficulty === null && difficulty.id === 'all')
+            selectedDifficulty === difficulty.id
               ? 'bg-green-100 text-green-800'
               : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
           }`}

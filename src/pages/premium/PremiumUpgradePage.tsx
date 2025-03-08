@@ -3,7 +3,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Crown, CreditCard } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { loadStripe } from "@stripe/stripe-js";
@@ -13,6 +13,7 @@ import {
   useStripe,
   useElements
 } from "@stripe/react-stripe-js";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 // Use environment variable or fallback to test key (should be configured properly in production)
 const STRIPE_PUBLISHABLE_KEY = "pk_test_51Qx8ZW2VssJgwMDKBMlrqlCvWJGssJw2DhQxKBYFetlue4dNUGESfKDVz9dOgThYSX1O4DvCWYAZIcQOWU8ebfF100JuLCHbao";
@@ -25,6 +26,7 @@ const CheckoutForm = () => {
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -37,9 +39,11 @@ const CheckoutForm = () => {
     }
     
     setLoading(true);
+    setError(null);
     
     try {
-      const userId = (await supabase.auth.getUser()).data.user?.id;
+      const { data: userData } = await supabase.auth.getUser();
+      const userId = userData.user?.id;
       
       if (!userId) {
         throw new Error('User not authenticated');
@@ -75,7 +79,10 @@ const CheckoutForm = () => {
           payment_method: 'card',
         }]);
         
-      if (paymentError) throw paymentError;
+      if (paymentError) {
+        console.error('Payment record error:', paymentError);
+        throw paymentError;
+      }
       
       // Update user's premium status
       const { error: updateError } = await supabase
@@ -83,7 +90,13 @@ const CheckoutForm = () => {
         .update({ is_premium: true })
         .eq('id', userId);
         
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error('Premium status update error:', updateError);
+        throw updateError;
+      }
+      
+      // Update local storage for immediate UI updates
+      localStorage.setItem('isPremium', 'true');
       
       toast({
         title: "Success!",
@@ -91,12 +104,13 @@ const CheckoutForm = () => {
       });
       
       navigate("/diary");
-    } catch (error) {
+    } catch (error: any) {
       console.error('Upgrade error:', error);
+      setError(error.message);
       toast({
         variant: "destructive",
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to process payment. Please try again.",
+        description: error.message || "Failed to process payment. Please try again.",
       });
     } finally {
       setLoading(false);
@@ -105,6 +119,12 @@ const CheckoutForm = () => {
   
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+      
       <div className="space-y-4">
         <div className="p-4 border rounded-md">
           <CardElement

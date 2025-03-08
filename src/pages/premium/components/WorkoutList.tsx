@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Clock, Info, Plus } from 'lucide-react';
+import { Clock, Info } from 'lucide-react';
 import { Workout } from '../data/workoutData';
 
 export interface WorkoutListProps {
@@ -33,14 +33,9 @@ const WorkoutList: React.FC<WorkoutListProps> = ({ workouts, onSelect, onAddToWo
     );
   }
 
-  // Only show the first 3 workouts if there are many
-  const displayedWorkouts = workouts.length > 3 && !onAddToWorkouts
-    ? workouts.slice(0, 3)
-    : workouts;
-
   return (
     <div className="space-y-4">
-      {displayedWorkouts.map((workout) => (
+      {workouts.map((workout) => (
         <div key={workout.id} className="border rounded-lg p-4 flex flex-col md:flex-row md:items-center gap-4 hover:bg-gray-50 transition-colors">
           <div className="flex-grow">
             <div className="flex flex-wrap items-center gap-2 mb-1">
@@ -80,21 +75,12 @@ const WorkoutList: React.FC<WorkoutListProps> = ({ workouts, onSelect, onAddToWo
                 onClick={() => onAddToWorkouts(workout.id)}
                 className="md:self-center whitespace-nowrap"
               >
-                <Plus className="w-4 h-4 mr-2" />
                 Add to Workouts
               </Button>
             )}
           </div>
         </div>
       ))}
-      
-      {workouts.length > 3 && !onAddToWorkouts && (
-        <div className="text-center mt-4">
-          <Button variant="outline" onClick={() => {}}>
-            View All {workouts.length} Workouts
-          </Button>
-        </div>
-      )}
     </div>
   );
 };

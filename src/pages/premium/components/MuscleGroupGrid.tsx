@@ -40,7 +40,7 @@ const MuscleGroupGrid: React.FC<MuscleGroupGridProps> = ({
   };
 
   return (
-    <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+    <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
       {muscleGroups.map((muscle) => (
         <button
           key={muscle.id}
@@ -54,7 +54,7 @@ const MuscleGroupGrid: React.FC<MuscleGroupGridProps> = ({
               : 'relative opacity-75 bg-gray-100 border border-gray-200'}
           `}
         >
-          <div className="text-xl mb-1">{muscle.icon}</div>
+          <div className="text-lg mb-1">{muscle.icon}</div>
           <h3 className="text-xs font-medium">{muscle.name}</h3>
           
           {!isPremium && (
@@ -64,18 +64,6 @@ const MuscleGroupGrid: React.FC<MuscleGroupGridProps> = ({
           )}
         </button>
       ))}
-      
-      {!isPremium && (
-        <div className="mt-4 text-center col-span-3 md:col-span-6">
-          <button 
-            onClick={() => navigate('/premium-upgrade')}
-            className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded hover:bg-gray-50"
-          >
-            <Crown className="w-4 h-4 text-yellow-500" />
-            Upgrade to Premium
-          </button>
-        </div>
-      )}
     </div>
   );
 };

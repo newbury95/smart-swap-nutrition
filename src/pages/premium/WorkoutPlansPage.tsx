@@ -1,189 +1,226 @@
 
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, Plus, Filter } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { workoutData } from './data/workoutData';
-import DifficultyTabs from './components/DifficultyTabs';
-import Header from './components/Header';
+import { useAuth } from '@/hooks/useAuth';
+import { usePremiumStatus } from '@/hooks/usePremiumStatus';
+import { workoutData, Workout } from './data/workoutData';
 import MuscleGroupGrid from './components/MuscleGroupGrid';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import DifficultyTabs from './components/DifficultyTabs';
 import WorkoutList from './components/WorkoutList';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dumbbell, Filter, Plus, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { useWorkoutManagement } from '@/hooks/useWorkoutManagement';
 
 const WorkoutPlansPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { isPremium } = usePremiumStatus();
   const { toast } = useToast();
-  const [selectedMuscleGroup, setSelectedMuscleGroup] = useState<string | null>(null);
-  const [selectedDifficulty, setSelectedDifficulty] = useState<string | null>(null);
-  const [selectedWorkout, setSelectedWorkout] = useState(null);
-  const [showWorkoutDetails, setShowWorkoutDetails] = useState(false);
-  const [savedWorkouts, setSavedWorkouts] = useState<string[]>([]);
-  const [isFilterExpanded, setIsFilterExpanded] = useState(false);
+  const { addWorkout } = useWorkoutManagement();
 
-  // Filter workouts based on selection
+  const [selectedMuscleGroup, setSelectedMuscleGroup] = useState<string>("all");
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string>("all");
+  const [showAllWorkouts, setShowAllWorkouts] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  // Filter workouts based on selected criteria
   const filteredWorkouts = workoutData.filter(workout => {
-    const matchesMuscleGroup = !selectedMuscleGroup || workout.primaryMuscleGroups.includes(selectedMuscleGroup) || workout.secondaryMuscleGroups.includes(selectedMuscleGroup);
-    const matchesDifficulty = !selectedDifficulty || workout.difficulty === selectedDifficulty;
-    return matchesMuscleGroup && matchesDifficulty;
+    const matchesMuscle = selectedMuscleGroup === "all" || workout.muscleGroup === selectedMuscleGroup;
+    const matchesDifficulty = selectedDifficulty === "all" || workout.difficulty === selectedDifficulty;
+    return matchesMuscle && matchesDifficulty;
   });
 
-  // Get recommended workouts (show 3 top workouts when no filter is applied)
-  const recommendedWorkouts = (!selectedMuscleGroup && !selectedDifficulty) 
-    ? workoutData.slice(0, 3)
-    : filteredWorkouts;
+  // Get recommended workouts (limited selection for initial display)
+  const recommendedWorkouts = showAllWorkouts 
+    ? filteredWorkouts 
+    : filteredWorkouts.slice(0, 3);
 
-  const handleWorkoutSelect = (workoutId) => {
+  const handleWorkoutSelect = (workoutId: string) => {
     const workout = workoutData.find(w => w.id === workoutId);
-    setSelectedWorkout(workout);
-    setShowWorkoutDetails(true);
-  };
-
-  const handleAddToWorkouts = (workoutId) => {
-    if (!savedWorkouts.includes(workoutId)) {
-      setSavedWorkouts([...savedWorkouts, workoutId]);
-      toast({
-        title: "Workout Saved",
-        description: "This workout has been added to your saved workouts.",
-      });
-      setShowWorkoutDetails(false);
-    } else {
-      toast({
-        title: "Already Saved",
-        description: "This workout is already in your saved workouts.",
-      });
+    if (workout) {
+      setSelectedWorkout(workout);
+      setIsDialogOpen(true);
     }
   };
 
+  const handleAddToWorkouts = (workoutId: string) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to add workouts to your plan",
+        variant: "destructive",
+      });
+      navigate('/auth');
+      return;
+    }
+
+    if (!isPremium) {
+      toast({
+        title: "Premium Feature",
+        description: "Upgrade to Premium to add workouts to your plan",
+        variant: "destructive",
+      });
+      navigate('/premium-upgrade');
+      return;
+    }
+
+    const workout = workoutData.find(w => w.id === workoutId);
+    if (workout) {
+      addWorkout(workout);
+      toast({
+        title: "Workout Added",
+        description: `${workout.name} has been added to your workouts`,
+      });
+      setIsDialogOpen(false);
+    }
+  };
+
+  const muscleGroups = [
+    { id: "all", name: "All", icon: "💪" },
+    { id: "chest", name: "Chest", icon: "🫁" },
+    { id: "back", name: "Back", icon: "🔙" },
+    { id: "legs", name: "Legs", icon: "🦵" },
+    { id: "arms", name: "Arms", icon: "💪" },
+    { id: "shoulders", name: "Shoulders", icon: "🤷" },
+    { id: "core", name: "Core", icon: "⭕" },
+    { id: "fullbody", name: "Full Body", icon: "👤" }
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header title="Workout Plans" />
-      
-      <div className="container mx-auto px-4 py-8">
-        <button 
-          onClick={() => navigate('/premium')}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-6"
-        >
-          <ChevronLeft className="h-4 w-4" />
-          Back to Premium
-        </button>
+    <div className="min-h-screen bg-gray-50 pb-20">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-8">Workout Plans</h1>
         
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <Collapsible 
-            open={isFilterExpanded} 
-            onOpenChange={setIsFilterExpanded}
-            className="space-y-4"
-          >
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold">Filter Workouts</h2>
-              <CollapsibleTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-1">
-                  <Filter className="h-4 w-4" />
-                  {isFilterExpanded ? 'Hide Filters' : 'Show Filters'}
-                </Button>
-              </CollapsibleTrigger>
-            </div>
-            
-            <CollapsibleContent className="space-y-6">
-              <div>
-                <h3 className="text-md font-medium mb-3">Muscle Groups</h3>
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">Recommended Workouts</h2>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center gap-2"
+            >
+              <Filter className="w-4 h-4" />
+              {showFilters ? "Hide Filters" : "Filter Workouts"}
+            </Button>
+          </div>
+          
+          {showFilters && (
+            <div className="bg-white p-4 rounded-lg shadow-sm mb-6 animate-in fade-in duration-300">
+              <div className="mb-4">
+                <h3 className="text-sm font-medium mb-2">Target Muscle Group</h3>
                 <MuscleGroupGrid 
-                  muscleGroups={[
-                    { id: "chest", name: "Chest", icon: "💪" },
-                    { id: "back", name: "Back", icon: "🔙" },
-                    { id: "legs", name: "Legs", icon: "🦵" },
-                    { id: "shoulders", name: "Shoulders", icon: "🏋️" },
-                    { id: "arms", name: "Arms", icon: "💪" },
-                    { id: "core", name: "Core", icon: "🧠" },
-                    { id: "biceps", name: "Biceps", icon: "💪" },
-                    { id: "triceps", name: "Triceps", icon: "💪" },
-                    { id: "cardio", name: "Cardio", icon: "🏃" },
-                  ]}
-                  isPremium={true}
+                  muscleGroups={muscleGroups} 
+                  isPremium={isPremium} 
                   onMuscleGroupSelect={setSelectedMuscleGroup}
                   selectedMuscleGroup={selectedMuscleGroup}
                 />
               </div>
               
               <div>
-                <h3 className="text-md font-medium mb-3">Difficulty Level</h3>
+                <h3 className="text-sm font-medium mb-2">Difficulty Level</h3>
                 <DifficultyTabs 
-                  selectedDifficulty={selectedDifficulty || "all"} 
-                  onSelectDifficulty={setSelectedDifficulty}
+                  selectedDifficulty={selectedDifficulty} 
+                  onSelectDifficulty={setSelectedDifficulty} 
                 />
               </div>
-            </CollapsibleContent>
-          </Collapsible>
-        </div>
-        
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">
-              {selectedMuscleGroup || selectedDifficulty 
-                ? "Filtered Workouts" 
-                : "Recommended Workouts"}
-            </h2>
-            <span className="text-sm text-gray-500">{filteredWorkouts.length} workouts</span>
-          </div>
+            </div>
+          )}
           
-          <WorkoutList 
-            workouts={recommendedWorkouts} 
-            onSelect={handleWorkoutSelect} 
-          />
+          <div className="mt-6">
+            <WorkoutList 
+              workouts={recommendedWorkouts} 
+              onSelect={handleWorkoutSelect}
+            />
+            
+            {filteredWorkouts.length > 3 && !showAllWorkouts && (
+              <div className="mt-4 text-center">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowAllWorkouts(true)}
+                >
+                  View All {filteredWorkouts.length} Workouts
+                </Button>
+              </div>
+            )}
+            
+            {showAllWorkouts && filteredWorkouts.length > 3 && (
+              <div className="mt-4 text-center">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowAllWorkouts(false)}
+                >
+                  Show Less
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      <Dialog open={showWorkoutDetails} onOpenChange={setShowWorkoutDetails}>
-        <DialogContent className="sm:max-w-md">
+      {/* Workout Detail Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-3xl">
           {selectedWorkout && (
             <>
               <DialogHeader>
-                <DialogTitle>{selectedWorkout.name}</DialogTitle>
-                <DialogDescription>
+                <div className="flex justify-between items-center">
+                  <DialogTitle className="text-2xl">{selectedWorkout.name}</DialogTitle>
+                  <button 
+                    onClick={() => setIsDialogOpen(false)} 
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <DialogDescription className="text-base">
                   {selectedWorkout.description}
                 </DialogDescription>
               </DialogHeader>
               
-              <div className="mt-4 space-y-4">
-                <div>
-                  <h4 className="font-medium mb-2">Details</h4>
-                  <ul className="space-y-2">
-                    <li className="text-sm flex justify-between">
-                      <span className="text-gray-600">Duration:</span>
-                      <span>{selectedWorkout.duration}</span>
-                    </li>
-                    <li className="text-sm flex justify-between">
-                      <span className="text-gray-600">Difficulty:</span>
-                      <span className="capitalize">{selectedWorkout.difficulty}</span>
-                    </li>
-                    <li className="text-sm flex justify-between">
-                      <span className="text-gray-600">Primary Muscle Groups:</span>
-                      <span>{selectedWorkout.primaryMuscleGroups.join(', ')}</span>
-                    </li>
-                  </ul>
+              <div className="py-4">
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <span className="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700">
+                    {selectedWorkout.difficulty.charAt(0).toUpperCase() + selectedWorkout.difficulty.slice(1)}
+                  </span>
+                  <span className="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700">
+                    {selectedWorkout.duration}
+                  </span>
+                  <span className="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700">
+                    {selectedWorkout.muscleGroup.charAt(0).toUpperCase() + selectedWorkout.muscleGroup.slice(1)}
+                  </span>
                 </div>
                 
-                <div>
-                  <h4 className="font-medium mb-2">Exercises</h4>
-                  <ul className="space-y-2">
-                    {selectedWorkout.exercises.map((exercise, idx) => (
-                      <li key={idx} className="text-sm border-b pb-2">
-                        <div className="font-medium">{exercise.name}</div>
-                        <div className="text-gray-600">{exercise.sets} sets × {exercise.reps}</div>
-                      </li>
-                    ))}
-                  </ul>
+                <h3 className="font-semibold text-lg mb-2">Exercises</h3>
+                <div className="space-y-3">
+                  {selectedWorkout.exercises.map((exercise, index) => (
+                    <div key={index} className="p-3 border rounded-md">
+                      <div className="font-medium">{exercise.name}</div>
+                      <div className="text-sm text-gray-600 mt-1">
+                        {exercise.sets} sets × {exercise.reps} reps
+                        {exercise.rest && ` • ${exercise.rest} rest`}
+                      </div>
+                      {exercise.note && (
+                        <div className="text-sm italic mt-1">{exercise.note}</div>
+                      )}
+                    </div>
+                  ))}
                 </div>
-
+              </div>
+              
+              <DialogFooter>
                 <Button 
-                  className="w-full mt-6" 
+                  className="w-full sm:w-auto" 
                   onClick={() => handleAddToWorkouts(selectedWorkout.id)}
                 >
-                  <Plus className="h-4 w-4 mr-2" />
+                  <Plus className="w-4 h-4 mr-2" />
                   Add to My Workouts
                 </Button>
-              </div>
+              </DialogFooter>
             </>
           )}
         </DialogContent>
