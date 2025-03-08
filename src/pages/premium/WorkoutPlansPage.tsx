@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { workouts } from './data/workoutData';
+import { workoutData } from './data/workoutData';
 import DifficultyTabs from './components/DifficultyTabs';
 import Header from './components/Header';
 import MuscleGroupGrid from './components/MuscleGroupGrid';
@@ -17,14 +17,14 @@ const WorkoutPlansPage = () => {
   const [showWorkoutDetails, setShowWorkoutDetails] = useState(false);
 
   // Filter workouts based on selection
-  const filteredWorkouts = workouts.filter(workout => {
-    const matchesMuscleGroup = !selectedMuscleGroup || workout.muscleGroups.includes(selectedMuscleGroup);
+  const filteredWorkouts = workoutData.filter(workout => {
+    const matchesMuscleGroup = !selectedMuscleGroup || workout.primaryMuscleGroups.includes(selectedMuscleGroup) || workout.secondaryMuscleGroups.includes(selectedMuscleGroup);
     const matchesDifficulty = !selectedDifficulty || workout.difficulty === selectedDifficulty;
     return matchesMuscleGroup && matchesDifficulty;
   });
 
   const handleWorkoutSelect = (workoutId) => {
-    const workout = workouts.find(w => w.id === workoutId);
+    const workout = workoutData.find(w => w.id === workoutId);
     setSelectedWorkout(workout);
     setShowWorkoutDetails(true);
   };
@@ -49,16 +49,24 @@ const WorkoutPlansPage = () => {
             <div>
               <h3 className="text-md font-medium mb-3">Muscle Groups</h3>
               <MuscleGroupGrid 
-                selectedMuscleGroup={selectedMuscleGroup} 
-                onSelect={setSelectedMuscleGroup}
+                muscleGroups={[
+                  { id: "chest", name: "Chest", icon: "💪" },
+                  { id: "back", name: "Back", icon: "🔙" },
+                  { id: "legs", name: "Legs", icon: "🦵" },
+                  { id: "shoulders", name: "Shoulders", icon: "🏋️" },
+                  { id: "arms", name: "Arms", icon: "💪" },
+                  { id: "core", name: "Core", icon: "🧠" }
+                ]}
+                isPremium={true}
+                onMuscleGroupSelect={setSelectedMuscleGroup}
               />
             </div>
             
             <div>
               <h3 className="text-md font-medium mb-3">Difficulty Level</h3>
               <DifficultyTabs 
-                selectedDifficulty={selectedDifficulty} 
-                onSelect={setSelectedDifficulty}
+                selectedDifficulty={selectedDifficulty || "all"} 
+                onSelectDifficulty={setSelectedDifficulty}
               />
             </div>
           </div>
@@ -101,8 +109,8 @@ const WorkoutPlansPage = () => {
                       <span className="capitalize">{selectedWorkout.difficulty}</span>
                     </li>
                     <li className="text-sm flex justify-between">
-                      <span className="text-gray-600">Equipment:</span>
-                      <span>{selectedWorkout.equipment.join(', ') || 'None'}</span>
+                      <span className="text-gray-600">Primary Muscle Groups:</span>
+                      <span>{selectedWorkout.primaryMuscleGroups.join(', ')}</span>
                     </li>
                   </ul>
                 </div>
@@ -113,7 +121,7 @@ const WorkoutPlansPage = () => {
                     {selectedWorkout.exercises.map((exercise, idx) => (
                       <li key={idx} className="text-sm border-b pb-2">
                         <div className="font-medium">{exercise.name}</div>
-                        <div className="text-gray-600">{exercise.sets} sets × {exercise.reps} reps</div>
+                        <div className="text-gray-600">{exercise.sets} sets × {exercise.reps}</div>
                       </li>
                     ))}
                   </ul>
