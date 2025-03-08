@@ -16,8 +16,7 @@ export function usePersonalInfoForm() {
     password: "",
     cardNumber: "",
     expiryDate: "",
-    cvv: "",
-    recaptchaToken: ""
+    cvv: ""
   });
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {

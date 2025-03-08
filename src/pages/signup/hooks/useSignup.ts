@@ -17,7 +17,6 @@ export interface SignupFormData {
   expiryDate?: string;
   cvv?: string;
   password: string;
-  recaptchaToken?: string;
 }
 
 export function useSignup() {
@@ -36,18 +35,11 @@ export function useSignup() {
         throw new Error("Email and password are required");
       }
 
-      if (!formData.recaptchaToken) {
-        throw new Error("Please complete the reCAPTCHA verification");
-      }
-
       // Ensure all required fields have values
       if (!formData.firstName || !formData.lastName || !formData.nickname || 
           !formData.dateOfBirth || !formData.height || !formData.weight) {
         throw new Error("All fields are required");
       }
-
-      // Format date to ensure it's in the correct format for Supabase
-      // No need to change format as DATE inputs already use YYYY-MM-DD which is what Postgres expects
 
       console.log("Signing up with data:", {
         ...formData,

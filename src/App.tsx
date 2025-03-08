@@ -57,6 +57,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 // AppRoutes component to handle routing after auth is available
 const AppRoutes = () => {
   const { user, loading } = useAuth();
+  const location = window.location.pathname;
+  const isAuthPage = location === "/auth";
 
   if (loading) {
     return <PageLoading />;
@@ -64,7 +66,7 @@ const AppRoutes = () => {
 
   return (
     <ErrorBoundary fallback={<div className="p-4 bg-red-100 text-red-700">Something went wrong with the application. Please refresh the page.</div>}>
-      <TopBanner />
+      {!isAuthPage && <TopBanner />}
       <Suspense fallback={<PageLoading />}>
         <Routes>
           <Route path="/" element={user ? <Navigate to="/tracking" /> : <IndexPage />} />
