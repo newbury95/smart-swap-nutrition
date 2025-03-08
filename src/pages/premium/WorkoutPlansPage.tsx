@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { workoutData } from './data/workoutData';
 import DifficultyTabs from './components/DifficultyTabs';
@@ -8,13 +8,17 @@ import Header from './components/Header';
 import MuscleGroupGrid from './components/MuscleGroupGrid';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import WorkoutList from './components/WorkoutList';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 const WorkoutPlansPage = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [selectedMuscleGroup, setSelectedMuscleGroup] = useState<string | null>(null);
   const [selectedDifficulty, setSelectedDifficulty] = useState<string | null>(null);
   const [selectedWorkout, setSelectedWorkout] = useState(null);
   const [showWorkoutDetails, setShowWorkoutDetails] = useState(false);
+  const [savedWorkouts, setSavedWorkouts] = useState<string[]>([]);
 
   // Filter workouts based on selection
   const filteredWorkouts = workoutData.filter(workout => {
@@ -27,6 +31,21 @@ const WorkoutPlansPage = () => {
     const workout = workoutData.find(w => w.id === workoutId);
     setSelectedWorkout(workout);
     setShowWorkoutDetails(true);
+  };
+
+  const handleAddToWorkouts = (workoutId) => {
+    if (!savedWorkouts.includes(workoutId)) {
+      setSavedWorkouts([...savedWorkouts, workoutId]);
+      toast({
+        title: "Workout Saved",
+        description: "This workout has been added to your saved workouts.",
+      });
+    } else {
+      toast({
+        title: "Already Saved",
+        description: "This workout is already in your saved workouts.",
+      });
+    }
   };
 
   return (
@@ -80,7 +99,7 @@ const WorkoutPlansPage = () => {
           
           <WorkoutList 
             workouts={filteredWorkouts} 
-            onSave={handleWorkoutSelect} 
+            onSelect={handleWorkoutSelect} 
           />
         </div>
       </div>
@@ -126,6 +145,14 @@ const WorkoutPlansPage = () => {
                     ))}
                   </ul>
                 </div>
+
+                <Button 
+                  className="w-full mt-6" 
+                  onClick={() => handleAddToWorkouts(selectedWorkout.id)}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add to My Workouts
+                </Button>
               </div>
             </>
           )}

@@ -6,10 +6,10 @@ import { Workout } from '../data/workoutData';
 
 export interface WorkoutListProps {
   workouts: Workout[];
-  onSave?: (workoutId: string) => void;
+  onSelect?: (workoutId: string) => void;
 }
 
-const WorkoutList: React.FC<WorkoutListProps> = ({ workouts, onSave }) => {
+const WorkoutList: React.FC<WorkoutListProps> = ({ workouts, onSelect }) => {
   // Function to get the badge color based on difficulty
   const getDifficultyColor = (difficulty: string) => {
     switch(difficulty) {
@@ -54,11 +54,11 @@ const WorkoutList: React.FC<WorkoutListProps> = ({ workouts, onSave }) => {
             </div>
           </div>
           
-          {onSave && (
+          {onSelect && (
             <Button 
               variant="outline"
               size="sm"
-              onClick={() => onSave(workout.id)}
+              onClick={() => onSelect(workout.id)}
               className="md:self-center whitespace-nowrap"
             >
               <Info className="w-4 h-4 mr-2" />
