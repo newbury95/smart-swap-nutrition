@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { SignupFormData } from "../hooks/useSignup";
+import { SignupFormData } from "./hooks/useSignup";
 
 interface PersonalInfoFormProps {
   formData: SignupFormData;
