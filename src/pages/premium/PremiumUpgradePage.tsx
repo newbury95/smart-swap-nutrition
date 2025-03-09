@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Crown, CreditCard } from "lucide-react";
@@ -26,7 +25,7 @@ const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
 
 // The appearance options for the Stripe elements
 const appearance = {
-  theme: 'stripe',
+  theme: 'stripe' as const,  // Use literal type
   variables: {
     colorPrimary: '#22c55e',
     colorBackground: '#ffffff',
