@@ -69,7 +69,7 @@ const TopBanner = () => {
                   Sign In
                 </Link>
                 <Link
-                  to="/signup"
+                  to="/auth?tab=signup"
                   className="bg-green-600 text-white px-3 py-1 rounded-md text-sm hover:bg-green-700 transition-colors"
                 >
                   Sign Up
@@ -163,7 +163,7 @@ const TopBanner = () => {
                       Sign In
                     </Link>
                     <Link
-                      to="/signup"
+                      to="/auth?tab=signup"
                       className="bg-green-600 text-white px-3 py-1 rounded-md text-sm hover:bg-green-700 transition-colors"
                     >
                       Sign Up

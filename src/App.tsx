@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import TopBanner from "@/components/navigation/TopBanner";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 
 // Use lazy loading for routes to improve initial load performance
 const IndexPage = lazy(() => import("@/pages/Index"));
@@ -14,8 +15,6 @@ const DiaryPage = lazy(() => import("@/pages/diary/FoodDiary"));
 const MealPlansPage = lazy(() => import("@/pages/meal-plans/MealPlansPage"));
 const PremiumPage = lazy(() => import("@/pages/premium/PremiumUpgradePage"));
 const AuthPage = lazy(() => import("@/pages/auth/AuthPage"));
-const SignupPage = lazy(() => import("@/pages/SignUp"));
-const PersonalInfo = lazy(() => import("@/pages/signup/PersonalInfo"));
 const ForumPage = lazy(() => import("@/pages/forum/ForumPage"));
 const ContactPage = lazy(() => import("@/pages/contact/ContactPage"));
 const WorkoutPlansPage = lazy(() => import("@/pages/premium/WorkoutPlansPage"));
@@ -61,6 +60,28 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+// PremiumRoute component to handle premium access
+const PremiumRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isPremium, loading } = usePremiumStatus();
+  const navigate = useNavigate();
+  
+  React.useEffect(() => {
+    if (!loading && !isPremium) {
+      navigate("/premium", { replace: true });
+    }
+  }, [isPremium, loading, navigate]);
+  
+  if (loading) {
+    return <PageLoading />;
+  }
+  
+  if (!isPremium) {
+    return null;
+  }
+  
+  return <>{children}</>;
+};
+
 // AppRoutes component to handle routing after auth is available
 const AppRoutes = () => {
   const { user, loading } = useAuth();
@@ -77,7 +98,14 @@ const AppRoutes = () => {
       <Suspense fallback={<PageLoading />}>
         <Routes>
           <Route path="/" element={user ? <Navigate to="/diary" /> : <IndexPage />} />
-          <Route path="/tracking" element={<TrackingPage />} />
+          <Route 
+            path="/tracking" 
+            element={
+              <ProtectedRoute>
+                <TrackingPage />
+              </ProtectedRoute>
+            } 
+          />
           <Route 
             path="/diary" 
             element={
@@ -90,22 +118,30 @@ const AppRoutes = () => {
             path="/meal-plans" 
             element={
               <ProtectedRoute>
-                <MealPlansPage />
+                <PremiumRoute>
+                  <MealPlansPage />
+                </PremiumRoute>
               </ProtectedRoute>
             } 
           />
           <Route path="/premium" element={<PremiumPage />} />
           <Route path="/auth" element={user ? <Navigate to="/diary" /> : <AuthPage />} />
-          <Route path="/signup" element={user ? <Navigate to="/diary" /> : <SignupPage />} />
-          <Route path="/signup/personal-info" element={user ? <Navigate to="/diary" /> : <PersonalInfo />} />
-          <Route path="/personal-info" element={<Navigate to="/signup/personal-info" replace />} />
-          <Route path="/forum" element={<ForumPage />} />
+          <Route 
+            path="/forum" 
+            element={
+              <ProtectedRoute>
+                <ForumPage />
+              </ProtectedRoute>
+            } 
+          />
           <Route path="/contact" element={<ContactPage />} />
           <Route 
             path="/workouts" 
             element={
               <ProtectedRoute>
-                <WorkoutPlansPage />
+                <PremiumRoute>
+                  <WorkoutPlansPage />
+                </PremiumRoute>
               </ProtectedRoute>
             } 
           />

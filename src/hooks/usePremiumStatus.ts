@@ -2,8 +2,10 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from './useAuth';
 
 export const usePremiumStatus = () => {
+  const { user } = useAuth();
   const { toast } = useToast();
   const [isPremium, setIsPremium] = useState(() => {
     const storedValue = localStorage.getItem('isPremium');
@@ -15,22 +17,20 @@ export const usePremiumStatus = () => {
     let mounted = true;
 
     const checkPremiumStatus = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (!session?.user) {
-          if (mounted) {
-            setIsPremium(false);
-            setLoading(false);
-          }
-          return;
+      if (!user) {
+        if (mounted) {
+          setIsPremium(false);
+          setLoading(false);
         }
+        return;
+      }
 
+      try {
         // Use maybeSingle instead of single to handle no rows gracefully
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('is_premium')
-          .eq('id', session.user.id)
+          .eq('id', user.id)
           .maybeSingle();
         
         if (profileError) {
@@ -62,36 +62,32 @@ export const usePremiumStatus = () => {
 
     checkPremiumStatus();
 
-    // Set up auth state change listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
-      checkPremiumStatus();
-    });
-
     return () => {
       mounted = false;
-      subscription.unsubscribe();
     };
-  }, [toast]);
+  }, [user, toast]);
 
   const refreshPremiumStatus = async () => {
+    if (!user) {
+      setIsPremium(false);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session?.user) {
-        setIsPremium(false);
-        return;
-      }
-
       const { data } = await supabase
         .from('profiles')
         .select('is_premium')
-        .eq('id', session.user.id)
+        .eq('id', user.id)
         .maybeSingle();
       
       if (data) {
         setIsPremium(data.is_premium);
         localStorage.setItem('isPremium', data.is_premium.toString());
+      } else {
+        setIsPremium(false);
+        localStorage.setItem('isPremium', 'false');
       }
     } catch (error) {
       console.error('Error refreshing premium status:', error);

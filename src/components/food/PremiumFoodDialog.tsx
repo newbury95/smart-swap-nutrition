@@ -18,19 +18,13 @@ interface PremiumFoodDialogProps {
 export const PremiumFoodDialog = ({ open, onOpenChange }: PremiumFoodDialogProps) => {
   const navigate = useNavigate();
 
-  // For testing purposes, we immediately close the dialog
-  // This effectively disables the premium lock
-  if (open) {
-    setTimeout(() => onOpenChange(false), 0);
-  }
-
   const handleUpgrade = () => {
     onOpenChange(false);
-    navigate('/premium-upgrade');
+    navigate('/premium');
   };
 
   return (
-    <Dialog open={false} onOpenChange={() => {}}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
