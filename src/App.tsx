@@ -125,7 +125,7 @@ const AppRoutes = () => {
             } 
           />
           <Route path="/premium" element={<PremiumPage />} />
-          <Route path="/auth" element={user ? <Navigate to="/diary" /> : <AuthPage />} />
+          <Route path="/auth" element={<AuthPage />} />
           <Route 
             path="/forum" 
             element={

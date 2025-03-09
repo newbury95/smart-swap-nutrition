@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Crown, CreditCard } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -11,15 +11,32 @@ import {
   Elements,
   CardElement,
   useStripe,
-  useElements
+  useElements,
+  PaymentElementProps
 } from "@stripe/react-stripe-js";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useAuth } from "@/hooks/useAuth";
+import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 
 // Use environment variable or fallback to test key (should be configured properly in production)
 const STRIPE_PUBLISHABLE_KEY = "pk_test_51Qx8ZW2VssJgwMDKBMlrqlCvWJGssJw2DhQxKBYFetlue4dNUGESfKDVz9dOgThYSX1O4DvCWYAZIcQOWU8ebfF100JuLCHbao";
 
 // Load stripe outside of component rendering to avoid recreating the Stripe object on every render
 const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
+
+// The appearance options for the Stripe elements
+const appearance = {
+  theme: 'stripe',
+  variables: {
+    colorPrimary: '#22c55e',
+    colorBackground: '#ffffff',
+    colorText: '#30313d',
+    colorDanger: '#df1b41',
+    fontFamily: 'Roboto, Open Sans, Segoe UI, sans-serif',
+    spacingUnit: '4px',
+    borderRadius: '4px',
+  },
+};
 
 // The form to collect payment details
 const CheckoutForm = () => {
@@ -29,6 +46,8 @@ const CheckoutForm = () => {
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { refreshPremiumStatus } = usePremiumStatus();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,10 +61,7 @@ const CheckoutForm = () => {
     setError(null);
     
     try {
-      const { data: userData } = await supabase.auth.getUser();
-      const userId = userData.user?.id;
-      
-      if (!userId) {
+      if (!user) {
         throw new Error('User not authenticated');
       }
       
@@ -73,10 +89,11 @@ const CheckoutForm = () => {
       const { error: paymentError } = await supabase
         .from('payment_history')
         .insert([{
-          user_id: userId,
+          user_id: user.id,
           amount: 7.99,
           status: 'completed',
           payment_method: 'card',
+          payment_method_id: paymentMethod.id
         }]);
         
       if (paymentError) {
@@ -88,15 +105,15 @@ const CheckoutForm = () => {
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ is_premium: true })
-        .eq('id', userId);
+        .eq('id', user.id);
         
       if (updateError) {
         console.error('Premium status update error:', updateError);
         throw updateError;
       }
       
-      // Update local storage for immediate UI updates
-      localStorage.setItem('isPremium', 'true');
+      // Refresh the premium status
+      await refreshPremiumStatus();
       
       toast({
         title: "Success!",
@@ -141,6 +158,7 @@ const CheckoutForm = () => {
                   color: '#9e2146',
                 },
               },
+              hidePostalCode: true,
             }}
           />
         </div>
@@ -159,6 +177,34 @@ const CheckoutForm = () => {
 };
 
 const PremiumUpgradePage = () => {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const { isPremium } = usePremiumStatus();
+
+  // Redirect already premium users to diary
+  useEffect(() => {
+    if (!loading && isPremium) {
+      navigate('/diary');
+    }
+  }, [loading, isPremium, navigate]);
+
+  // Redirect unauthenticated users to auth page
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/auth?redirect=premium');
+    }
+  }, [loading, user, navigate]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600"></div>
+      </div>
+    );
+  }
+
+  if (!user) return null;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-green-50 to-white py-12">
       <div className="container mx-auto px-4">
@@ -189,12 +235,16 @@ const PremiumUpgradePage = () => {
               </li>
               <li className="flex items-center gap-2">
                 <Crown className="w-4 h-4 text-yellow-500" />
+                <span>Custom foods and recipes</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Crown className="w-4 h-4 text-yellow-500" />
                 <span>Health app integration (Apple Health & Samsung Health)</span>
               </li>
             </ul>
           </div>
 
-          <Elements stripe={stripePromise}>
+          <Elements stripe={stripePromise} options={{ appearance }}>
             <CheckoutForm />
           </Elements>
         </motion.div>

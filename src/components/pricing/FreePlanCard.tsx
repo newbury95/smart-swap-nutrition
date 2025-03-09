@@ -27,7 +27,7 @@ const FreePlanCard = ({ features }: FreePlanCardProps) => {
       <PlanFeatureList features={features} />
 
       <button
-        onClick={() => navigate('/signup')}
+        onClick={() => navigate('/auth?tab=signup')}
         className="w-full bg-gray-100 text-gray-800 py-3 rounded-full hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
       >
         Try for Free
@@ -38,4 +38,3 @@ const FreePlanCard = ({ features }: FreePlanCardProps) => {
 };
 
 export default FreePlanCard;
-

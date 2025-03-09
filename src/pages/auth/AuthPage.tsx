@@ -1,6 +1,6 @@
 
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -11,10 +11,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useAuth } from "@/hooks/useAuth";
 
 const AuthPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+  const { user, loading } = useAuth();
+  
+  // Get tab from URL query parameters
+  const params = new URLSearchParams(location.search);
+  const tabParam = params.get('tab');
+  const redirectParam = params.get('redirect');
   
   // Login state
   const [email, setEmail] = useState("");
@@ -32,7 +40,18 @@ const AuthPage = () => {
   const [isResetMode, setIsResetMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState("signin");
+  const [activeTab, setActiveTab] = useState(tabParam === 'signup' ? 'signup' : 'signin');
+
+  // Redirect authenticated users
+  useEffect(() => {
+    if (!loading && user) {
+      if (redirectParam === 'premium') {
+        navigate('/premium');
+      } else {
+        navigate('/diary');
+      }
+    }
+  }, [loading, user, navigate, redirectParam]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,7 +71,11 @@ const AuthPage = () => {
         description: "You have successfully signed in.",
       });
       
-      navigate("/diary");
+      if (redirectParam === 'premium') {
+        navigate('/premium');
+      } else {
+        navigate("/diary");
+      }
     } catch (error: any) {
       setError(error.message);
       toast({
@@ -140,6 +163,16 @@ const AuthPage = () => {
       setIsLoading(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600"></div>
+      </div>
+    );
+  }
+
+  if (user) return null;
 
   return (
     <ErrorBoundary fallback={<div className="p-4 bg-red-100 rounded-md text-red-700 m-4">There was an error loading the authentication page.</div>}>

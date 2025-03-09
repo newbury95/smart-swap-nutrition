@@ -33,7 +33,7 @@ const PremiumPlanCard = ({ features }: PremiumPlanCardProps) => {
       <PlanFeatureList features={features} />
 
       <button
-        onClick={() => navigate('/signup')}
+        onClick={() => navigate('/auth?tab=signup')}
         className="w-full bg-green-600 text-white py-3 rounded-full hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
       >
         Get Premium
@@ -44,4 +44,3 @@ const PremiumPlanCard = ({ features }: PremiumPlanCardProps) => {
 };
 
 export default PremiumPlanCard;
-

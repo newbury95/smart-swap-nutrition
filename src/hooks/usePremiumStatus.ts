@@ -7,10 +7,7 @@ import { useAuth } from './useAuth';
 export const usePremiumStatus = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [isPremium, setIsPremium] = useState(() => {
-    const storedValue = localStorage.getItem('isPremium');
-    return storedValue ? storedValue === 'true' : false;
-  });
+  const [isPremium, setIsPremium] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

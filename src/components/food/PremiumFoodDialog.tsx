@@ -1,4 +1,3 @@
-
 import {
   Dialog,
   DialogContent,
@@ -9,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Crown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 interface PremiumFoodDialogProps {
   open: boolean;
@@ -17,10 +17,16 @@ interface PremiumFoodDialogProps {
 
 export const PremiumFoodDialog = ({ open, onOpenChange }: PremiumFoodDialogProps) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleUpgrade = () => {
     onOpenChange(false);
-    navigate('/premium');
+    
+    if (user) {
+      navigate('/premium');
+    } else {
+      navigate('/auth?tab=signup&redirect=premium');
+    }
   };
 
   return (
