@@ -12,6 +12,12 @@ node_modules/
 # Ensure dist is NOT ignored
 # dist
 
+# Ensure dist-ssr is ignored (remote change)
+dist-ssr
+
+# Ignore local system files
+*.local
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -22,6 +28,3 @@ node_modules/
 *.njsproj
 *.sln
 *.sw?
-
-# Other system files to ignore
-*.local
