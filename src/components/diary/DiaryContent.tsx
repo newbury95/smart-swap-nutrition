@@ -1,10 +1,11 @@
 
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
 import { motion } from "framer-motion";
 import { type Meal } from "@/hooks/useSupabase";
 import { MealSection } from "@/components/diary/MealSection";
 import { ExerciseSection } from "@/components/diary/ExerciseSection";
 import { AlertTriangle } from "lucide-react";
+import { useHealthIntegration } from "@/hooks/useHealthIntegration";
 
 type MealType = "breakfast" | "lunch" | "dinner" | "snack";
 
@@ -19,7 +20,19 @@ export const DiaryContent: React.FC<DiaryContentProps> = memo(({
   meals,
   onAddFood,
   onDeleteFood,
+  onComplete
 }) => {
+  const { syncHealthData, connectedProvider } = useHealthIntegration();
+  
+  // Sync health data when the diary is loaded
+  useEffect(() => {
+    if (connectedProvider) {
+      syncHealthData().catch(error => {
+        console.error('Error syncing health data from diary:', error);
+      });
+    }
+  }, [connectedProvider, syncHealthData]);
+
   // Ensure meals object is fully populated with all meal types
   const safetyMeals: Record<MealType, Meal[]> = {
     breakfast: Array.isArray(meals.breakfast) ? meals.breakfast : [],

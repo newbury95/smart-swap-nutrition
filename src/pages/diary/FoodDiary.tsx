@@ -1,6 +1,6 @@
 
 import { useState, useCallback, memo } from "react";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { DiaryContent } from "@/components/diary/DiaryContent";
@@ -12,12 +12,37 @@ import { useSupabase, type FoodSwap } from "@/hooks/useSupabase";
 // Create a separate header component to improve maintainability
 const DiaryHeader = memo(({ 
   date, 
-  onComplete 
+  onComplete,
+  onSelectDate
 }: { 
   date: Date; 
   onComplete: () => Promise<void>;
+  onSelectDate: (newDate: Date) => void;
 }) => {
   const navigate = useNavigate();
+  
+  // Function to format date as "Month D, YYYY" (e.g. "March 10, 2025")
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('en-US', { 
+      month: 'long', 
+      day: 'numeric', 
+      year: 'numeric'
+    });
+  };
+  
+  // Calculate previous and next dates
+  const previousDay = new Date(date);
+  previousDay.setDate(date.getDate() - 1);
+  
+  const nextDay = new Date(date);
+  nextDay.setDate(date.getDate() + 1);
+  
+  const isToday = () => {
+    const today = new Date();
+    return date.getDate() === today.getDate() && 
+           date.getMonth() === today.getMonth() && 
+           date.getFullYear() === today.getFullYear();
+  };
   
   return (
     <header className="bg-gradient-to-r from-green-600 to-green-500 text-white shadow-md">
@@ -31,8 +56,33 @@ const DiaryHeader = memo(({
               <ChevronLeft className="w-4 h-4" />
               Back to Dashboard
             </button>
-            <h1 className="text-2xl font-bold mt-2">Food Diary</h1>
-            <p className="text-green-100">{date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
+            <div className="flex items-center gap-3 mt-2">
+              <h1 className="text-2xl font-bold">Food Diary</h1>
+              <button 
+                onClick={() => onSelectDate(new Date())}
+                className={`text-sm px-2 py-1 rounded ${isToday() ? 'bg-green-700 text-white' : 'bg-green-100 text-green-800'}`}
+              >
+                Today
+              </button>
+            </div>
+            <div className="flex items-center gap-2 mt-2">
+              <button
+                onClick={() => onSelectDate(previousDay)}
+                className="text-xs bg-green-700 rounded-full p-1 hover:bg-green-800 transition-colors"
+              >
+                <ChevronLeft className="w-3 h-3" />
+              </button>
+              <p className="text-green-100 flex items-center gap-1">
+                <Calendar className="w-3 h-3" />
+                {formatDate(date)}
+              </p>
+              <button
+                onClick={() => onSelectDate(nextDay)}
+                className="text-xs bg-green-700 rounded-full p-1 hover:bg-green-800 transition-colors rotate-180"
+              >
+                <ChevronLeft className="w-3 h-3" />
+              </button>
+            </div>
           </div>
           <div className="mt-3 md:mt-0">
             <button 
@@ -77,10 +127,18 @@ const FoodDiary = () => {
       });
     }
   }, [date, getFoodSwaps, toast]);
+  
+  const handleDateSelect = (newDate: Date) => {
+    setDate(newDate);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 pb-16">
-      <DiaryHeader date={date} onComplete={handleComplete} />
+      <DiaryHeader 
+        date={date} 
+        onComplete={handleComplete} 
+        onSelectDate={handleDateSelect}
+      />
 
       <main className="container mx-auto px-4 py-6">
         <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-6">

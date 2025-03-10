@@ -36,6 +36,7 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
         `);
 
         if (searchQuery) {
+          // Use pattern matching for more flexible search
           query = query.ilike('food_item', `%${searchQuery}%`);
         }
 
@@ -82,6 +83,10 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
     setIsScanning(false);
   }, [onSelect]);
 
+  const handleSearchClear = useCallback(() => {
+    setSearchQuery("");
+  }, []);
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center gap-4">
@@ -89,6 +94,7 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           onBarcodeClick={handleBarcodeScanner}
+          onClear={handleSearchClear}
           isScanning={isScanning}
         />
         <Button 
@@ -107,7 +113,11 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
           onFoodFound={handleFoodSelect}
         />
       ) : (
-        <FoodList foods={foods} onSelect={handleFoodSelect} isLoading={isLoading} />
+        <FoodList 
+          foods={foods} 
+          onSelect={handleFoodSelect} 
+          isLoading={isLoading} 
+        />
       )}
     </div>
   );

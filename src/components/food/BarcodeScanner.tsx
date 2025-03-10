@@ -2,7 +2,7 @@
 import { X, Scan } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BrowserMultiFormatReader } from '@zxing/library';
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { Progress } from "@/components/ui/progress";
@@ -17,6 +17,69 @@ export const BarcodeScanner = ({ onCancel, onFoodFound }: BarcodeScannerProps) =
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
+
+  const handleBarcodeDetected = useCallback(async (barcode: string) => {
+    console.log("Detected barcode:", barcode);
+    
+    try {
+      // Fetch nutritional information from the database
+      const { data: nutritionalInfo, error } = await supabase
+        .from('nutritional_info')
+        .select(`
+          *,
+          serving_size_options (
+            id,
+            description,
+            grams,
+            is_default
+          )
+        `)
+        .eq('barcode', barcode)
+        .limit(1);
+      
+      if (error) {
+        console.error("Error fetching nutritional info:", error);
+        throw new Error("Failed to fetch nutritional information from the database.");
+      }
+      
+      if (!nutritionalInfo || nutritionalInfo.length === 0) {
+        throw new Error("This barcode isn't in our database yet.");
+      }
+      
+      // Convert nutritional info to Food type
+      const food = {
+        id: nutritionalInfo[0].id,
+        name: nutritionalInfo[0].food_item,
+        brand: "", // Could be extended to include brand information
+        calories: Math.round(nutritionalInfo[0].kcal),
+        protein: Number(nutritionalInfo[0].protein),
+        carbs: Number(nutritionalInfo[0].carbohydrates),
+        fat: Number(nutritionalInfo[0].fats),
+        servingSize: nutritionalInfo[0].serving_size,
+        barcode: nutritionalInfo[0].barcode,
+        supermarket: "All Supermarkets" as const,
+        category: "All Categories" as const,
+        servingSizeOptions: nutritionalInfo[0].serving_size_options || []
+      };
+      
+      onFoodFound(food);
+      toast({
+        title: "Food found!",
+        description: `Found ${food.name} in database.`,
+      });
+      
+      return true;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      setError(errorMessage);
+      toast({
+        variant: "destructive",
+        title: "Error finding product",
+        description: errorMessage,
+      });
+      return false;
+    }
+  }, [onFoodFound, toast]);
 
   useEffect(() => {
     let codeReader: BrowserMultiFormatReader | null = null;
@@ -67,7 +130,6 @@ export const BarcodeScanner = ({ onCancel, onFoodFound }: BarcodeScannerProps) =
         
         try {
           // Configure camera with improved settings for barcode scanning
-          // Remove the invalid focusMode property
           const result = await codeReader.decodeOnceFromConstraints(
             { 
               video: { 
@@ -86,68 +148,7 @@ export const BarcodeScanner = ({ onCancel, onFoodFound }: BarcodeScannerProps) =
           setScanProgress(100);
           
           const barcode = result.getText();
-          console.log("Scanned barcode:", barcode);
-          
-          // Fetch nutritional information from the database
-          const { data: nutritionalInfo, error } = await supabase
-            .from('nutritional_info')
-            .select(`
-              *,
-              serving_size_options (
-                id,
-                description,
-                grams,
-                is_default
-              )
-            `)
-            .eq('barcode', barcode)
-            .single();
-          
-          if (error) {
-            console.error("Error fetching nutritional info:", error);
-            setError("Failed to fetch nutritional information from the database.");
-            toast({
-              variant: "destructive",
-              title: "Error",
-              description: "Failed to fetch nutritional information.",
-            });
-            setIsScanning(false);
-            return;
-          }
-          
-          if (!nutritionalInfo) {
-            setError("This barcode isn't in our database yet.");
-            toast({
-              variant: "destructive",
-              title: "Product not found",
-              description: "This barcode isn't in our database yet.",
-            });
-            setIsScanning(false);
-            return;
-          }
-          
-          // Convert nutritional info to Food type
-          const food = {
-            id: nutritionalInfo.id,
-            name: nutritionalInfo.food_item,
-            brand: "", // Could be extended to include brand information
-            calories: Math.round(nutritionalInfo.kcal),
-            protein: Number(nutritionalInfo.protein),
-            carbs: Number(nutritionalInfo.carbohydrates),
-            fat: Number(nutritionalInfo.fats),
-            servingSize: nutritionalInfo.serving_size,
-            barcode: nutritionalInfo.barcode,
-            supermarket: "All Supermarkets" as const,
-            category: "All Categories" as const,
-            servingSizeOptions: nutritionalInfo.serving_size_options || []
-          };
-          
-          onFoodFound(food);
-          toast({
-            title: "Food found!",
-            description: `Found ${food.name} in database.`,
-          });
-          
+          await handleBarcodeDetected(barcode);
         } catch (error) {
           if (!isActive) return; // Component unmounted
           
@@ -180,15 +181,18 @@ export const BarcodeScanner = ({ onCancel, onFoodFound }: BarcodeScannerProps) =
 
     return () => {
       isActive = false;
-      clearInterval(scanInterval);
+      if (scanInterval) clearInterval(scanInterval);
       if (codeReader) {
         codeReader.reset();
       }
     };
-  }, [onFoodFound, toast]);
+  }, [handleBarcodeDetected, toast]);
 
   const handleRetry = () => {
     // Reset state and retry scanning
+    setError(null);
+    setIsScanning(true);
+    setScanProgress(0);
     window.location.reload();
   };
 
