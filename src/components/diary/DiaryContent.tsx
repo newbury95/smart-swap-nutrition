@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { type Meal } from "@/hooks/useSupabase";
 import { MealSection } from "@/components/diary/MealSection";
 import { ExerciseSection } from "@/components/diary/ExerciseSection";
-import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
 
 type MealType = "breakfast" | "lunch" | "dinner" | "snack";
@@ -20,7 +19,6 @@ export const DiaryContent: React.FC<DiaryContentProps> = ({
   meals,
   onAddFood,
   onDeleteFood,
-  onComplete,
 }) => {
   // Ensure meals object is fully populated with all meal types
   const safetyMeals: Record<MealType, Meal[]> = {
@@ -61,12 +59,6 @@ export const DiaryContent: React.FC<DiaryContentProps> = ({
       >
         <ExerciseSection />
       </motion.div>
-      
-      <div className="text-center mt-10">
-        <Button onClick={onComplete} className="w-auto">
-          Complete Day
-        </Button>
-      </div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}

@@ -1,6 +1,7 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Footprints } from "lucide-react";
+import { useHealthIntegration } from '@/hooks/useHealthIntegration';
 
 interface NutritionSummary {
   calories: number;
@@ -16,19 +17,22 @@ interface DailySummaryProps {
 export const DailySummary = ({ dailyTotals }: DailySummaryProps) => {
   const [waterIntake, setWaterIntake] = React.useState(0);
   const [caloriesBurned, setCaloriesBurned] = React.useState(0);
-  const [steps, setSteps] = React.useState(7436); // Default step count
+  const { healthData, connectedProvider } = useHealthIntegration();
 
   const handleWaterChange = (amount: number) => {
     setWaterIntake(prev => Math.max(0, prev + amount));
   };
 
-  // Get calories burned from localStorage (set in TrackingPage or HealthMetrics)
-  React.useEffect(() => {
+  // Get calories burned from localStorage or health integration
+  useEffect(() => {
     const storedCaloriesBurned = localStorage.getItem('caloriesBurned');
     if (storedCaloriesBurned) {
       setCaloriesBurned(parseInt(storedCaloriesBurned));
+    } else if (healthData?.caloriesBurned) {
+      setCaloriesBurned(healthData.caloriesBurned);
+      localStorage.setItem('caloriesBurned', healthData.caloriesBurned.toString());
     }
-  }, []);
+  }, [healthData]);
 
   // Calculate net calories (intake - burned)
   const netCalories = dailyTotals.calories - caloriesBurned;
@@ -67,10 +71,14 @@ export const DailySummary = ({ dailyTotals }: DailySummaryProps) => {
             <span className="text-gray-600">Daily Steps</span>
             <div className="flex items-center gap-2">
               <Footprints className="w-4 h-4 text-green-600" />
-              <span className="font-medium">{steps}</span>
+              <span className="font-medium">{healthData?.steps || 0}</span>
             </div>
           </div>
-          <div className="text-xs text-gray-500">Synced with Apple Health / Samsung Health</div>
+          <div className="text-xs text-gray-500">
+            {connectedProvider ? 
+              `Synced with ${connectedProvider === 'apple' ? 'Apple Health' : 'Samsung Health'}` : 
+              'Connect to a health app to sync data'}
+          </div>
         </div>
         
         <div className="pt-3 border-t">

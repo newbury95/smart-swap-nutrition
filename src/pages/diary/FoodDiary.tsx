@@ -40,15 +40,29 @@ const FoodDiary = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-32">
-      <header className="bg-white border-b">
-        <div className="container mx-auto px-4 py-4">
-          <button 
-            onClick={() => navigate('/')}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            Back to Dashboard
-          </button>
+      <header className="bg-gradient-to-r from-green-600 to-green-500 text-white shadow-md">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+              <button 
+                onClick={() => navigate('/')}
+                className="flex items-center gap-2 text-white hover:text-green-100 transition-colors"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                Back to Dashboard
+              </button>
+              <h1 className="text-2xl font-bold mt-2">Food Diary</h1>
+              <p className="text-green-100">{date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
+            </div>
+            <div className="mt-4 md:mt-0">
+              <button 
+                onClick={handleComplete}
+                className="px-4 py-2 bg-white text-green-600 rounded-md hover:bg-green-50 transition-colors font-medium"
+              >
+                Complete Day
+              </button>
+            </div>
+          </div>
         </div>
       </header>
 

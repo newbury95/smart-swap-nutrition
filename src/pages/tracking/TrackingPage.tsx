@@ -1,5 +1,5 @@
 
-import { memo, useCallback, useState } from "react";
+import { memo, useCallback, useState, useEffect } from "react";
 import { useTrackingData } from "@/hooks/useTrackingData";
 import TrackingHeader from "@/components/tracking/TrackingHeader";
 import MetricsSection from "@/components/tracking/MetricsSection";
@@ -10,15 +10,16 @@ import ExerciseDialog from "@/components/tracking/ExerciseDialog";
 import HealthAppConnector from "@/components/tracking/HealthAppConnector";
 import { useToast } from "@/hooks/use-toast";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { useHealthIntegration } from "@/hooks/useHealthIntegration";
 
 const TrackingPage = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const { healthData } = useHealthIntegration();
   
   const {
     timeRange,
     setTimeRange,
-    steps,
     trackingData,
     isPremium,
     exercises,
@@ -28,6 +29,16 @@ const TrackingPage = () => {
     handleAddExercise,
     handleBMISubmit
   } = useTrackingData();
+
+  // Use actual steps data from health integration when available
+  const steps = healthData?.steps || 0;
+
+  // Update localStorage with health data
+  useEffect(() => {
+    if (healthData && healthData.caloriesBurned) {
+      localStorage.setItem('caloriesBurned', healthData.caloriesBurned.toString());
+    }
+  }, [healthData]);
 
   const latestBMI = trackingData.length > 0 ? 
     trackingData[trackingData.length - 1]?.bmi || 0 : 0;
