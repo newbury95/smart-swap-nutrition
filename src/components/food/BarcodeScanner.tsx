@@ -67,14 +67,14 @@ export const BarcodeScanner = ({ onCancel, onFoodFound }: BarcodeScannerProps) =
         
         try {
           // Configure camera with improved settings for barcode scanning
+          // Remove the invalid focusMode property
           const result = await codeReader.decodeOnceFromConstraints(
             { 
               video: { 
                 facingMode: 'environment',
                 width: { ideal: 1280 },
                 height: { ideal: 720 },
-                aspectRatio: { ideal: 1.777778 },
-                focusMode: 'continuous'
+                aspectRatio: { ideal: 1.777778 }
               } 
             },
             previewEl

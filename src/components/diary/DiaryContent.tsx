@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { motion } from "framer-motion";
 import { type Meal } from "@/hooks/useSupabase";
 import { MealSection } from "@/components/diary/MealSection";
@@ -15,7 +15,7 @@ interface DiaryContentProps {
   onComplete: () => void;
 }
 
-export const DiaryContent: React.FC<DiaryContentProps> = ({
+export const DiaryContent: React.FC<DiaryContentProps> = memo(({
   meals,
   onAddFood,
   onDeleteFood,
@@ -40,7 +40,7 @@ export const DiaryContent: React.FC<DiaryContentProps> = ({
           key={type}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: index * 0.1 }}
+          transition={{ duration: 0.4, delay: index * 0.1 }}
         >
           <MealSection
             type={type as MealType}
@@ -55,7 +55,7 @@ export const DiaryContent: React.FC<DiaryContentProps> = ({
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.5 }}
+        transition={{ duration: 0.4, delay: 0.4 }}
       >
         <ExerciseSection />
       </motion.div>
@@ -63,8 +63,8 @@ export const DiaryContent: React.FC<DiaryContentProps> = ({
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.6 }}
-        className="mt-8 p-4 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800"
+        transition={{ duration: 0.4, delay: 0.5 }}
+        className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800"
       >
         <div className="flex items-start gap-3">
           <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" />
@@ -78,4 +78,7 @@ export const DiaryContent: React.FC<DiaryContentProps> = ({
       </motion.div>
     </div>
   );
-};
+});
+
+// Add display name for debugging
+DiaryContent.displayName = 'DiaryContent';
