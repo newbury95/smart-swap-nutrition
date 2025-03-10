@@ -5,12 +5,13 @@ import { FoodSearchBar } from "./FoodSearchBar";
 import { BarcodeScanner } from "./BarcodeScanner";
 import { FoodList } from "./FoodList";
 import { Button } from "@/components/ui/button";
-import { Crown } from "lucide-react";
+import { Crown, Database } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { CustomFoodForm } from "./CustomFoodForm";
+import { AdminFoodImporter } from "./AdminFoodImporter";
 
 interface FoodDatabaseTabProps {
   onSelect: (food: Food) => void;
@@ -21,6 +22,26 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isScanning, setIsScanning] = useState(false);
   const [showCustomFoodForm, setShowCustomFoodForm] = useState(false);
+  const [showAdminImporter, setShowAdminImporter] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Check if user is admin (this is a placeholder - in a real app you'd check roles)
+  const checkAdminStatus = useCallback(async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      // This is a placeholder. In a real app, you would check user roles
+      // For now, we'll just allow any logged-in user to access the admin panel
+      setIsAdmin(!!session?.user);
+    } catch (error) {
+      console.error("Error checking admin status:", error);
+      setIsAdmin(false);
+    }
+  }, []);
+
+  // Check admin status on component mount
+  useState(() => {
+    checkAdminStatus();
+  });
 
   const { data: foods = [], isLoading } = useQuery({
     queryKey: ['foods', searchQuery],
@@ -106,14 +127,26 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
           onClear={handleSearchClear}
           isScanning={isScanning}
         />
-        <Button 
-          variant="outline"
-          onClick={() => setShowCustomFoodForm(true)}
-          className="relative"
-        >
-          Add Custom Food
-          <Crown className="w-4 h-4 text-yellow-500 absolute -top-2 -right-2" />
-        </Button>
+        <div className="flex gap-2">
+          {isAdmin && (
+            <Button 
+              variant="outline"
+              onClick={() => setShowAdminImporter(true)}
+              className="relative"
+              title="Food Database Admin"
+            >
+              <Database className="w-4 h-4" />
+            </Button>
+          )}
+          <Button 
+            variant="outline"
+            onClick={() => setShowCustomFoodForm(true)}
+            className="relative"
+          >
+            Add Custom Food
+            <Crown className="w-4 h-4 text-yellow-500 absolute -top-2 -right-2" />
+          </Button>
+        </div>
       </div>
 
       {isScanning ? (
@@ -134,6 +167,14 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
         <DialogContent className="sm:max-w-[425px]">
           <DialogTitle>Create Custom Food</DialogTitle>
           <CustomFoodForm onSuccess={handleCustomFoodSuccess} />
+        </DialogContent>
+      </Dialog>
+
+      {/* Admin Food Importer Dialog */}
+      <Dialog open={showAdminImporter} onOpenChange={setShowAdminImporter}>
+        <DialogContent className="sm:max-w-[700px]">
+          <DialogTitle>Food Database Admin</DialogTitle>
+          <AdminFoodImporter />
         </DialogContent>
       </Dialog>
     </div>
