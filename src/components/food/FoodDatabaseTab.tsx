@@ -8,18 +8,19 @@ import { Button } from "@/components/ui/button";
 import { Crown } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { CustomFoodForm } from "./CustomFoodForm";
 
 interface FoodDatabaseTabProps {
   onSelect: (food: Food) => void;
 }
 
 export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [isScanning, setIsScanning] = useState(false);
+  const [showCustomFoodForm, setShowCustomFoodForm] = useState(false);
 
   const { data: foods = [], isLoading } = useQuery({
     queryKey: ['foods', searchQuery],
@@ -87,6 +88,14 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
     setSearchQuery("");
   }, []);
 
+  const handleCustomFoodSuccess = () => {
+    setShowCustomFoodForm(false);
+    toast({
+      title: "Success",
+      description: "Custom food created successfully"
+    });
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center gap-4">
@@ -99,7 +108,7 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
         />
         <Button 
           variant="outline"
-          onClick={() => navigate('/custom-foods')}
+          onClick={() => setShowCustomFoodForm(true)}
           className="relative"
         >
           Add Custom Food
@@ -119,6 +128,14 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
           isLoading={isLoading} 
         />
       )}
+
+      {/* Custom Food Form Dialog */}
+      <Dialog open={showCustomFoodForm} onOpenChange={setShowCustomFoodForm}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogTitle>Create Custom Food</DialogTitle>
+          <CustomFoodForm onSuccess={handleCustomFoodSuccess} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 });

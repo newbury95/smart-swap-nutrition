@@ -15,17 +15,17 @@ import { CustomFoodForm } from "./CustomFoodForm";
 import { PremiumFoodDialog } from "./PremiumFoodDialog";
 import { FoodDatabaseTab } from "./FoodDatabaseTab";
 import { type Food } from "./types";
-import { useNavigate } from "react-router-dom";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 interface FoodSelectorProps {
   onFoodSelect: (food: Food) => void;
 }
 
 export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
-  const navigate = useNavigate();
-  const { isPremium, customFoods } = useSupabase();
+  const { isPremium, customFoods, addCustomFood } = useSupabase();
   const [activeTab, setActiveTab] = useState("database");
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
+  const [showCustomFoodForm, setShowCustomFoodForm] = useState(false);
 
   const handleCustomFoodSelect = (customFood: any) => {
     if (!isPremium) {
@@ -48,9 +48,13 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
     onFoodSelect(food);
   };
 
+  const handleCustomFoodSuccess = () => {
+    setShowCustomFoodForm(false);
+  };
+
   const handlePremiumUpgrade = () => {
     setShowPremiumDialog(false);
-    navigate('/premium-upgrade');
+    // This would normally navigate to premium page, but for now we'll just close the dialog
   };
 
   return (
@@ -85,7 +89,7 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
                   {isPremium ? (
                     <>
                       <Button 
-                        onClick={() => navigate('/custom-foods')}
+                        onClick={() => setShowCustomFoodForm(true)}
                         className="mb-4 w-full"
                       >
                         Create New Custom Food
@@ -125,6 +129,14 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
           </div>
         </SheetContent>
       </Sheet>
+
+      {/* Custom Food Form Dialog */}
+      <Dialog open={showCustomFoodForm} onOpenChange={setShowCustomFoodForm}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogTitle>Create Custom Food</DialogTitle>
+          <CustomFoodForm onSuccess={handleCustomFoodSuccess} />
+        </DialogContent>
+      </Dialog>
 
       <PremiumFoodDialog
         open={showPremiumDialog}
