@@ -1,13 +1,13 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import type { HealthMetric } from './types/supabase';
-import { HealthMetricType } from '@/utils/nutritionCalculations';
+import { HealthMetricType, DbHealthMetricType } from '@/utils/nutritionCalculations';
 
 // Helper function to ensure metric type is valid for the database
-const validateMetricType = (metricType: HealthMetricType | string): "steps" | "activity" | "heart-rate" => {
+const validateMetricType = (metricType: HealthMetricType | string): DbHealthMetricType => {
   // Only allow valid database enum values
   if (metricType === "steps" || metricType === "activity" || metricType === "heart-rate") {
-    return metricType;
+    return metricType as DbHealthMetricType;
   }
   // Default to activity for any other types
   console.warn(`Invalid metric type: ${metricType}. Defaulting to 'activity'.`);
@@ -18,7 +18,8 @@ export const useHealthMetrics = () => {
   const addHealthMetric = async (metric: { 
     metric_type: HealthMetricType | string; 
     value: string; 
-    user_id?: string 
+    user_id?: string;
+    source?: string;
   }): Promise<HealthMetric | null> => {
     if (!supabase) return null;
 
@@ -34,13 +35,20 @@ export const useHealthMetrics = () => {
       return null;
     }
 
+    const metricData = { 
+      user_id: session.user.id, 
+      metric_type: validMetricType,
+      value: numericValue 
+    };
+    
+    // Add source if provided
+    if (metric.source) {
+      Object.assign(metricData, { source: metric.source });
+    }
+
     const { data, error } = await supabase
       .from('health_metrics')
-      .insert([{ 
-        user_id: session.user.id, 
-        metric_type: validMetricType,
-        value: numericValue 
-      }])
+      .insert([metricData])
       .select()
       .single();
 
