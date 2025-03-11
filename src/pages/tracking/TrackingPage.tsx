@@ -8,7 +8,7 @@ import { useSupabase } from "@/hooks/useSupabase";
 import { useExerciseTracking } from "@/hooks/useExerciseTracking";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import TrackingHeader from "@/components/tracking/TrackingHeader";
-import NutritionSettingsForm from "@/components/tracking/NutritionSettingsForm";
+import { NutritionSettingsForm } from "@/components/tracking/settings";
 import ExerciseDialog from "@/components/tracking/ExerciseDialog";
 import DashboardContent from "@/components/tracking/DashboardContent";
 import { Dumbbell } from "lucide-react";
