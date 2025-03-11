@@ -14,20 +14,21 @@ serve(async (req) => {
   }
 
   try {
+    console.log("Starting food import process");
     const { foodItems } = await req.json()
     
     if (!foodItems || !Array.isArray(foodItems) || foodItems.length === 0) {
       throw new Error('No valid food items provided');
     }
 
+    console.log(`Received ${foodItems.length} food items for import`);
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    console.log(`Processing ${foodItems.length} food items for import`);
-
-    // Process data
+    // Process data - map the imported food items to the database schema
     const data = foodItems.map(item => ({
       food_item: item.name,
       kcal: item.calories || 0,
@@ -52,13 +53,15 @@ serve(async (req) => {
       sugar_unit: 'g'
     }));
 
-    // Insert in batches of 100 to avoid timeouts
-    const batchSize = 100;
+    console.log(`Prepared ${data.length} items for database insertion`);
+
+    // Insert in batches of 50 to avoid timeouts and excessive payload sizes
+    const batchSize = 50;
     const results = [];
     
     for (let i = 0; i < data.length; i += batchSize) {
-      console.log(`Inserting batch ${Math.floor(i/batchSize) + 1} of ${Math.ceil(data.length/batchSize)}`);
       const batch = data.slice(i, i + batchSize);
+      console.log(`Inserting batch ${Math.floor(i/batchSize) + 1} of ${Math.ceil(data.length/batchSize)}`);
       
       const { data: insertedData, error } = await supabase
         .from('nutritional_info')
@@ -70,10 +73,13 @@ serve(async (req) => {
         throw new Error(`Error inserting batch: ${error.message}`);
       }
       
-      results.push(...(insertedData || []));
+      if (insertedData) {
+        console.log(`Successfully inserted ${insertedData.length} items in this batch`);
+        results.push(...insertedData);
+      }
     }
 
-    console.log(`Successfully imported ${results.length} food items`);
+    console.log(`Successfully imported ${results.length} food items in total`);
 
     return new Response(
       JSON.stringify({
@@ -90,11 +96,11 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error in import-food-data function:', error);
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message
+        error: error.message || 'Unknown error during food import'
       }),
       { 
         status: 400,
