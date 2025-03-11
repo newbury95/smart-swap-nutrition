@@ -18,9 +18,16 @@ export const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, s
 export const useSupabase = () => {
   const { isPremium, loading } = usePremiumStatus();
   const { customFoods, addCustomFood, loadCustomFoods } = useCustomFoods();
-  const { addHealthMetric, getHealthMetrics } = useHealthMetrics();
+  const { addHealthMetric: rawAddHealthMetric, getHealthMetrics } = useHealthMetrics();
   const { getMeals, addMeal, deleteMeal } = useMeals();
   const { getFoodSwaps } = useFoodSwaps();
+
+  // Wrapper function to convert the return type to void
+  const addHealthMetric = async (metric: any): Promise<void> => {
+    await rawAddHealthMetric(metric);
+    // Return void explicitly
+    return;
+  };
 
   return {
     isPremium,
