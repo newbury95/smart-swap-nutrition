@@ -11,7 +11,8 @@ import {
   ActivityLevel,
   FitnessGoal,
   Gender,
-  MacroRatio
+  MacroRatio,
+  HealthMetricType
 } from '@/utils/nutritionCalculations';
 
 export interface NutritionSettings {
@@ -35,6 +36,9 @@ export interface NutritionCalculations {
   };
   macroRatios: MacroRatio;
 }
+
+// Re-export MacroRatio type for use in other components
+export type { MacroRatio };
 
 const DEFAULT_SETTINGS: NutritionSettings = {
   age: 30,

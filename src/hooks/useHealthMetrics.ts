@@ -1,9 +1,14 @@
 
 import { supabase } from './useSupabase';
 import type { HealthMetric } from './types/supabase';
+import { HealthMetricType } from '@/utils/nutritionCalculations';
 
 export const useHealthMetrics = () => {
-  const addHealthMetric = async (metric: Omit<HealthMetric, 'id' | 'recorded_at'>) => {
+  const addHealthMetric = async (metric: { 
+    metric_type: HealthMetricType | string; 
+    value: string; 
+    user_id?: string 
+  }) => {
     if (!supabase) return null;
 
     const { data: { session } } = await supabase.auth.getSession();
@@ -19,7 +24,7 @@ export const useHealthMetrics = () => {
     return data;
   };
 
-  const getHealthMetrics = async (type: HealthMetric['metric_type']) => {
+  const getHealthMetrics = async (type: HealthMetricType | string) => {
     if (!supabase) return [];
 
     const { data, error } = await supabase

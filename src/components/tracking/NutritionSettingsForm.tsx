@@ -34,8 +34,8 @@ import {
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { 
-  NutritionSettings, 
-  MacroRatio 
+  NutritionSettings,
+  MacroRatio
 } from "@/hooks/useUserNutrition";
 import { 
   ActivityLevel,
