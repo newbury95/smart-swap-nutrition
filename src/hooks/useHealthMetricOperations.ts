@@ -60,7 +60,7 @@ export const useHealthMetricOperations = () => {
     try {
       await addHealthMetric({
         metric_type: 'steps',
-        value: 1000,
+        value: '1000', // Convert to string to match expected type
         source: 'manual'
       });
       refetch();
@@ -91,7 +91,7 @@ export const useHealthMetricOperations = () => {
     try {
       await addHealthMetric({
         metric_type: 'heart-rate',
-        value: 75,
+        value: '75', // Convert to string to match expected type
         source: 'manual'
       });
       refetch();
