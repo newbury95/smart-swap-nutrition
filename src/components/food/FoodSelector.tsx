@@ -51,8 +51,8 @@ export const FoodSelector = ({ onFoodSelect }: FoodSelectorProps) => {
       carbs: customFood.carbs,
       fat: customFood.fat,
       servingSize: customFood.serving_size,
-      supermarket: "Custom",
-      category: "Custom Foods"
+      supermarket: "All Supermarkets", // Changed from "Custom" to a valid Supermarket type
+      category: "All Categories" // Changed from "Custom Foods" to a valid FoodCategory type
     };
     onFoodSelect(food);
     setIsSheetOpen(false);

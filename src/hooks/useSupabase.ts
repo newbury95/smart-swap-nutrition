@@ -17,7 +17,7 @@ export const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, s
 
 export const useSupabase = () => {
   const { isPremium, loading } = usePremiumStatus();
-  const { customFoods, addCustomFood } = useCustomFoods();
+  const { customFoods, addCustomFood, loadCustomFoods } = useCustomFoods();
   const { addHealthMetric, getHealthMetrics } = useHealthMetrics();
   const { getMeals, addMeal, deleteMeal } = useMeals();
   const { getFoodSwaps } = useFoodSwaps();
@@ -27,6 +27,7 @@ export const useSupabase = () => {
     customFoods,
     loading,
     addCustomFood,
+    loadCustomFoods,
     addHealthMetric,
     getHealthMetrics,
     getMeals,

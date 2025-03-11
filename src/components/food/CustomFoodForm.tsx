@@ -21,10 +21,6 @@ export const CustomFoodForm = ({ onSuccess }: CustomFoodFormProps) => {
     protein: "",
     carbs: "",
     fat: "",
-    saturates: "",
-    sugar: "",
-    salt: "",
-    calcium: "",
     serving_size_amount: "",
     serving_size_unit: "g",
   });
@@ -43,10 +39,6 @@ export const CustomFoodForm = ({ onSuccess }: CustomFoodFormProps) => {
         protein: parseFloat(formData.protein) || 0,
         carbs: parseFloat(formData.carbs) || 0,
         fat: parseFloat(formData.fat) || 0,
-        saturates: parseFloat(formData.saturates) || 0,
-        sugar: parseFloat(formData.sugar) || 0,
-        salt: parseFloat(formData.salt) || 0,
-        calcium: parseFloat(formData.calcium) || 0,
         serving_size: servingSize,
       });
 
@@ -63,10 +55,6 @@ export const CustomFoodForm = ({ onSuccess }: CustomFoodFormProps) => {
         protein: "",
         carbs: "",
         fat: "",
-        saturates: "",
-        sugar: "",
-        salt: "",
-        calcium: "",
         serving_size_amount: "",
         serving_size_unit: "g",
       });
@@ -145,68 +133,16 @@ export const CustomFoodForm = ({ onSuccess }: CustomFoodFormProps) => {
         </div>
       </div>
       
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="fat">Fat (g)*</Label>
-          <Input
-            id="fat"
-            type="number" 
-            step="0.1"
-            placeholder="Fat (g)"
-            value={formData.fat}
-            onChange={(e) => setFormData({ ...formData, fat: e.target.value })}
-            required
-          />
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="saturates">Saturates (g)</Label>
-          <Input
-            id="saturates"
-            type="number"
-            step="0.1" 
-            placeholder="Saturates (g)"
-            value={formData.saturates}
-            onChange={(e) => setFormData({ ...formData, saturates: e.target.value })}
-          />
-        </div>
-      </div>
-      
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="sugar">Sugar (g)</Label>
-          <Input
-            id="sugar"
-            type="number"
-            step="0.1" 
-            placeholder="Sugar (g)"
-            value={formData.sugar}
-            onChange={(e) => setFormData({ ...formData, sugar: e.target.value })}
-          />
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="salt">Salt (g)</Label>
-          <Input
-            id="salt"
-            type="number"
-            step="0.1" 
-            placeholder="Salt (g)"
-            value={formData.salt}
-            onChange={(e) => setFormData({ ...formData, salt: e.target.value })}
-          />
-        </div>
-      </div>
-      
       <div className="space-y-2">
-        <Label htmlFor="calcium">Calcium (mg)</Label>
+        <Label htmlFor="fat">Fat (g)*</Label>
         <Input
-          id="calcium"
-          type="number"
-          step="0.1" 
-          placeholder="Calcium (mg)"
-          value={formData.calcium}
-          onChange={(e) => setFormData({ ...formData, calcium: e.target.value })}
+          id="fat"
+          type="number" 
+          step="0.1"
+          placeholder="Fat (g)"
+          value={formData.fat}
+          onChange={(e) => setFormData({ ...formData, fat: e.target.value })}
+          required
         />
       </div>
       
