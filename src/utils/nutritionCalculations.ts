@@ -1,8 +1,15 @@
 
 // Utility functions for nutrition and calorie calculations
 
-export type HealthMetricType = 'weight' | 'height' | 'age' | 'steps' | 'activity' | 'heart-rate' | 
-  'activity_level' | 'fitness_goal' | 'gender' | 'custom_protein_ratio' | 'custom_carbs_ratio' | 'custom_fats_ratio';
+// Database health metric types (as defined in the database)
+export type DbHealthMetricType = 'steps' | 'activity' | 'heart-rate';
+
+// Extended health metric types for application use
+export type HealthMetricType = DbHealthMetricType | 
+  'weight' | 'height' | 'age' | 'activity_level' | 
+  'fitness_goal' | 'gender' | 'custom_protein_ratio' | 
+  'custom_carbs_ratio' | 'custom_fats_ratio';
+
 export type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
 export type FitnessGoal = 'weight_loss' | 'maintenance' | 'mass_building';
 export type Gender = 'male' | 'female' | 'other';

@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { useSupabase } from './useSupabase';
 import { useToast } from './use-toast';
@@ -90,15 +89,27 @@ export const useUserNutrition = () => {
         }
         
         if (activityData.length > 0) {
-          newSettings.activityLevel = activityData[0].value as ActivityLevel;
+          // Ensure proper type casting for ActivityLevel
+          const activityValue = activityData[0].value.toString();
+          if (isValidActivityLevel(activityValue)) {
+            newSettings.activityLevel = activityValue as ActivityLevel;
+          }
         }
         
         if (goalData.length > 0) {
-          newSettings.fitnessGoal = goalData[0].value as FitnessGoal;
+          // Ensure proper type casting for FitnessGoal
+          const goalValue = goalData[0].value.toString();
+          if (isValidFitnessGoal(goalValue)) {
+            newSettings.fitnessGoal = goalValue as FitnessGoal;
+          }
         }
         
         if (genderData.length > 0) {
-          newSettings.gender = genderData[0].value as Gender;
+          // Ensure proper type casting for Gender
+          const genderValue = genderData[0].value.toString();
+          if (isValidGender(genderValue)) {
+            newSettings.gender = genderValue as Gender;
+          }
         }
         
         setSettings(newSettings);
@@ -116,6 +127,19 @@ export const useUserNutrition = () => {
     
     loadHealthMetrics();
   }, [getHealthMetrics, toast]);
+
+  // Helper functions to validate types
+  const isValidActivityLevel = (value: string): value is ActivityLevel => {
+    return ['sedentary', 'light', 'moderate', 'active', 'very_active'].includes(value);
+  };
+
+  const isValidFitnessGoal = (value: string): value is FitnessGoal => {
+    return ['weight_loss', 'maintenance', 'mass_building'].includes(value);
+  };
+
+  const isValidGender = (value: string): value is Gender => {
+    return ['male', 'female', 'other'].includes(value);
+  };
 
   // Calculate nutrition values whenever settings change
   useEffect(() => {

@@ -4,9 +4,10 @@ import { useToast } from "@/hooks/use-toast";
 import { useSupabase } from "@/hooks/useSupabase";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { DbHealthMetricType } from "@/utils/nutritionCalculations";
 
 // Define the types
-export type MetricType = 'heart-rate' | 'steps' | 'activity';
+export type MetricType = DbHealthMetricType;
 
 export interface HealthMetric {
   metric_type: MetricType;
