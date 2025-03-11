@@ -1,5 +1,5 @@
 
-import { supabase } from './useSupabase';
+import { supabase } from '@/integrations/supabase/client';
 import type { HealthMetric } from './types/supabase';
 import { HealthMetricType } from '@/utils/nutritionCalculations';
 
