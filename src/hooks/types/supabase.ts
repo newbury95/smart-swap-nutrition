@@ -39,3 +39,25 @@ export type FoodSwap = {
   calorie_difference: number;
   protein_difference: number;
 };
+
+export type MealPlan = {
+  id: string;
+  type: string;
+  name: string;
+  description: string;
+  dietary_restrictions: string[];
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  meal_plan_days?: MealPlanDay[];
+};
+
+export type MealPlanDay = {
+  id: string;
+  day_number: number;
+  breakfast: string[];
+  lunch: string[];
+  dinner: string[];
+  snacks: string[];
+};

@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MealPlan, DietaryRestriction, Food } from '@/components/food/types';
+import { MealPlan, DietaryRestriction, Food, MealPlanType, FoodCategory, Supermarket } from '@/components/food/types';
 
 // Meal plan categories
 const mealPlanTypes = [
@@ -43,44 +43,56 @@ const sampleMealPlans: MealPlan[] = [
           {
             id: "b1",
             name: "Oatmeal with berries",
+            brand: "Generic",
             calories: 300,
             protein: 10,
             carbs: 45,
             fat: 5,
-            servingSize: "1 bowl"
+            servingSize: "1 bowl",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ],
         lunch: [
           {
             id: "l1",
             name: "Chicken salad",
+            brand: "Homemade",
             calories: 400,
             protein: 35,
             carbs: 20,
             fat: 15,
-            servingSize: "1 plate"
+            servingSize: "1 plate",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ],
         dinner: [
           {
             id: "d1",
             name: "Grilled fish with vegetables",
+            brand: "Homemade",
             calories: 450,
             protein: 35,
             carbs: 25,
             fat: 15,
-            servingSize: "1 plate"
+            servingSize: "1 plate",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ],
         snacks: [
           {
             id: "s1",
             name: "Greek yogurt",
+            brand: "Generic",
             calories: 150,
             protein: 15,
             carbs: 10,
             fat: 5,
-            servingSize: "1 cup"
+            servingSize: "1 cup",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ]
       },
@@ -90,44 +102,56 @@ const sampleMealPlans: MealPlan[] = [
           {
             id: "b2",
             name: "Egg white omelet",
+            brand: "Homemade",
             calories: 250,
             protein: 20,
             carbs: 5,
             fat: 10,
-            servingSize: "1 omelet"
+            servingSize: "1 omelet",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ],
         lunch: [
           {
             id: "l2",
             name: "Tuna sandwich",
+            brand: "Homemade",
             calories: 350,
             protein: 30,
             carbs: 30,
             fat: 10,
-            servingSize: "1 sandwich"
+            servingSize: "1 sandwich",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ],
         dinner: [
           {
             id: "d2",
             name: "Turkey meatballs with zucchini noodles",
+            brand: "Homemade",
             calories: 400,
             protein: 35,
             carbs: 20,
             fat: 15,
-            servingSize: "1 bowl"
+            servingSize: "1 bowl",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ],
         snacks: [
           {
             id: "s2",
             name: "Apple with peanut butter",
+            brand: "Generic",
             calories: 200,
             protein: 5,
             carbs: 25,
             fat: 8,
-            servingSize: "1 apple, 1 tbsp peanut butter"
+            servingSize: "1 apple, 1 tbsp peanut butter",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ]
       },
@@ -137,44 +161,56 @@ const sampleMealPlans: MealPlan[] = [
           {
             id: "b3",
             name: "Protein smoothie",
+            brand: "Homemade",
             calories: 300,
             protein: 25,
             carbs: 30,
             fat: 5,
-            servingSize: "1 glass"
+            servingSize: "1 glass",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ],
         lunch: [
           {
             id: "l3",
             name: "Quinoa bowl with vegetables",
+            brand: "Homemade",
             calories: 400,
             protein: 15,
             carbs: 60,
             fat: 10,
-            servingSize: "1 bowl"
+            servingSize: "1 bowl",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ],
         dinner: [
           {
             id: "d3",
             name: "Grilled chicken with sweet potato",
+            brand: "Homemade",
             calories: 450,
             protein: 40,
             carbs: 30,
             fat: 10,
-            servingSize: "1 plate"
+            servingSize: "1 plate",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ],
         snacks: [
           {
             id: "s3",
             name: "Cottage cheese with berries",
+            brand: "Generic",
             calories: 150,
             protein: 15,
             carbs: 10,
             fat: 2,
-            servingSize: "1/2 cup"
+            servingSize: "1/2 cup",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ]
       }
@@ -197,44 +233,56 @@ const sampleMealPlans: MealPlan[] = [
           {
             id: "bp1",
             name: "Protein pancakes",
+            brand: "Homemade",
             calories: 400,
             protein: 30,
             carbs: 40,
             fat: 10,
-            servingSize: "2 pancakes"
+            servingSize: "2 pancakes",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ],
         lunch: [
           {
             id: "lp1",
             name: "Chicken breast with quinoa",
+            brand: "Homemade",
             calories: 500,
             protein: 45,
             carbs: 40,
             fat: 10,
-            servingSize: "1 plate"
+            servingSize: "1 plate",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ],
         dinner: [
           {
             id: "dp1",
             name: "Salmon with asparagus",
+            brand: "Homemade",
             calories: 550,
             protein: 40,
             carbs: 20,
             fat: 25,
-            servingSize: "1 plate"
+            servingSize: "1 plate",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ],
         snacks: [
           {
             id: "sp1",
             name: "Protein shake",
+            brand: "Generic",
             calories: 250,
             protein: 30,
             carbs: 10,
             fat: 5,
-            servingSize: "1 shake"
+            servingSize: "1 shake",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ]
       },
@@ -244,44 +292,56 @@ const sampleMealPlans: MealPlan[] = [
           {
             id: "bp2",
             name: "Greek yogurt with nuts and berries",
+            brand: "Generic",
             calories: 350,
             protein: 25,
             carbs: 20,
             fat: 15,
-            servingSize: "1 bowl"
+            servingSize: "1 bowl",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ],
         lunch: [
           {
             id: "lp2",
             name: "Turkey and avocado wrap",
+            brand: "Homemade",
             calories: 500,
             protein: 40,
             carbs: 30,
             fat: 20,
-            servingSize: "1 wrap"
+            servingSize: "1 wrap",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ],
         dinner: [
           {
             id: "dp2",
             name: "Beef stir fry with vegetables",
+            brand: "Homemade",
             calories: 600,
             protein: 45,
             carbs: 40,
             fat: 20,
-            servingSize: "1 plate"
+            servingSize: "1 plate",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ],
         snacks: [
           {
             id: "sp2",
             name: "Cottage cheese with pineapple",
+            brand: "Generic",
             calories: 200,
             protein: 20,
             carbs: 15,
             fat: 5,
-            servingSize: "1 cup"
+            servingSize: "1 cup",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ]
       },
@@ -291,44 +351,56 @@ const sampleMealPlans: MealPlan[] = [
           {
             id: "bp3",
             name: "Egg scramble with vegetables",
+            brand: "Homemade",
             calories: 400,
             protein: 30,
             carbs: 15,
             fat: 20,
-            servingSize: "3 eggs"
+            servingSize: "3 eggs",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ],
         lunch: [
           {
             id: "lp3",
             name: "Tuna salad with olive oil",
+            brand: "Homemade",
             calories: 450,
             protein: 40,
             carbs: 10,
             fat: 25,
-            servingSize: "1 bowl"
+            servingSize: "1 bowl",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ],
         dinner: [
           {
             id: "dp3",
             name: "Chicken thighs with brown rice",
+            brand: "Homemade",
             calories: 550,
             protein: 40,
             carbs: 50,
             fat: 15,
-            servingSize: "1 plate"
+            servingSize: "1 plate",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ],
         snacks: [
           {
             id: "sp3",
             name: "Protein bar",
+            brand: "Generic",
             calories: 250,
             protein: 20,
             carbs: 25,
             fat: 8,
-            servingSize: "1 bar"
+            servingSize: "1 bar",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ]
       }
@@ -336,7 +408,7 @@ const sampleMealPlans: MealPlan[] = [
   },
   {
     id: "3",
-    type: "Vegetarian",
+    type: "Balanced",
     name: "Vegetarian Plan",
     description: "Plant-based nutrition without meat",
     dietaryRestrictions: ["Vegetarian"],
@@ -351,44 +423,56 @@ const sampleMealPlans: MealPlan[] = [
           {
             id: "bv1",
             name: "Overnight oats with almond milk",
+            brand: "Homemade",
             calories: 350,
             protein: 12,
             carbs: 60,
             fat: 8,
-            servingSize: "1 jar"
+            servingSize: "1 jar",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ],
         lunch: [
           {
             id: "lv1",
             name: "Lentil soup with whole grain bread",
+            brand: "Homemade",
             calories: 450,
             protein: 20,
             carbs: 70,
             fat: 10,
-            servingSize: "1 bowl, 1 slice"
+            servingSize: "1 bowl, 1 slice",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ],
         dinner: [
           {
             id: "dv1",
             name: "Vegetable stir fry with tofu",
+            brand: "Homemade",
             calories: 400,
             protein: 25,
             carbs: 40,
             fat: 15,
-            servingSize: "1 plate"
+            servingSize: "1 plate",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ],
         snacks: [
           {
             id: "sv1",
             name: "Hummus with carrot sticks",
+            brand: "Homemade",
             calories: 200,
             protein: 8,
             carbs: 20,
             fat: 10,
-            servingSize: "1/4 cup hummus, 1 cup carrots"
+            servingSize: "1/4 cup hummus, 1 cup carrots",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ]
       },
@@ -398,44 +482,56 @@ const sampleMealPlans: MealPlan[] = [
           {
             id: "bv2",
             name: "Smoothie bowl with fruits and seeds",
+            brand: "Homemade",
             calories: 380,
             protein: 15,
             carbs: 65,
             fat: 8,
-            servingSize: "1 bowl"
+            servingSize: "1 bowl",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ],
         lunch: [
           {
             id: "lv2",
             name: "Quinoa salad with chickpeas",
+            brand: "Homemade",
             calories: 420,
             protein: 18,
             carbs: 65,
             fat: 12,
-            servingSize: "1 bowl"
+            servingSize: "1 bowl",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ],
         dinner: [
           {
             id: "dv2",
             name: "Bean and vegetable chili",
+            brand: "Homemade",
             calories: 450,
             protein: 22,
             carbs: 60,
             fat: 15,
-            servingSize: "1 bowl"
+            servingSize: "1 bowl",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ],
         snacks: [
           {
             id: "sv2",
             name: "Mixed nuts and dried fruits",
+            brand: "Generic",
             calories: 250,
             protein: 8,
             carbs: 25,
             fat: 15,
-            servingSize: "1/4 cup"
+            servingSize: "1/4 cup",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ]
       },
@@ -445,44 +541,56 @@ const sampleMealPlans: MealPlan[] = [
           {
             id: "bv3",
             name: "Yogurt parfait with granola",
+            brand: "Homemade",
             calories: 320,
             protein: 15,
             carbs: 45,
             fat: 10,
-            servingSize: "1 parfait"
+            servingSize: "1 parfait",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ],
         lunch: [
           {
             id: "lv3",
             name: "Vegetable wrap with avocado",
+            brand: "Homemade",
             calories: 400,
             protein: 12,
             carbs: 50,
             fat: 20,
-            servingSize: "1 wrap"
+            servingSize: "1 wrap",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ],
         dinner: [
           {
             id: "dv3",
             name: "Eggplant parmesan with salad",
+            brand: "Homemade",
             calories: 500,
             protein: 20,
             carbs: 40,
             fat: 25,
-            servingSize: "1 portion"
+            servingSize: "1 portion",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ],
         snacks: [
           {
             id: "sv3",
             name: "Edamame",
+            brand: "Generic",
             calories: 150,
             protein: 12,
             carbs: 10,
             fat: 5,
-            servingSize: "1 cup"
+            servingSize: "1 cup",
+            supermarket: "All Supermarkets",
+            category: "All Categories"
           }
         ]
       }
@@ -499,16 +607,14 @@ const MealPlansPage = () => {
   const [showMealPlanDetails, setShowMealPlanDetails] = useState(false);
   const [selectedFoods, setSelectedFoods] = useState<Food[]>([]);
 
-  // Fetch meal plans using sample data
   useEffect(() => {
     const loadMealPlans = async () => {
       setIsLoading(true);
       try {
-        // Instead of fetching from Supabase, use the sample data
         setTimeout(() => {
           setMealPlans(sampleMealPlans);
           setIsLoading(false);
-        }, 1000); // Simulate loading delay
+        }, 1000);
       } catch (error) {
         console.error("Error loading meal plans:", error);
         toast({
@@ -523,7 +629,6 @@ const MealPlansPage = () => {
     loadMealPlans();
   }, [toast]);
 
-  // Helper function to transform food data
   const transformFoodItem = (foodData: any): Food => {
     return {
       id: foodData.id,
@@ -543,7 +648,6 @@ const MealPlansPage = () => {
     setIsLoading(true);
     
     try {
-      // Simulate refresh with sample data
       setTimeout(() => {
         setMealPlans(sampleMealPlans);
         setIsLoading(false);
@@ -552,7 +656,7 @@ const MealPlansPage = () => {
           title: "Meal Plans Refreshed",
           description: "Your meal plan suggestions have been updated"
         });
-      }, 1000); // Simulate loading delay
+      }, 1000);
     } catch (error) {
       console.error("Error refreshing meal plans:", error);
       toast({
@@ -886,131 +990,3 @@ const MealPlansPage = () => {
                               <Button 
                                 size="sm" 
                                 variant="ghost"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleAddFoodToDiary(item);
-                                }}
-                              >
-                                Add
-                              </Button>
-                            </div>
-                          ))}
-                        </div>
-                        
-                        {day.lunch.length > 1 && (
-                          <>
-                            <h4 className="font-medium text-sm text-gray-600 mb-1 mt-3">Lunch - Option 2</h4>
-                            <div className="bg-gray-50 rounded-lg overflow-hidden">
-                              {day.lunch.slice(Math.ceil(day.lunch.length/2)).map((item, i) => (
-                                <div key={i} className="flex justify-between items-center p-2 border-b last:border-0">
-                                  <div className="flex-1">
-                                    <p className="font-medium">{item.name}</p>
-                                    <div className="text-xs text-gray-500 flex gap-2">
-                                      <span>{item.calories} kcal</span>
-                                      <span>{item.protein}g protein</span>
-                                    </div>
-                                  </div>
-                                  <Button 
-                                    size="sm" 
-                                    variant="ghost"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleAddFoodToDiary(item);
-                                    }}
-                                  >
-                                    Add
-                                  </Button>
-                                </div>
-                              ))}
-                            </div>
-                          </>
-                        )}
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-medium text-sm text-gray-600 mb-1">Dinner - Option 1</h4>
-                        <div className="bg-gray-50 rounded-lg overflow-hidden">
-                          {day.dinner.slice(0, Math.ceil(day.dinner.length/2)).map((item, i) => (
-                            <div key={i} className="flex justify-between items-center p-2 border-b last:border-0">
-                              <div className="flex-1">
-                                <p className="font-medium">{item.name}</p>
-                                <div className="text-xs text-gray-500 flex gap-2">
-                                  <span>{item.calories} kcal</span>
-                                  <span>{item.protein}g protein</span>
-                                </div>
-                              </div>
-                              <Button 
-                                size="sm" 
-                                variant="ghost"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleAddFoodToDiary(item);
-                                }}
-                              >
-                                Add
-                              </Button>
-                            </div>
-                          ))}
-                        </div>
-                        
-                        {day.dinner.length > 1 && (
-                          <>
-                            <h4 className="font-medium text-sm text-gray-600 mb-1 mt-3">Dinner - Option 2</h4>
-                            <div className="bg-gray-50 rounded-lg overflow-hidden">
-                              {day.dinner.slice(Math.ceil(day.dinner.length/2)).map((item, i) => (
-                                <div key={i} className="flex justify-between items-center p-2 border-b last:border-0">
-                                  <div className="flex-1">
-                                    <p className="font-medium">{item.name}</p>
-                                    <div className="text-xs text-gray-500 flex gap-2">
-                                      <span>{item.calories} kcal</span>
-                                      <span>{item.protein}g protein</span>
-                                    </div>
-                                  </div>
-                                  <Button 
-                                    size="sm" 
-                                    variant="ghost"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleAddFoodToDiary(item);
-                                    }}
-                                  >
-                                    Add
-                                  </Button>
-                                </div>
-                              ))}
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    </TabsContent>
-                  ))}
-                </Tabs>
-              </div>
-              
-              <div className="mt-6">
-                <Button onClick={handleAddToDiary} className="w-full">
-                  Add All Selected to My Food Diary
-                </Button>
-              </div>
-            </>
-          )}
-        </SheetContent>
-      </Sheet>
-    </div>
-  );
-};
-
-// Helper function to get plan descriptions
-const getPlanDescription = (type: string) => {
-  switch(type) {
-    case "Low Calorie": return "Meals with reduced calories for weight management";
-    case "High Protein": return "Protein-focused meals ideal for muscle building";
-    case "High Carb": return "Carbohydrate-rich meals perfect for athletes";
-    case "Balanced": return "Well-balanced nutrition for overall health";
-    case "Weight Loss": return "Structured meal plans designed for weight loss";
-    case "Diabetic Friendly": return "Meals suitable for managing blood sugar levels";
-    default: return "Customized meal plan";
-  }
-};
-
-export default MealPlansPage;
