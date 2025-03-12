@@ -35,6 +35,7 @@ export const calculateBMR = (
   gender: Gender
 ): number => {
   if (weight <= 0 || height <= 0 || age <= 0) {
+    console.log('Invalid inputs for BMR calculation:', { weight, height, age });
     return 0;
   }
   
@@ -51,6 +52,7 @@ export const calculateBMR = (
     bmr -= 78;
   }
   
+  console.log('BMR calculated:', bmr, 'with params:', { weight, height, age, gender });
   return Math.round(bmr);
 };
 
@@ -65,21 +67,31 @@ export const activityMultipliers: Record<ActivityLevel, number> = {
 
 // Calculate Total Daily Energy Expenditure (TDEE)
 export const calculateTDEE = (bmr: number, activityLevel: ActivityLevel): number => {
-  return Math.round(bmr * activityMultipliers[activityLevel]);
+  const tdee = Math.round(bmr * activityMultipliers[activityLevel]);
+  console.log('TDEE calculated:', tdee, 'with BMR:', bmr, 'and activity level:', activityLevel);
+  return tdee;
 };
 
 // Calculate target calories based on goal
 export const calculateCalorieTarget = (tdee: number, goal: FitnessGoal): number => {
+  let target;
+  
   switch (goal) {
     case 'weight_loss':
-      return Math.round(tdee * 0.8); // 20% deficit
+      target = Math.round(tdee * 0.8); // 20% deficit
+      break;
     case 'maintenance':
-      return tdee;
+      target = tdee;
+      break;
     case 'mass_building':
-      return Math.round(tdee * 1.15); // 15% surplus
+      target = Math.round(tdee * 1.15); // 15% surplus
+      break;
     default:
-      return tdee;
+      target = tdee;
   }
+  
+  console.log('Calorie target calculated:', target, 'based on TDEE:', tdee, 'and goal:', goal);
+  return target;
 };
 
 // Convert calorie target to macronutrient grams
@@ -92,5 +104,6 @@ export const calculateMacroGrams = (
   const carbs = Math.round((calorieTarget * (macroRatio.carbs / 100)) / 4);
   const fats = Math.round((calorieTarget * (macroRatio.fats / 100)) / 9);
   
+  console.log('Macro grams calculated:', { protein, carbs, fats }, 'based on calorie target:', calorieTarget);
   return { protein, carbs, fats };
 };

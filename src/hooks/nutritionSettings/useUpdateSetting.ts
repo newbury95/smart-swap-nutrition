@@ -16,6 +16,8 @@ export const useUpdateSetting = (
     key: K, 
     value: NutritionSettings[K]
   ) => {
+    console.log(`Updating setting "${key}" to:`, value);
+    
     setSettings(prev => ({ ...prev, [key]: value }));
     
     // Save to database if it's a basic metric

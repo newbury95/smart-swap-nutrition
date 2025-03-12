@@ -72,6 +72,8 @@ const TrackingPage = () => {
     );
   }
 
+  console.log('TrackingPage rendering with calculations:', calculations);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <TrackingHeader />

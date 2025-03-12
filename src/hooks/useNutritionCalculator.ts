@@ -22,6 +22,8 @@ export const useNutritionCalculator = (settings: NutritionSettings) => {
   useEffect(() => {
     const { weight, height, age, gender, activityLevel, fitnessGoal, customMacroRatio } = settings;
     
+    console.log('Calculating nutrition with settings:', settings);
+    
     // Calculate BMR, TDEE, and calorie target
     const bmr = calculateBMR(weight, height, age, gender);
     const tdee = calculateTDEE(bmr, activityLevel);
@@ -34,6 +36,14 @@ export const useNutritionCalculator = (settings: NutritionSettings) => {
     const macros = calculateMacroGrams(calorieTarget, macroRatios);
     
     setCalculations({
+      bmr,
+      tdee,
+      calorieTarget,
+      macros,
+      macroRatios,
+    });
+    
+    console.log('New calculations set:', {
       bmr,
       tdee,
       calorieTarget,
