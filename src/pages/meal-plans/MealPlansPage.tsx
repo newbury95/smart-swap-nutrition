@@ -8,7 +8,6 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MealPlan, DietaryRestriction, Food } from '@/components/food/types';
-import { supabase } from '@/integrations/supabase/client';
 
 // Meal plan categories
 const mealPlanTypes = [
@@ -25,6 +24,472 @@ const dietaryRestrictions: DietaryRestriction[] = [
   "Vegetarian", "Vegan", "Gluten-Free", "Dairy-Free", "Low-Carb", "Diabetic-Friendly"
 ];
 
+// Sample meal plan data since we don't have the actual Supabase table
+const sampleMealPlans: MealPlan[] = [
+  {
+    id: "1",
+    type: "Low Calorie",
+    name: "1500 Calorie Plan",
+    description: "A balanced diet with reduced calories",
+    dietaryRestrictions: ["None"],
+    calories: 1500,
+    protein: 100,
+    carbs: 150,
+    fat: 50,
+    days: [
+      {
+        day: 1,
+        breakfast: [
+          {
+            id: "b1",
+            name: "Oatmeal with berries",
+            calories: 300,
+            protein: 10,
+            carbs: 45,
+            fat: 5,
+            servingSize: "1 bowl"
+          }
+        ],
+        lunch: [
+          {
+            id: "l1",
+            name: "Chicken salad",
+            calories: 400,
+            protein: 35,
+            carbs: 20,
+            fat: 15,
+            servingSize: "1 plate"
+          }
+        ],
+        dinner: [
+          {
+            id: "d1",
+            name: "Grilled fish with vegetables",
+            calories: 450,
+            protein: 35,
+            carbs: 25,
+            fat: 15,
+            servingSize: "1 plate"
+          }
+        ],
+        snacks: [
+          {
+            id: "s1",
+            name: "Greek yogurt",
+            calories: 150,
+            protein: 15,
+            carbs: 10,
+            fat: 5,
+            servingSize: "1 cup"
+          }
+        ]
+      },
+      {
+        day: 2,
+        breakfast: [
+          {
+            id: "b2",
+            name: "Egg white omelet",
+            calories: 250,
+            protein: 20,
+            carbs: 5,
+            fat: 10,
+            servingSize: "1 omelet"
+          }
+        ],
+        lunch: [
+          {
+            id: "l2",
+            name: "Tuna sandwich",
+            calories: 350,
+            protein: 30,
+            carbs: 30,
+            fat: 10,
+            servingSize: "1 sandwich"
+          }
+        ],
+        dinner: [
+          {
+            id: "d2",
+            name: "Turkey meatballs with zucchini noodles",
+            calories: 400,
+            protein: 35,
+            carbs: 20,
+            fat: 15,
+            servingSize: "1 bowl"
+          }
+        ],
+        snacks: [
+          {
+            id: "s2",
+            name: "Apple with peanut butter",
+            calories: 200,
+            protein: 5,
+            carbs: 25,
+            fat: 8,
+            servingSize: "1 apple, 1 tbsp peanut butter"
+          }
+        ]
+      },
+      {
+        day: 3,
+        breakfast: [
+          {
+            id: "b3",
+            name: "Protein smoothie",
+            calories: 300,
+            protein: 25,
+            carbs: 30,
+            fat: 5,
+            servingSize: "1 glass"
+          }
+        ],
+        lunch: [
+          {
+            id: "l3",
+            name: "Quinoa bowl with vegetables",
+            calories: 400,
+            protein: 15,
+            carbs: 60,
+            fat: 10,
+            servingSize: "1 bowl"
+          }
+        ],
+        dinner: [
+          {
+            id: "d3",
+            name: "Grilled chicken with sweet potato",
+            calories: 450,
+            protein: 40,
+            carbs: 30,
+            fat: 10,
+            servingSize: "1 plate"
+          }
+        ],
+        snacks: [
+          {
+            id: "s3",
+            name: "Cottage cheese with berries",
+            calories: 150,
+            protein: 15,
+            carbs: 10,
+            fat: 2,
+            servingSize: "1/2 cup"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "2",
+    type: "High Protein",
+    name: "High Protein Plan",
+    description: "Protein-focused meals for muscle building",
+    dietaryRestrictions: ["None"],
+    calories: 2200,
+    protein: 180,
+    carbs: 180,
+    fat: 60,
+    days: [
+      {
+        day: 1,
+        breakfast: [
+          {
+            id: "bp1",
+            name: "Protein pancakes",
+            calories: 400,
+            protein: 30,
+            carbs: 40,
+            fat: 10,
+            servingSize: "2 pancakes"
+          }
+        ],
+        lunch: [
+          {
+            id: "lp1",
+            name: "Chicken breast with quinoa",
+            calories: 500,
+            protein: 45,
+            carbs: 40,
+            fat: 10,
+            servingSize: "1 plate"
+          }
+        ],
+        dinner: [
+          {
+            id: "dp1",
+            name: "Salmon with asparagus",
+            calories: 550,
+            protein: 40,
+            carbs: 20,
+            fat: 25,
+            servingSize: "1 plate"
+          }
+        ],
+        snacks: [
+          {
+            id: "sp1",
+            name: "Protein shake",
+            calories: 250,
+            protein: 30,
+            carbs: 10,
+            fat: 5,
+            servingSize: "1 shake"
+          }
+        ]
+      },
+      {
+        day: 2,
+        breakfast: [
+          {
+            id: "bp2",
+            name: "Greek yogurt with nuts and berries",
+            calories: 350,
+            protein: 25,
+            carbs: 20,
+            fat: 15,
+            servingSize: "1 bowl"
+          }
+        ],
+        lunch: [
+          {
+            id: "lp2",
+            name: "Turkey and avocado wrap",
+            calories: 500,
+            protein: 40,
+            carbs: 30,
+            fat: 20,
+            servingSize: "1 wrap"
+          }
+        ],
+        dinner: [
+          {
+            id: "dp2",
+            name: "Beef stir fry with vegetables",
+            calories: 600,
+            protein: 45,
+            carbs: 40,
+            fat: 20,
+            servingSize: "1 plate"
+          }
+        ],
+        snacks: [
+          {
+            id: "sp2",
+            name: "Cottage cheese with pineapple",
+            calories: 200,
+            protein: 20,
+            carbs: 15,
+            fat: 5,
+            servingSize: "1 cup"
+          }
+        ]
+      },
+      {
+        day: 3,
+        breakfast: [
+          {
+            id: "bp3",
+            name: "Egg scramble with vegetables",
+            calories: 400,
+            protein: 30,
+            carbs: 15,
+            fat: 20,
+            servingSize: "3 eggs"
+          }
+        ],
+        lunch: [
+          {
+            id: "lp3",
+            name: "Tuna salad with olive oil",
+            calories: 450,
+            protein: 40,
+            carbs: 10,
+            fat: 25,
+            servingSize: "1 bowl"
+          }
+        ],
+        dinner: [
+          {
+            id: "dp3",
+            name: "Chicken thighs with brown rice",
+            calories: 550,
+            protein: 40,
+            carbs: 50,
+            fat: 15,
+            servingSize: "1 plate"
+          }
+        ],
+        snacks: [
+          {
+            id: "sp3",
+            name: "Protein bar",
+            calories: 250,
+            protein: 20,
+            carbs: 25,
+            fat: 8,
+            servingSize: "1 bar"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "3",
+    type: "Vegetarian",
+    name: "Vegetarian Plan",
+    description: "Plant-based nutrition without meat",
+    dietaryRestrictions: ["Vegetarian"],
+    calories: 1800,
+    protein: 80,
+    carbs: 220,
+    fat: 60,
+    days: [
+      {
+        day: 1,
+        breakfast: [
+          {
+            id: "bv1",
+            name: "Overnight oats with almond milk",
+            calories: 350,
+            protein: 12,
+            carbs: 60,
+            fat: 8,
+            servingSize: "1 jar"
+          }
+        ],
+        lunch: [
+          {
+            id: "lv1",
+            name: "Lentil soup with whole grain bread",
+            calories: 450,
+            protein: 20,
+            carbs: 70,
+            fat: 10,
+            servingSize: "1 bowl, 1 slice"
+          }
+        ],
+        dinner: [
+          {
+            id: "dv1",
+            name: "Vegetable stir fry with tofu",
+            calories: 400,
+            protein: 25,
+            carbs: 40,
+            fat: 15,
+            servingSize: "1 plate"
+          }
+        ],
+        snacks: [
+          {
+            id: "sv1",
+            name: "Hummus with carrot sticks",
+            calories: 200,
+            protein: 8,
+            carbs: 20,
+            fat: 10,
+            servingSize: "1/4 cup hummus, 1 cup carrots"
+          }
+        ]
+      },
+      {
+        day: 2,
+        breakfast: [
+          {
+            id: "bv2",
+            name: "Smoothie bowl with fruits and seeds",
+            calories: 380,
+            protein: 15,
+            carbs: 65,
+            fat: 8,
+            servingSize: "1 bowl"
+          }
+        ],
+        lunch: [
+          {
+            id: "lv2",
+            name: "Quinoa salad with chickpeas",
+            calories: 420,
+            protein: 18,
+            carbs: 65,
+            fat: 12,
+            servingSize: "1 bowl"
+          }
+        ],
+        dinner: [
+          {
+            id: "dv2",
+            name: "Bean and vegetable chili",
+            calories: 450,
+            protein: 22,
+            carbs: 60,
+            fat: 15,
+            servingSize: "1 bowl"
+          }
+        ],
+        snacks: [
+          {
+            id: "sv2",
+            name: "Mixed nuts and dried fruits",
+            calories: 250,
+            protein: 8,
+            carbs: 25,
+            fat: 15,
+            servingSize: "1/4 cup"
+          }
+        ]
+      },
+      {
+        day: 3,
+        breakfast: [
+          {
+            id: "bv3",
+            name: "Yogurt parfait with granola",
+            calories: 320,
+            protein: 15,
+            carbs: 45,
+            fat: 10,
+            servingSize: "1 parfait"
+          }
+        ],
+        lunch: [
+          {
+            id: "lv3",
+            name: "Vegetable wrap with avocado",
+            calories: 400,
+            protein: 12,
+            carbs: 50,
+            fat: 20,
+            servingSize: "1 wrap"
+          }
+        ],
+        dinner: [
+          {
+            id: "dv3",
+            name: "Eggplant parmesan with salad",
+            calories: 500,
+            protein: 20,
+            carbs: 40,
+            fat: 25,
+            servingSize: "1 portion"
+          }
+        ],
+        snacks: [
+          {
+            id: "sv3",
+            name: "Edamame",
+            calories: 150,
+            protein: 12,
+            carbs: 10,
+            fat: 5,
+            servingSize: "1 cup"
+          }
+        ]
+      }
+    ]
+  }
+];
+
 const MealPlansPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -34,83 +499,31 @@ const MealPlansPage = () => {
   const [showMealPlanDetails, setShowMealPlanDetails] = useState(false);
   const [selectedFoods, setSelectedFoods] = useState<Food[]>([]);
 
-  // Fetch meal plans from database
+  // Fetch meal plans using sample data
   useEffect(() => {
-    const fetchMealPlans = async () => {
+    const loadMealPlans = async () => {
       setIsLoading(true);
       try {
-        const { data, error } = await supabase
-          .from('meal_plans')
-          .select(`
-            id, 
-            type, 
-            name, 
-            description, 
-            dietary_restrictions, 
-            calories, 
-            protein, 
-            carbs, 
-            fat,
-            meal_plan_days (
-              day,
-              breakfast:meal_plan_items(food_id, food_data:foods(*)),
-              lunch:meal_plan_items(food_id, food_data:foods(*)),
-              dinner:meal_plan_items(food_id, food_data:foods(*)),
-              snacks:meal_plan_items(food_id, food_data:foods(*))
-            )
-          `);
-
-        if (error) {
-          throw error;
-        }
-
-        if (data && data.length > 0) {
-          // Transform database data to match MealPlan interface
-          const transformedPlans: MealPlan[] = data.map(plan => ({
-            id: plan.id,
-            type: plan.type,
-            name: plan.name,
-            description: plan.description,
-            dietaryRestrictions: plan.dietary_restrictions || ["None"],
-            calories: plan.calories,
-            protein: plan.protein,
-            carbs: plan.carbs,
-            fat: plan.fat,
-            days: plan.meal_plan_days.map(day => ({
-              day: day.day,
-              breakfast: day.breakfast.map(item => transformFoodItem(item.food_data)),
-              lunch: day.lunch.map(item => transformFoodItem(item.food_data)),
-              dinner: day.dinner.map(item => transformFoodItem(item.food_data)),
-              snacks: day.snacks.map(item => transformFoodItem(item.food_data))
-            }))
-          }));
-
-          setMealPlans(transformedPlans);
-        } else {
-          // If no data, set empty array
-          setMealPlans([]);
-          toast({
-            variant: "destructive",
-            title: "No Meal Plans Found",
-            description: "We couldn't find any meal plans. Please check back later."
-          });
-        }
+        // Instead of fetching from Supabase, use the sample data
+        setTimeout(() => {
+          setMealPlans(sampleMealPlans);
+          setIsLoading(false);
+        }, 1000); // Simulate loading delay
       } catch (error) {
-        console.error("Error fetching meal plans:", error);
+        console.error("Error loading meal plans:", error);
         toast({
           variant: "destructive",
           title: "Error",
           description: "Failed to load meal plans."
         });
-      } finally {
         setIsLoading(false);
       }
     };
 
-    fetchMealPlans();
+    loadMealPlans();
   }, [toast]);
 
-  // Helper function to transform food data from database to Food interface
+  // Helper function to transform food data
   const transformFoodItem = (foodData: any): Food => {
     return {
       id: foodData.id,
@@ -130,67 +543,16 @@ const MealPlansPage = () => {
     setIsLoading(true);
     
     try {
-      const { data, error } = await supabase
-        .from('meal_plans')
-        .select(`
-          id, 
-          type, 
-          name, 
-          description, 
-          dietary_restrictions, 
-          calories, 
-          protein, 
-          carbs, 
-          fat,
-          meal_plan_days (
-            day,
-            breakfast:meal_plan_items(food_id, food_data:foods(*)),
-            lunch:meal_plan_items(food_id, food_data:foods(*)),
-            dinner:meal_plan_items(food_id, food_data:foods(*)),
-            snacks:meal_plan_items(food_id, food_data:foods(*))
-          )
-        `)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        throw error;
-      }
-
-      if (data && data.length > 0) {
-        // Transform database data to match MealPlan interface
-        const transformedPlans: MealPlan[] = data.map(plan => ({
-          id: plan.id,
-          type: plan.type,
-          name: plan.name,
-          description: plan.description,
-          dietaryRestrictions: plan.dietary_restrictions || ["None"],
-          calories: plan.calories,
-          protein: plan.protein,
-          carbs: plan.carbs,
-          fat: plan.fat,
-          days: plan.meal_plan_days.map(day => ({
-            day: day.day,
-            breakfast: day.breakfast.map(item => transformFoodItem(item.food_data)),
-            lunch: day.lunch.map(item => transformFoodItem(item.food_data)),
-            dinner: day.dinner.map(item => transformFoodItem(item.food_data)),
-            snacks: day.snacks.map(item => transformFoodItem(item.food_data))
-          }))
-        }));
-
-        setMealPlans(transformedPlans);
+      // Simulate refresh with sample data
+      setTimeout(() => {
+        setMealPlans(sampleMealPlans);
+        setIsLoading(false);
         
         toast({
           title: "Meal Plans Refreshed",
           description: "Your meal plan suggestions have been updated"
         });
-      } else {
-        setMealPlans([]);
-        toast({
-          variant: "destructive",
-          title: "No Meal Plans Found",
-          description: "We couldn't find any meal plans. Please check back later."
-        });
-      }
+      }, 1000); // Simulate loading delay
     } catch (error) {
       console.error("Error refreshing meal plans:", error);
       toast({
@@ -198,7 +560,6 @@ const MealPlansPage = () => {
         title: "Error",
         description: "Failed to refresh meal plans."
       });
-    } finally {
       setIsLoading(false);
     }
   };

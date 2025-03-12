@@ -21,7 +21,7 @@ export const useUpdateSetting = (
     // Save to database if it's a basic metric
     if (metricTypeMap[key as string]) {
       // Handle special case for customRatio which needs to be stringified
-      if (key === 'customRatio') {
+      if (key === 'customMacroRatio') {
         await saveHealthMetric(metricTypeMap[key as string], JSON.stringify(value));
       } else {
         await saveHealthMetric(metricTypeMap[key as string], value as any);
