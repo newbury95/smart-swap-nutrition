@@ -9,31 +9,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 
-// Dummy thread data
-const DUMMY_THREADS = [
-  {
-    id: "1",
-    title: "How to track macros effectively?",
-    author: "NutritionFan22",
-    replies: 7,
-    createdAt: "2 hours ago",
-  },
-  {
-    id: "2",
-    title: "Best protein sources for vegetarians",
-    author: "PlantPowered",
-    replies: 12,
-    createdAt: "1 day ago",
-  },
-  {
-    id: "3",
-    title: "Help with weight loss plateau",
-    author: "FitnessJourney",
-    replies: 5,
-    createdAt: "2 days ago",
-  }
-];
-
 const ForumPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -44,6 +19,7 @@ const ForumPage = () => {
   const [newThreadTitle, setNewThreadTitle] = useState("");
   const [newThreadContent, setNewThreadContent] = useState("");
   const [reportReason, setReportReason] = useState("");
+  const [threads, setThreads] = useState([]);
 
   const handleCreateThread = () => {
     if (!newThreadTitle.trim() || !newThreadContent.trim()) {
@@ -112,36 +88,36 @@ const ForumPage = () => {
               Connect with other members, share your journey, and get support from the community.
             </p>
             
-            <div className="space-y-4">
-              {DUMMY_THREADS.map((thread) => (
-                <div key={thread.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                  <div className="flex justify-between">
-                    <div>
-                      <h3 className="font-medium text-lg mb-1">{thread.title}</h3>
-                      <div className="flex items-center text-sm text-gray-500">
-                        <span>By {thread.author} • {thread.createdAt}</span>
+            {threads.length > 0 ? (
+              <div className="space-y-4">
+                {threads.map((thread: any) => (
+                  <div key={thread.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                    <div className="flex justify-between">
+                      <div>
+                        <h3 className="font-medium text-lg mb-1">{thread.title}</h3>
+                        <div className="flex items-center text-sm text-gray-500">
+                          <span>By {thread.author} • {thread.createdAt}</span>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="text-gray-500 text-sm mr-4">
-                        <MessageSquare className="inline w-4 h-4 mr-1" />
-                        {thread.replies}
+                      <div className="flex items-center">
+                        <div className="text-gray-500 text-sm mr-4">
+                          <MessageSquare className="inline w-4 h-4 mr-1" />
+                          {thread.replies}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleReportThread(thread.id)}
+                          className="text-gray-500 hover:text-red-500"
+                        >
+                          <Flag className="w-4 h-4" />
+                        </Button>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleReportThread(thread.id)}
-                        className="text-gray-500 hover:text-red-500"
-                      >
-                        <Flag className="w-4 h-4" />
-                      </Button>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-            
-            {DUMMY_THREADS.length === 0 && (
+                ))}
+              </div>
+            ) : (
               <div className="text-center py-12 text-gray-500">
                 <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-30" />
                 <p>No threads yet. Be the first to start a conversation!</p>

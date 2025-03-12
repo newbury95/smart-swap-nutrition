@@ -1,5 +1,5 @@
 
-import { memo, useState, useEffect } from "react";
+import { memo, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useUserNutrition } from "@/hooks/useUserNutrition";
@@ -18,7 +18,6 @@ const TrackingPage = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const { addHealthMetric, isPremium } = useSupabase();
 
-  // Use our new user nutrition hook
   const {
     loading,
     settings,
@@ -27,7 +26,6 @@ const TrackingPage = () => {
     updateCustomMacroRatio,
   } = useUserNutrition();
 
-  // Use existing exercise tracking hook
   const { 
     exercises, 
     caloriesBurned,
@@ -39,9 +37,8 @@ const TrackingPage = () => {
     addHealthMetric 
   });
 
-  // Mock current day's consumed calories and macros
-  // In a real app, this would come from the food diary
-  const [currentConsumption, setCurrentConsumption] = useState({
+  // Initialize current consumption state with zeros
+  const [currentConsumption] = useState({
     calories: 0,
     macros: {
       protein: 0,
@@ -49,20 +46,6 @@ const TrackingPage = () => {
       fats: 0
     }
   });
-
-  // Simulate current day's food consumption
-  // In a real app, this would be fetched from the database
-  useEffect(() => {
-    // Mock data - would be replaced with actual user's food diary data
-    setCurrentConsumption({
-      calories: 1250,
-      macros: {
-        protein: 75,
-        carbs: 120,
-        fats: 45
-      }
-    });
-  }, []);
 
   const handleAddExerciseWithFeedback = async (exerciseData: any) => {
     try {
