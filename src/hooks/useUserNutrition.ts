@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { useSupabase } from './useSupabase';
 import { useToast } from './use-toast';
@@ -10,7 +9,7 @@ import {
   HealthMetricType
 } from '@/utils/nutritionCalculations';
 import { useNutritionCalculator } from './useNutritionCalculator';
-import { useNutritionSettings } from './useNutritionSettings';
+import { useNutritionSettings } from './nutritionSettings';
 
 export interface NutritionSettings {
   age: number;
