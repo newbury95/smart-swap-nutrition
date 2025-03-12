@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronLeft, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -8,8 +7,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
-import { mockMealPlans } from '@/utils/mockData';
 import { MealPlan, DietaryRestriction, Food } from '@/components/food/types';
+import { supabase } from '@/integrations/supabase/client';
 
 // Meal plan categories
 const mealPlanTypes = [
@@ -29,37 +28,179 @@ const dietaryRestrictions: DietaryRestriction[] = [
 const MealPlansPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
-  const [mealPlans, setMealPlans] = useState<MealPlan[]>(mockMealPlans);
+  const [isLoading, setIsLoading] = useState(true);
+  const [mealPlans, setMealPlans] = useState<MealPlan[]>([]);
   const [selectedMealPlan, setSelectedMealPlan] = useState<MealPlan | null>(null);
   const [showMealPlanDetails, setShowMealPlanDetails] = useState(false);
   const [selectedFoods, setSelectedFoods] = useState<Food[]>([]);
 
-  const handleRefreshPlans = () => {
+  // Fetch meal plans from database
+  useEffect(() => {
+    const fetchMealPlans = async () => {
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('meal_plans')
+          .select(`
+            id, 
+            type, 
+            name, 
+            description, 
+            dietary_restrictions, 
+            calories, 
+            protein, 
+            carbs, 
+            fat,
+            meal_plan_days (
+              day,
+              breakfast:meal_plan_items(food_id, food_data:foods(*)),
+              lunch:meal_plan_items(food_id, food_data:foods(*)),
+              dinner:meal_plan_items(food_id, food_data:foods(*)),
+              snacks:meal_plan_items(food_id, food_data:foods(*))
+            )
+          `);
+
+        if (error) {
+          throw error;
+        }
+
+        if (data && data.length > 0) {
+          // Transform database data to match MealPlan interface
+          const transformedPlans: MealPlan[] = data.map(plan => ({
+            id: plan.id,
+            type: plan.type,
+            name: plan.name,
+            description: plan.description,
+            dietaryRestrictions: plan.dietary_restrictions || ["None"],
+            calories: plan.calories,
+            protein: plan.protein,
+            carbs: plan.carbs,
+            fat: plan.fat,
+            days: plan.meal_plan_days.map(day => ({
+              day: day.day,
+              breakfast: day.breakfast.map(item => transformFoodItem(item.food_data)),
+              lunch: day.lunch.map(item => transformFoodItem(item.food_data)),
+              dinner: day.dinner.map(item => transformFoodItem(item.food_data)),
+              snacks: day.snacks.map(item => transformFoodItem(item.food_data))
+            }))
+          }));
+
+          setMealPlans(transformedPlans);
+        } else {
+          // If no data, set empty array
+          setMealPlans([]);
+          toast({
+            variant: "destructive",
+            title: "No Meal Plans Found",
+            description: "We couldn't find any meal plans. Please check back later."
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching meal plans:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load meal plans."
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMealPlans();
+  }, [toast]);
+
+  // Helper function to transform food data from database to Food interface
+  const transformFoodItem = (foodData: any): Food => {
+    return {
+      id: foodData.id,
+      name: foodData.name,
+      brand: foodData.brand || "",
+      calories: foodData.calories,
+      protein: foodData.protein,
+      carbs: foodData.carbs,
+      fat: foodData.fat,
+      servingSize: foodData.serving_size || "100g",
+      supermarket: foodData.supermarket || "All Supermarkets",
+      category: foodData.category || "All Categories"
+    };
+  };
+
+  const handleRefreshPlans = async () => {
     setIsLoading(true);
     
-    // Simulate refreshing meal plans with a delay
-    setTimeout(() => {
-      try {
-        // Shuffle meal plans (for demo purposes)
-        const shuffled = [...mockMealPlans].sort(() => Math.random() - 0.5);
-        setMealPlans(shuffled);
+    try {
+      const { data, error } = await supabase
+        .from('meal_plans')
+        .select(`
+          id, 
+          type, 
+          name, 
+          description, 
+          dietary_restrictions, 
+          calories, 
+          protein, 
+          carbs, 
+          fat,
+          meal_plan_days (
+            day,
+            breakfast:meal_plan_items(food_id, food_data:foods(*)),
+            lunch:meal_plan_items(food_id, food_data:foods(*)),
+            dinner:meal_plan_items(food_id, food_data:foods(*)),
+            snacks:meal_plan_items(food_id, food_data:foods(*))
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data && data.length > 0) {
+        // Transform database data to match MealPlan interface
+        const transformedPlans: MealPlan[] = data.map(plan => ({
+          id: plan.id,
+          type: plan.type,
+          name: plan.name,
+          description: plan.description,
+          dietaryRestrictions: plan.dietary_restrictions || ["None"],
+          calories: plan.calories,
+          protein: plan.protein,
+          carbs: plan.carbs,
+          fat: plan.fat,
+          days: plan.meal_plan_days.map(day => ({
+            day: day.day,
+            breakfast: day.breakfast.map(item => transformFoodItem(item.food_data)),
+            lunch: day.lunch.map(item => transformFoodItem(item.food_data)),
+            dinner: day.dinner.map(item => transformFoodItem(item.food_data)),
+            snacks: day.snacks.map(item => transformFoodItem(item.food_data))
+          }))
+        }));
+
+        setMealPlans(transformedPlans);
         
         toast({
           title: "Meal Plans Refreshed",
           description: "Your meal plan suggestions have been updated"
         });
-      } catch (error) {
-        console.error("Error refreshing meal plans:", error);
+      } else {
+        setMealPlans([]);
         toast({
           variant: "destructive",
-          title: "Error",
-          description: "Failed to refresh meal plans."
+          title: "No Meal Plans Found",
+          description: "We couldn't find any meal plans. Please check back later."
         });
-      } finally {
-        setIsLoading(false);
       }
-    }, 1000);
+    } catch (error) {
+      console.error("Error refreshing meal plans:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to refresh meal plans."
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleOpenMealPlan = (mealPlan: MealPlan) => {
@@ -231,6 +372,18 @@ const MealPlansPage = () => {
                 <Skeleton className="h-64 w-full" />
                 <Skeleton className="h-64 w-full" />
               </div>
+            </div>
+          ) : mealPlans.length === 0 ? (
+            <div className="text-center py-12">
+              <h3 className="text-xl font-medium text-gray-900">No Meal Plans Available</h3>
+              <p className="mt-2 text-gray-500">We don't have any meal plans available right now. Please check back later.</p>
+              <Button 
+                onClick={handleRefreshPlans} 
+                className="mt-4"
+                disabled={isLoading}
+              >
+                Try Again
+              </Button>
             </div>
           ) : (
             <Tabs defaultValue="category">

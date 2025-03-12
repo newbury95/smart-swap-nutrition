@@ -6,8 +6,12 @@ export const useSaveHealthMetric = (
   addHealthMetric: (metric: any) => Promise<void>,
   toast: any
 ) => {
-  return useCallback(async (metricType: string, value: number | string) => {
-    if (!isPremium && metricType !== 'weight' && metricType !== 'height') {
+  return useCallback(async (metricType: string, value: number | string | object) => {
+    // Basic metrics (weight and height) should be available to all users
+    if (!isPremium && 
+        metricType !== 'weight' && 
+        metricType !== 'height' && 
+        metricType !== 'gender') {
       toast({
         title: 'Premium Feature',
         description: 'Upgrade to Premium to customize all health metrics',
@@ -16,9 +20,14 @@ export const useSaveHealthMetric = (
     }
     
     try {
+      // Convert value to string for storage
+      const stringValue = typeof value === 'object' 
+        ? JSON.stringify(value) 
+        : value.toString();
+      
       await addHealthMetric({
         metric_type: metricType,
-        value: value.toString(),
+        value: stringValue,
       });
       
       toast({

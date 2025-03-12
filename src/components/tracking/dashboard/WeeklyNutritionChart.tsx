@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,25 +14,114 @@ import {
   Legend
 } from "recharts";
 import { ChartLine, BarChart2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
-// Mock data for the weekly nutrition chart
-// In a real application, this would come from the database
-const generateWeeklyData = () => {
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  return days.map(day => ({
-    day,
-    calories: Math.floor(Math.random() * 500) + 1500,
-    protein: Math.floor(Math.random() * 30) + 70,
-    carbs: Math.floor(Math.random() * 50) + 150,
-    fats: Math.floor(Math.random() * 20) + 40,
-  }));
+type NutritionData = {
+  day: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fats: number;
 };
 
 type ChartView = 'calories' | 'macros';
 
 const WeeklyNutritionChart = ({ isPremium }: { isPremium: boolean }) => {
-  const [data] = useState(generateWeeklyData());
+  const [data, setData] = useState<NutritionData[]>([]);
   const [chartView, setChartView] = useState<ChartView>('calories');
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    async function fetchWeeklyData() {
+      setIsLoading(true);
+      try {
+        // Get current date and date 7 days ago
+        const today = new Date();
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 6); // Get 7 days of data (including today)
+        
+        // Format dates for the query
+        const startDate = weekAgo.toISOString().split('T')[0];
+        const endDate = today.toISOString().split('T')[0];
+        
+        // Fetch meal data for the date range
+        const { data: mealsData, error } = await supabase
+          .from('meals')
+          .select('date, calories, protein, carbs, fat')
+          .gte('date', startDate)
+          .lte('date', endDate)
+          .order('date', { ascending: true });
+          
+        if (error) {
+          throw error;
+        }
+        
+        // Process data to aggregate by day
+        const dailyTotals = new Map<string, NutritionData>();
+        
+        // Initialize all dates in the range
+        const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const currentDate = new Date(weekAgo);
+        
+        while (currentDate <= today) {
+          const dateStr = currentDate.toISOString().split('T')[0];
+          const dayOfWeek = daysOfWeek[currentDate.getDay()];
+          
+          dailyTotals.set(dateStr, {
+            day: dayOfWeek,
+            calories: 0,
+            protein: 0,
+            carbs: 0,
+            fats: 0
+          });
+          
+          // Move to next day
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+        
+        // Sum up nutrition data for each day
+        if (mealsData) {
+          mealsData.forEach(meal => {
+            const dateStr = meal.date;
+            const existingData = dailyTotals.get(dateStr);
+            
+            if (existingData) {
+              dailyTotals.set(dateStr, {
+                ...existingData,
+                calories: existingData.calories + (meal.calories || 0),
+                protein: existingData.protein + (meal.protein || 0),
+                carbs: existingData.carbs + (meal.carbs || 0),
+                fats: existingData.fats + (meal.fat || 0) // Note the different property name
+              });
+            }
+          });
+        }
+        
+        // Convert the map to an array sorted by date
+        const sortedData = Array.from(dailyTotals.entries())
+          .sort(([dateA], [dateB]) => dateA.localeCompare(dateB))
+          .map(([_, nutritionData]) => nutritionData);
+        
+        setData(sortedData);
+      } catch (error) {
+        console.error("Error fetching weekly nutrition data:", error);
+        toast({
+          variant: "destructive",
+          title: "Failed to load weekly nutrition data",
+          description: "Please try again later"
+        });
+        
+        // Provide empty data structure for the chart
+        setData([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    fetchWeeklyData();
+  }, [toast]);
 
   return (
     <Card className="mt-6">
@@ -76,7 +165,16 @@ const WeeklyNutritionChart = ({ isPremium }: { isPremium: boolean }) => {
         </div>
         
         <div className="h-[300px]">
-          {chartView === 'calories' ? (
+          {isLoading ? (
+            <div className="h-full flex items-center justify-center">
+              <BarChart2 className="h-16 w-16 animate-pulse text-gray-300" />
+            </div>
+          ) : data.length === 0 ? (
+            <div className="h-full flex items-center justify-center flex-col gap-2">
+              <p className="text-gray-500">No nutrition data available for this week</p>
+              <p className="text-sm text-gray-400">Log your meals to see your progress</p>
+            </div>
+          ) : chartView === 'calories' ? (
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={data}>
                 <CartesianGrid strokeDasharray="3 3" opacity={0.3} />

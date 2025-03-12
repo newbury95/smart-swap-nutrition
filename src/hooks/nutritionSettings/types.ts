@@ -28,4 +28,5 @@ export const metricTypeMap: Record<string, string> = {
   gender: 'gender',
   activityLevel: 'activity_level',
   fitnessGoal: 'fitness_goal',
+  customRatio: 'custom_macro_ratio'
 };
