@@ -27,9 +27,9 @@ const NutritionDashboard = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className="space-y-6"
+      className="space-y-6 mt-6"
     >
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Calorie target card */}
         <CalorieTargetCard 
           calorieTarget={calorieTarget} 

@@ -4,6 +4,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import CircularGoalProgress from './CircularGoalProgress';
 import NutritionDashboard from './NutritionDashboard';
 import ProgressChartSection from './ProgressChartSection';
+import WeeklyNutritionChart from './dashboard/WeeklyNutritionChart';
 import { Settings, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -93,6 +94,9 @@ const DashboardContent = ({
         currentCalories={currentConsumption.calories}
         currentMacros={currentConsumption.macros}
       />
+
+      {/* Weekly Nutrition Chart - New Component */}
+      <WeeklyNutritionChart isPremium={isPremium} />
 
       {/* Progress chart */}
       <ErrorBoundary fallback={<div className="p-4 bg-red-100 rounded-md">Error loading progress chart</div>}>
