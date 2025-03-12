@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -23,6 +24,26 @@ const mealPlanTypes = [
 const dietaryRestrictions: DietaryRestriction[] = [
   "Vegetarian", "Vegan", "Gluten-Free", "Dairy-Free", "Low-Carb", "Diabetic-Friendly"
 ];
+
+// Helper function to get description for a plan type
+const getPlanDescription = (type: string): string => {
+  switch (type) {
+    case "Low Calorie":
+      return "Reduced calorie plans for weight management";
+    case "High Protein":
+      return "Protein-focused meals for muscle building";
+    case "High Carb":
+      return "Carbohydrate-rich plans for energy";
+    case "Balanced":
+      return "Well-rounded nutrition with balanced macros";
+    case "Weight Loss":
+      return "Designed specifically for healthy weight loss";
+    case "Diabetic Friendly":
+      return "Plans suitable for managing blood sugar";
+    default:
+      return "Customized meal plans for your goals";
+  }
+};
 
 // Sample meal plan data since we don't have the actual Supabase table
 const sampleMealPlans: MealPlan[] = [
@@ -990,3 +1011,150 @@ const MealPlansPage = () => {
                               <Button 
                                 size="sm" 
                                 variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddFoodToDiary(item);
+                                }}
+                              >
+                                Add
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                        
+                        {day.lunch.length > 1 && (
+                          <>
+                            <h4 className="font-medium text-sm text-gray-600 mb-1 mt-3">Lunch - Option 2</h4>
+                            <div className="bg-gray-50 rounded-lg overflow-hidden">
+                              {day.lunch.slice(Math.ceil(day.lunch.length/2)).map((item, i) => (
+                                <div key={i} className="flex justify-between items-center p-2 border-b last:border-0">
+                                  <div className="flex-1">
+                                    <p className="font-medium">{item.name}</p>
+                                    <div className="text-xs text-gray-500 flex gap-2">
+                                      <span>{item.calories} kcal</span>
+                                      <span>{item.protein}g protein</span>
+                                    </div>
+                                  </div>
+                                  <Button 
+                                    size="sm" 
+                                    variant="ghost"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleAddFoodToDiary(item);
+                                    }}
+                                  >
+                                    Add
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          </>
+                        )}
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-medium text-sm text-gray-600 mb-1">Dinner - Option 1</h4>
+                        <div className="bg-gray-50 rounded-lg overflow-hidden">
+                          {day.dinner.slice(0, Math.ceil(day.dinner.length/2)).map((item, i) => (
+                            <div key={i} className="flex justify-between items-center p-2 border-b last:border-0">
+                              <div className="flex-1">
+                                <p className="font-medium">{item.name}</p>
+                                <div className="text-xs text-gray-500 flex gap-2">
+                                  <span>{item.calories} kcal</span>
+                                  <span>{item.protein}g protein</span>
+                                </div>
+                              </div>
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddFoodToDiary(item);
+                                }}
+                              >
+                                Add
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                        
+                        {day.dinner.length > 1 && (
+                          <>
+                            <h4 className="font-medium text-sm text-gray-600 mb-1 mt-3">Dinner - Option 2</h4>
+                            <div className="bg-gray-50 rounded-lg overflow-hidden">
+                              {day.dinner.slice(Math.ceil(day.dinner.length/2)).map((item, i) => (
+                                <div key={i} className="flex justify-between items-center p-2 border-b last:border-0">
+                                  <div className="flex-1">
+                                    <p className="font-medium">{item.name}</p>
+                                    <div className="text-xs text-gray-500 flex gap-2">
+                                      <span>{item.calories} kcal</span>
+                                      <span>{item.protein}g protein</span>
+                                    </div>
+                                  </div>
+                                  <Button 
+                                    size="sm" 
+                                    variant="ghost"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleAddFoodToDiary(item);
+                                    }}
+                                  >
+                                    Add
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          </>
+                        )}
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-medium text-sm text-gray-600 mb-1">Snacks</h4>
+                        <div className="bg-gray-50 rounded-lg overflow-hidden">
+                          {day.snacks.map((item, i) => (
+                            <div key={i} className="flex justify-between items-center p-2 border-b last:border-0">
+                              <div className="flex-1">
+                                <p className="font-medium">{item.name}</p>
+                                <div className="text-xs text-gray-500 flex gap-2">
+                                  <span>{item.calories} kcal</span>
+                                  <span>{item.protein}g protein</span>
+                                </div>
+                              </div>
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddFoodToDiary(item);
+                                }}
+                              >
+                                Add
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </TabsContent>
+                  ))}
+                </Tabs>
+              </div>
+              
+              <div className="mt-6 border-t pt-4">
+                <Button 
+                  className="w-full"
+                  onClick={handleAddToDiary}
+                >
+                  {selectedFoods.length > 0 
+                    ? `Add ${selectedFoods.length} selected foods to diary` 
+                    : "Add entire meal plan to diary"}
+                </Button>
+              </div>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
+    </div>
+  );
+};
+
+export default MealPlansPage;
