@@ -22,11 +22,15 @@ const NutritionDashboard = ({
 }: NutritionDashboardProps) => {
   // Add data validation to prevent NaN or undefined values
   const validCalculations = {
-    calorieTarget: calculations?.calorieTarget || 2000,
-    macros: calculations?.macros || { protein: 0, carbs: 0, fats: 0 },
+    calorieTarget: isNaN(calculations?.calorieTarget) ? 2000 : calculations?.calorieTarget || 2000,
+    macros: {
+      protein: isNaN(calculations?.macros?.protein) ? 0 : calculations?.macros?.protein || 0,
+      carbs: isNaN(calculations?.macros?.carbs) ? 0 : calculations?.macros?.carbs || 0,
+      fats: isNaN(calculations?.macros?.fats) ? 0 : calculations?.macros?.fats || 0,
+    },
     macroRatios: calculations?.macroRatios || { protein: 25, carbs: 45, fats: 30 },
-    bmr: calculations?.bmr || 0,
-    tdee: calculations?.tdee || 0
+    bmr: isNaN(calculations?.bmr) ? 0 : calculations?.bmr || 0,
+    tdee: isNaN(calculations?.tdee) ? 0 : calculations?.tdee || 0
   };
   
   const validCurrentCalories = isNaN(currentCalories) ? 0 : currentCalories;

@@ -12,18 +12,30 @@ import { asdaFoods } from '@/data/food/asda-foods';
 import { sainsburysFoods } from '@/data/food/sainsburys-foods';
 import { tescoFoods } from '@/data/food/tesco-foods';
 import { marksFoods } from '@/data/food/marks-foods';
+import { mcdonaldsFoods } from '@/data/food/mcdonalds-foods';
+import { pizzaHutFoods } from '@/data/food/pizzahut-foods';
+import { dominosFoods } from '@/data/food/dominos-foods';
+import { kfcFoods } from '@/data/food/kfc-foods';
+import { nandosFoods } from '@/data/food/nandos-foods';
 
 export const FoodImporter = () => {
   const { importFoods, isImporting } = useFoodImport();
   const [importStatus, setImportStatus] = useState<Record<string, string>>({});
   
   const foodSources = {
+    // Supermarkets
     'Aldi': aldiFoods,
     'Lidl': lidlFoods,
     'Asda': asdaFoods,
     'Sainsburys': sainsburysFoods,
     'Tesco': tescoFoods,
     'M&S': marksFoods,
+    // Fast Food Chains
+    'McDonalds': mcdonaldsFoods,
+    'Pizza Hut': pizzaHutFoods,
+    'Dominos': dominosFoods,
+    'KFC': kfcFoods,
+    'Nandos': nandosFoods
   };
   
   const handleImport = async (source: string, foods: any[]) => {
@@ -73,7 +85,7 @@ export const FoodImporter = () => {
             </Button>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {Object.entries(foodSources).map(([source, foods]) => (
               <Card key={source} className="overflow-hidden">
                 <CardHeader className="p-4">

@@ -1,0 +1,300 @@
+
+export const kfcFoods = [
+  // Chicken Pieces
+  {
+    name: "KFC Original Recipe Chicken Breast",
+    calories: 390,
+    protein: 39,
+    carbs: 11,
+    fat: 21,
+    saturates: 5,
+    sugar: 0,
+    salt: 1.9,
+    servingSize: "1 piece (162g)",
+    supermarket: "KFC",
+    barcode: "8000000001"
+  },
+  {
+    name: "KFC Original Recipe Chicken Thigh",
+    calories: 330,
+    protein: 25,
+    carbs: 11,
+    fat: 20,
+    saturates: 6,
+    sugar: 0,
+    salt: 1.8,
+    servingSize: "1 piece (113g)",
+    supermarket: "KFC",
+    barcode: "8000000002"
+  },
+  {
+    name: "KFC Original Recipe Chicken Drumstick",
+    calories: 140,
+    protein: 14,
+    carbs: 4,
+    fat: 8,
+    saturates: 2,
+    sugar: 0,
+    salt: 0.9,
+    servingSize: "1 piece (59g)",
+    supermarket: "KFC",
+    barcode: "8000000003"
+  },
+  {
+    name: "KFC Original Recipe Chicken Wing",
+    calories: 130,
+    protein: 10,
+    carbs: 4,
+    fat: 8,
+    saturates: 2,
+    sugar: 0,
+    salt: 0.8,
+    servingSize: "1 piece (44g)",
+    supermarket: "KFC",
+    barcode: "8000000004"
+  },
+  {
+    name: "KFC Extra Crispy Chicken Breast",
+    calories: 530,
+    protein: 35,
+    carbs: 27,
+    fat: 32,
+    saturates: 7,
+    sugar: 0,
+    salt: 2.3,
+    servingSize: "1 piece (178g)",
+    supermarket: "KFC",
+    barcode: "8000000005"
+  },
+  {
+    name: "KFC Extra Crispy Chicken Thigh",
+    calories: 370,
+    protein: 22,
+    carbs: 16,
+    fat: 24,
+    saturates: 6,
+    sugar: 0,
+    salt: 2.0,
+    servingSize: "1 piece (118g)",
+    supermarket: "KFC",
+    barcode: "8000000006"
+  },
+
+  // Sandwiches and Wraps
+  {
+    name: "KFC Chicken Sandwich",
+    calories: 470,
+    protein: 27,
+    carbs: 45,
+    fat: 20,
+    saturates: 4,
+    sugar: 6,
+    salt: 1.6,
+    servingSize: "1 sandwich (230g)",
+    supermarket: "KFC",
+    barcode: "8000000007"
+  },
+  {
+    name: "KFC Spicy Chicken Sandwich",
+    calories: 550,
+    protein: 29,
+    carbs: 46,
+    fat: 28,
+    saturates: 5,
+    sugar: 6,
+    salt: 1.8,
+    servingSize: "1 sandwich (235g)",
+    supermarket: "KFC",
+    barcode: "8000000008"
+  },
+  {
+    name: "KFC Chicken Wrap",
+    calories: 380,
+    protein: 23,
+    carbs: 36,
+    fat: 15,
+    saturates: 3,
+    sugar: 3,
+    salt: 1.4,
+    servingSize: "1 wrap (179g)",
+    supermarket: "KFC",
+    barcode: "8000000009"
+  },
+  {
+    name: "KFC Twister Wrap",
+    calories: 420,
+    protein: 25,
+    carbs: 38,
+    fat: 18,
+    saturates: 4,
+    sugar: 4,
+    salt: 1.5,
+    servingSize: "1 wrap (191g)",
+    supermarket: "KFC",
+    barcode: "8000000010"
+  },
+
+  // Buckets
+  {
+    name: "KFC 8 Piece Original Recipe Bucket",
+    calories: 2400,
+    protein: 200,
+    carbs: 80,
+    fat: 140,
+    saturates: 36,
+    sugar: 0,
+    salt: 13.0,
+    servingSize: "8 pieces (890g)",
+    supermarket: "KFC",
+    barcode: "8000000011"
+  },
+  {
+    name: "KFC 8 Piece Extra Crispy Bucket",
+    calories: 3000,
+    protein: 190,
+    carbs: 140,
+    fat: 180,
+    saturates: 45,
+    sugar: 0,
+    salt: 15.0,
+    servingSize: "8 pieces (950g)",
+    supermarket: "KFC",
+    barcode: "8000000012"
+  },
+
+  // Sides
+  {
+    name: "KFC Mashed Potatoes with Gravy",
+    calories: 130,
+    protein: 2,
+    carbs: 17,
+    fat: 6,
+    saturates: 1,
+    sugar: 0,
+    salt: 0.6,
+    servingSize: "Individual portion (100g)",
+    supermarket: "KFC",
+    barcode: "8000000013"
+  },
+  {
+    name: "KFC Cole Slaw",
+    calories: 170,
+    protein: 1,
+    carbs: 22,
+    fat: 10,
+    saturates: 1.5,
+    sugar: 18,
+    salt: 0.5,
+    servingSize: "Individual portion (100g)",
+    supermarket: "KFC",
+    barcode: "8000000014"
+  },
+  {
+    name: "KFC Biscuit",
+    calories: 180,
+    protein: 3,
+    carbs: 22,
+    fat: 9,
+    saturates: 4.5,
+    sugar: 1,
+    salt: 0.6,
+    servingSize: "1 biscuit (57g)",
+    supermarket: "KFC",
+    barcode: "8000000015"
+  },
+  {
+    name: "KFC French Fries (Medium)",
+    calories: 320,
+    protein: 4,
+    carbs: 41,
+    fat: 16,
+    saturates: 3,
+    sugar: 0,
+    salt: 0.9,
+    servingSize: "Medium (115g)",
+    supermarket: "KFC",
+    barcode: "8000000016"
+  },
+  {
+    name: "KFC Corn on the Cob",
+    calories: 70,
+    protein: 2,
+    carbs: 16,
+    fat: 0.5,
+    saturates: 0,
+    sugar: 3,
+    salt: 0,
+    servingSize: "1 ear (85g)",
+    supermarket: "KFC",
+    barcode: "8000000017"
+  },
+  {
+    name: "KFC Potato Wedges",
+    calories: 270,
+    protein: 4,
+    carbs: 32,
+    fat: 14,
+    saturates: 3,
+    sugar: 0,
+    salt: 0.8,
+    servingSize: "Individual portion (110g)",
+    supermarket: "KFC",
+    barcode: "8000000018"
+  },
+
+  // Bowls
+  {
+    name: "KFC Famous Bowl",
+    calories: 710,
+    protein: 25,
+    carbs: 79,
+    fat: 31,
+    saturates: 7,
+    sugar: 3,
+    salt: 2.3,
+    servingSize: "1 bowl (340g)",
+    supermarket: "KFC",
+    barcode: "8000000019"
+  },
+  {
+    name: "KFC Spicy Famous Bowl",
+    calories: 730,
+    protein: 26,
+    carbs: 79,
+    fat: 33,
+    saturates: 7,
+    sugar: 3,
+    salt: 2.5,
+    servingSize: "1 bowl (340g)",
+    supermarket: "KFC",
+    barcode: "8000000020"
+  },
+
+  // Desserts
+  {
+    name: "KFC Chocolate Chip Cookie",
+    calories: 120,
+    protein: 1,
+    carbs: 16,
+    fat: 6,
+    saturates: 3,
+    sugar: 10,
+    salt: 0.2,
+    servingSize: "1 cookie (30g)",
+    supermarket: "KFC",
+    barcode: "8000000021"
+  },
+  {
+    name: "KFC Chocolate Cake",
+    calories: 300,
+    protein: 4,
+    carbs: 41,
+    fat: 14,
+    saturates: 4,
+    sugar: 29,
+    salt: 0.4,
+    servingSize: "1 slice (90g)",
+    supermarket: "KFC",
+    barcode: "8000000022"
+  }
+];

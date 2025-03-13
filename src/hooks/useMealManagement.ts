@@ -16,6 +16,9 @@ export const useMealManagement = (date: Date) => {
   });
   const [isLoading, setIsLoading] = useState(true);
 
+  // Load meals when date changes - fixed dependency array and added stabilization
+  const formattedDate = date.toISOString().split('T')[0]; // Stable date string for dependency
+
   // Load meals when date changes
   const loadMeals = useCallback(async () => {
     setIsLoading(true);
@@ -23,12 +26,30 @@ export const useMealManagement = (date: Date) => {
       const fetchedMeals = await getMeals(date);
       console.log('Fetched meals for date:', date, fetchedMeals);
       
-      const categorizedMeals = fetchedMeals.reduce((acc, meal) => ({
-        ...acc,
-        [meal.meal_type]: [...(acc[meal.meal_type as MealType] || []), meal]
-      }), { breakfast: [], lunch: [], dinner: [], snack: [] } as Record<MealType, Meal[]>);
+      // Initialize with empty arrays for all meal types
+      const initializedMeals = { 
+        breakfast: [], 
+        lunch: [], 
+        dinner: [], 
+        snack: [] 
+      } as Record<MealType, Meal[]>;
       
-      setMeals(categorizedMeals);
+      // Only process valid meals data
+      if (Array.isArray(fetchedMeals)) {
+        // Categorize meals by type
+        fetchedMeals.forEach(meal => {
+          const mealType = meal.meal_type as MealType;
+          if (initializedMeals[mealType]) {
+            initializedMeals[mealType].push(meal);
+          } else {
+            console.warn(`Unknown meal type: ${mealType}`);
+          }
+        });
+      } else {
+        console.warn('Fetched meals is not an array:', fetchedMeals);
+      }
+      
+      setMeals(initializedMeals);
     } catch (error) {
       console.error('Error loading meals:', error);
       toast({
@@ -36,10 +57,12 @@ export const useMealManagement = (date: Date) => {
         title: "Error",
         description: "Failed to load meals",
       });
+      // Still set empty meal structure on error
+      setMeals({ breakfast: [], lunch: [], dinner: [], snack: [] });
     } finally {
       setIsLoading(false);
     }
-  }, [date, getMeals, toast]);
+  }, [formattedDate, getMeals, toast]);
 
   useEffect(() => {
     loadMeals();
@@ -56,7 +79,7 @@ export const useMealManagement = (date: Date) => {
         fat: food.fat || 0,
         meal_type: type,
         serving_size: food.servingSize || '1 serving',
-        date: date.toISOString().split('T')[0],
+        date: formattedDate,
       });
 
       if (meal) {
@@ -78,7 +101,7 @@ export const useMealManagement = (date: Date) => {
         description: "Failed to add food",
       });
     }
-  }, [addMeal, date, toast]);
+  }, [addMeal, formattedDate, toast]);
 
   const handleDeleteFood = useCallback(async (type: MealType, mealId: string) => {
     try {

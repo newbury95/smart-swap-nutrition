@@ -1,0 +1,300 @@
+
+export const nandosFoods = [
+  // Chicken
+  {
+    name: "Nando's 1/4 Chicken Breast (Medium Spice)",
+    calories: 265,
+    protein: 38,
+    carbs: 2,
+    fat: 12,
+    saturates: 3,
+    sugar: 1,
+    salt: 1.5,
+    servingSize: "1 piece (172g)",
+    supermarket: "Nandos",
+    barcode: "9000000001"
+  },
+  {
+    name: "Nando's 1/4 Chicken Leg (Medium Spice)",
+    calories: 290,
+    protein: 29,
+    carbs: 2,
+    fat: 19,
+    saturates: 5,
+    sugar: 1,
+    salt: 1.5,
+    servingSize: "1 piece (162g)",
+    supermarket: "Nandos",
+    barcode: "9000000002"
+  },
+  {
+    name: "Nando's 1/2 Chicken (Medium Spice)",
+    calories: 555,
+    protein: 67,
+    carbs: 4,
+    fat: 31,
+    saturates: 8,
+    sugar: 2,
+    salt: 3.0,
+    servingSize: "1/2 chicken (334g)",
+    supermarket: "Nandos",
+    barcode: "9000000003"
+  },
+  {
+    name: "Nando's Chicken Wings (3 pieces, Medium Spice)",
+    calories: 330,
+    protein: 29,
+    carbs: 1,
+    fat: 24,
+    saturates: 6,
+    sugar: 0,
+    salt: 1.3,
+    servingSize: "3 wings (180g)",
+    supermarket: "Nandos",
+    barcode: "9000000004"
+  },
+
+  // Burgers & Wraps
+  {
+    name: "Nando's Chicken Burger (Medium)",
+    calories: 473,
+    protein: 36,
+    carbs: 46,
+    fat: 17,
+    saturates: 3,
+    sugar: 9,
+    salt: 1.9,
+    servingSize: "1 burger (240g)",
+    supermarket: "Nandos",
+    barcode: "9000000005"
+  },
+  {
+    name: "Nando's Sunset Burger (Medium)",
+    calories: 630,
+    protein: 40,
+    carbs: 51,
+    fat: 29,
+    saturates: 6,
+    sugar: 12,
+    salt: 2.2,
+    servingSize: "1 burger (290g)",
+    supermarket: "Nandos",
+    barcode: "9000000006"
+  },
+  {
+    name: "Nando's Chicken Wrap (Medium)",
+    calories: 420,
+    protein: 32,
+    carbs: 40,
+    fat: 15,
+    saturates: 3,
+    sugar: 5,
+    salt: 1.7,
+    servingSize: "1 wrap (230g)",
+    supermarket: "Nandos",
+    barcode: "9000000007"
+  },
+  {
+    name: "Nando's Halloumi Wrap",
+    calories: 510,
+    protein: 22,
+    carbs: 45,
+    fat: 27,
+    saturates: 12,
+    sugar: 6,
+    salt: 2.5,
+    servingSize: "1 wrap (240g)",
+    supermarket: "Nandos",
+    barcode: "9000000008"
+  },
+
+  // Pittas
+  {
+    name: "Nando's Chicken Pitta (Medium)",
+    calories: 438,
+    protein: 35,
+    carbs: 42,
+    fat: 14,
+    saturates: 3,
+    sugar: 6,
+    salt: 1.8,
+    servingSize: "1 pitta (230g)",
+    supermarket: "Nandos",
+    barcode: "9000000009"
+  },
+  {
+    name: "Nando's Veggie Pitta",
+    calories: 400,
+    protein: 14,
+    carbs: 45,
+    fat: 18,
+    saturates: 5,
+    sugar: 8,
+    salt: 1.7,
+    servingSize: "1 pitta (220g)",
+    supermarket: "Nandos",
+    barcode: "9000000010"
+  },
+
+  // Salads
+  {
+    name: "Nando's Mediterranean Salad",
+    calories: 143,
+    protein: 5,
+    carbs: 10,
+    fat: 9,
+    saturates: 1.5,
+    sugar: 6,
+    salt: 0.7,
+    servingSize: "1 salad without dressing (210g)",
+    supermarket: "Nandos",
+    barcode: "9000000011"
+  },
+  {
+    name: "Nando's Caesar Salad with Chicken",
+    calories: 410,
+    protein: 40,
+    carbs: 12,
+    fat: 23,
+    saturates: 5,
+    sugar: 3,
+    salt: 2.1,
+    servingSize: "1 salad with dressing (300g)",
+    supermarket: "Nandos",
+    barcode: "9000000012"
+  },
+
+  // Sides
+  {
+    name: "Nando's PERi-PERi Chips (Regular)",
+    calories: 425,
+    protein: 6,
+    carbs: 64,
+    fat: 16,
+    saturates: 1.5,
+    sugar: 1,
+    salt: 0.9,
+    servingSize: "Regular portion (210g)",
+    supermarket: "Nandos",
+    barcode: "9000000013"
+  },
+  {
+    name: "Nando's Spicy Rice",
+    calories: 271,
+    protein: 6,
+    carbs: 53,
+    fat: 4,
+    saturates: 0.5,
+    sugar: 3,
+    salt: 0.8,
+    servingSize: "Regular portion (180g)",
+    supermarket: "Nandos",
+    barcode: "9000000014"
+  },
+  {
+    name: "Nando's Corn on the Cob",
+    calories: 144,
+    protein: 5,
+    carbs: 27,
+    fat: 3,
+    saturates: 1,
+    sugar: 6,
+    salt: 0.2,
+    servingSize: "1 piece (150g)",
+    supermarket: "Nandos",
+    barcode: "9000000015"
+  },
+  {
+    name: "Nando's Garlic Bread",
+    calories: 385,
+    protein: 9,
+    carbs: 53,
+    fat: 16,
+    saturates: 4,
+    sugar: 3,
+    salt: 1.6,
+    servingSize: "Regular portion (120g)",
+    supermarket: "Nandos",
+    barcode: "9000000016"
+  },
+  {
+    name: "Nando's Coleslaw",
+    calories: 280,
+    protein: 2,
+    carbs: 15,
+    fat: 22,
+    saturates: 3,
+    sugar: 14,
+    salt: 0.9,
+    servingSize: "Regular portion (125g)",
+    supermarket: "Nandos",
+    barcode: "9000000017"
+  },
+  {
+    name: "Nando's Mixed Leaf Salad",
+    calories: 50,
+    protein: 3,
+    carbs: 3,
+    fat: 3,
+    saturates: 0.5,
+    sugar: 3,
+    salt: 0.3,
+    servingSize: "Regular portion (100g)",
+    supermarket: "Nandos",
+    barcode: "9000000018"
+  },
+  {
+    name: "Nando's Macho Peas",
+    calories: 141,
+    protein: 9,
+    carbs: 12,
+    fat: 6,
+    saturates: 1,
+    sugar: 3,
+    salt: 0.5,
+    servingSize: "Regular portion (160g)",
+    supermarket: "Nandos",
+    barcode: "9000000019"
+  },
+
+  // Desserts
+  {
+    name: "Nando's Nata",
+    calories: 230,
+    protein: 4,
+    carbs: 26,
+    fat: 13,
+    saturates: 7,
+    sugar: 17,
+    salt: 0.3,
+    servingSize: "1 pastry (70g)",
+    supermarket: "Nandos",
+    barcode: "9000000020"
+  },
+  {
+    name: "Nando's Chocolate Cake",
+    calories: 425,
+    protein: 6,
+    carbs: 48,
+    fat: 23,
+    saturates: 10,
+    sugar: 37,
+    salt: 0.6,
+    servingSize: "1 slice (120g)",
+    supermarket: "Nandos",
+    barcode: "9000000021"
+  },
+  {
+    name: "Nando's Carrot Cake",
+    calories: 380,
+    protein: 5,
+    carbs: 42,
+    fat: 21,
+    saturates: 8,
+    sugar: 32,
+    salt: 0.5,
+    servingSize: "1 slice (115g)",
+    supermarket: "Nandos",
+    barcode: "9000000022"
+  }
+];
