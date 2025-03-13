@@ -12,11 +12,13 @@ import { NutritionSettingsForm } from "@/components/tracking/settings";
 import ExerciseDialog from "@/components/tracking/ExerciseDialog";
 import DashboardContent from "@/components/tracking/DashboardContent";
 import { Dumbbell } from "lucide-react";
+import { useMealManagement } from "@/hooks/useMealManagement";
 
 const TrackingPage = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("dashboard");
   const { addHealthMetric, isPremium } = useSupabase();
+  const [today] = useState(new Date());
 
   const {
     loading,
@@ -37,15 +39,19 @@ const TrackingPage = () => {
     addHealthMetric 
   });
 
-  // Initialize current consumption state with zeros
-  const [currentConsumption] = useState({
-    calories: 0,
+  // Get actual consumption data from meals
+  const { getAllMealsNutrients } = useMealManagement(today);
+  const todayNutrients = getAllMealsNutrients();
+  
+  // Create current consumption with real data
+  const currentConsumption = {
+    calories: todayNutrients.calories || 0,
     macros: {
-      protein: 0,
-      carbs: 0,
-      fats: 0
+      protein: todayNutrients.protein || 0,
+      carbs: todayNutrients.carbs || 0,
+      fats: todayNutrients.fat || 0
     }
-  });
+  };
 
   const handleAddExerciseWithFeedback = async (exerciseData: any) => {
     try {
@@ -73,6 +79,7 @@ const TrackingPage = () => {
   }
 
   console.log('TrackingPage rendering with calculations:', calculations);
+  console.log('Current consumption from meals:', currentConsumption);
 
   return (
     <div className="min-h-screen bg-gray-50">

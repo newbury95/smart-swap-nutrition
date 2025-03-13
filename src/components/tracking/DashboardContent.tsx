@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import CircularGoalProgress from './CircularGoalProgress';
 import NutritionDashboard from './NutritionDashboard';
@@ -7,6 +7,7 @@ import ProgressChartSection from './ProgressChartSection';
 import WeeklyNutritionChart from './dashboard/WeeklyNutritionChart';
 import { Settings, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useMealManagement } from '@/hooks/useMealManagement';
 
 interface DashboardContentProps {
   calculations: any;
@@ -32,18 +33,35 @@ const DashboardContent = ({
   isPremium,
   onSettingsClick
 }: DashboardContentProps) => {
+  // Use useMealManagement to get real data
+  const [today] = useState(new Date());
+  const { getAllMealsNutrients } = useMealManagement(today);
+  
+  // Get actual consumption data
+  const todayNutrients = getAllMealsNutrients();
+  
+  // Use real data from meals instead of mock data
+  const actualConsumption = {
+    calories: todayNutrients.calories || 0,
+    macros: {
+      protein: todayNutrients.protein || 0,
+      carbs: todayNutrients.carbs || 0,
+      fats: todayNutrients.fat || 0
+    }
+  };
+
   return (
     <ErrorBoundary fallback={<div className="p-4 bg-red-100 rounded-md">Error loading nutrition dashboard</div>}>
       {/* Circular progress for calories */}
       <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col md:flex-row items-center justify-between">
         <div className="mb-6 md:mb-0 flex flex-col items-center">
           <CircularGoalProgress 
-            value={currentConsumption.calories} 
+            value={actualConsumption.calories} 
             maxValue={calculations.calorieTarget}
           >
             <div className="text-center">
               <div className="text-3xl font-bold text-gray-800">
-                {currentConsumption.calories}
+                {actualConsumption.calories}
               </div>
               <div className="text-sm text-gray-500">
                 of {calculations.calorieTarget} kcal
@@ -59,7 +77,7 @@ const DashboardContent = ({
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Calories Remaining</span>
               <span className="font-semibold">
-                {calculations.calorieTarget - currentConsumption.calories} kcal
+                {calculations.calorieTarget - actualConsumption.calories} kcal
               </span>
             </div>
             
@@ -91,8 +109,8 @@ const DashboardContent = ({
       {/* Main nutrition dashboard */}
       <NutritionDashboard 
         calculations={calculations}
-        currentCalories={currentConsumption.calories}
-        currentMacros={currentConsumption.macros}
+        currentCalories={actualConsumption.calories}
+        currentMacros={actualConsumption.macros}
       />
 
       {/* Weekly Nutrition Chart - New Component */}

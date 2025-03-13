@@ -34,8 +34,9 @@ export const calculateBMR = (
   age: number,
   gender: Gender
 ): number => {
+  // Input validation
   if (weight <= 0 || height <= 0 || age <= 0) {
-    console.log('Invalid inputs for BMR calculation:', { weight, height, age });
+    console.error('Invalid inputs for BMR calculation:', { weight, height, age });
     return 0;
   }
   
@@ -52,8 +53,9 @@ export const calculateBMR = (
     bmr -= 78;
   }
   
-  console.log('BMR calculated:', bmr, 'with params:', { weight, height, age, gender });
-  return Math.round(bmr);
+  const roundedBmr = Math.round(bmr);
+  console.log('BMR calculated:', roundedBmr, 'with params:', { weight, height, age, gender });
+  return roundedBmr;
 };
 
 // Activity multipliers for TDEE calculation
@@ -67,6 +69,18 @@ export const activityMultipliers: Record<ActivityLevel, number> = {
 
 // Calculate Total Daily Energy Expenditure (TDEE)
 export const calculateTDEE = (bmr: number, activityLevel: ActivityLevel): number => {
+  // Input validation
+  if (bmr <= 0 || !activityLevel) {
+    console.error('Invalid inputs for TDEE calculation:', { bmr, activityLevel });
+    return 0;
+  }
+  
+  // Make sure the activity level is valid
+  if (!activityMultipliers[activityLevel]) {
+    console.error('Invalid activity level:', activityLevel);
+    return bmr; // Return BMR as fallback
+  }
+  
   const tdee = Math.round(bmr * activityMultipliers[activityLevel]);
   console.log('TDEE calculated:', tdee, 'with BMR:', bmr, 'and activity level:', activityLevel);
   return tdee;
@@ -74,6 +88,12 @@ export const calculateTDEE = (bmr: number, activityLevel: ActivityLevel): number
 
 // Calculate target calories based on goal
 export const calculateCalorieTarget = (tdee: number, goal: FitnessGoal): number => {
+  // Input validation
+  if (tdee <= 0 || !goal) {
+    console.error('Invalid inputs for calorie target calculation:', { tdee, goal });
+    return 2000; // Return default value
+  }
+  
   let target;
   
   switch (goal) {
@@ -99,6 +119,25 @@ export const calculateMacroGrams = (
   calorieTarget: number, 
   macroRatio: MacroRatio
 ): { protein: number; carbs: number; fats: number } => {
+  // Input validation
+  if (calorieTarget <= 0 || !macroRatio) {
+    console.error('Invalid inputs for macro calculation:', { calorieTarget, macroRatio });
+    return { protein: 0, carbs: 0, fats: 0 };
+  }
+  
+  // Validate macro percentages add up to roughly 100%
+  const totalPercentage = macroRatio.protein + macroRatio.carbs + macroRatio.fats;
+  if (totalPercentage < 95 || totalPercentage > 105) {
+    console.warn('Macro percentages do not add up to 100%:', totalPercentage, macroRatio);
+    // Adjust ratios to add up to 100%
+    const adjustedRatio = {
+      protein: Math.round((macroRatio.protein / totalPercentage) * 100),
+      carbs: Math.round((macroRatio.carbs / totalPercentage) * 100),
+      fats: Math.round((macroRatio.fats / totalPercentage) * 100)
+    };
+    macroRatio = adjustedRatio;
+  }
+  
   // Protein and carbs = 4 calories per gram, fat = 9 calories per gram
   const protein = Math.round((calorieTarget * (macroRatio.protein / 100)) / 4);
   const carbs = Math.round((calorieTarget * (macroRatio.carbs / 100)) / 4);

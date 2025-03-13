@@ -18,15 +18,25 @@ export const useUpdateSetting = (
   ) => {
     console.log(`Updating setting "${key}" to:`, value);
     
+    // Validate input (basic validation)
+    if (value === undefined || value === null) {
+      console.error(`Invalid value for setting "${key}":`, value);
+      return;
+    }
+    
     setSettings(prev => ({ ...prev, [key]: value }));
     
-    // Save to database if it's a basic metric
+    // Save to database if it's a basic metric and we have a type mapping for it
     if (metricTypeMap[key as string]) {
-      // Handle special case for customMacroRatio which needs to be stringified
-      if (key === 'customMacroRatio') {
-        await saveHealthMetric(metricTypeMap[key as string], JSON.stringify(value));
-      } else {
-        await saveHealthMetric(metricTypeMap[key as string], value as any);
+      try {
+        // Handle special case for customMacroRatio which needs to be stringified
+        if (key === 'customMacroRatio') {
+          await saveHealthMetric(metricTypeMap[key as string], JSON.stringify(value));
+        } else {
+          await saveHealthMetric(metricTypeMap[key as string], value as any);
+        }
+      } catch (error) {
+        console.error(`Error saving setting "${key}" to database:`, error);
       }
     }
   }, [saveHealthMetric, setSettings]);
