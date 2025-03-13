@@ -1,25 +1,31 @@
 
 import React from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Calendar } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import { 
+  Tabs, 
+  TabsContent, 
+  TabsList, 
+  TabsTrigger 
+} from '@/components/ui/tabs';
+import { 
+  SheetHeader,
+  SheetTitle, 
+  SheetDescription 
+} from '@/components/ui/sheet';
 import { MealPlan, Food } from '@/components/food/types';
 
 interface MealPlanDetailsViewProps {
-  selectedMealPlan: MealPlan | null;
+  selectedMealPlan: MealPlan;
   handleAddToDiary: () => void;
   handleAddSingleMeal: (meal: Food, mealType: string) => void;
 }
 
 const MealPlanDetailsView: React.FC<MealPlanDetailsViewProps> = ({ 
-  selectedMealPlan, 
-  handleAddToDiary, 
-  handleAddSingleMeal 
+  selectedMealPlan,
+  handleAddToDiary,
+  handleAddSingleMeal
 }) => {
-  if (!selectedMealPlan) return null;
-
   const renderMealPlanItem = (item: Food, index: number, mealType: string) => (
     <div key={index} className="flex justify-between items-center p-2 border-b last:border-0">
       <div className="flex-1">
@@ -33,11 +39,13 @@ const MealPlanDetailsView: React.FC<MealPlanDetailsViewProps> = ({
       </div>
       <Button 
         size="sm" 
-        variant="ghost" 
-        className="h-8 w-8 p-0" 
-        onClick={() => handleAddSingleMeal(item, mealType)}
+        variant="ghost"
+        onClick={(e) => {
+          e.stopPropagation();
+          handleAddSingleMeal(item, mealType);
+        }}
       >
-        <Plus className="h-4 w-4" />
+        Add
       </Button>
     </div>
   );
@@ -84,9 +92,15 @@ const MealPlanDetailsView: React.FC<MealPlanDetailsViewProps> = ({
         
         <Tabs defaultValue="day1">
           <TabsList className="mb-2 w-full">
-            <TabsTrigger value="day1" className="flex-1">Day 1</TabsTrigger>
-            <TabsTrigger value="day2" className="flex-1">Day 2</TabsTrigger>
-            <TabsTrigger value="day3" className="flex-1">Day 3</TabsTrigger>
+            {selectedMealPlan.days.map((day) => (
+              <TabsTrigger 
+                key={`day${day.day}`} 
+                value={`day${day.day}`} 
+                className="flex-1"
+              >
+                Day {day.day}
+              </TabsTrigger>
+            ))}
           </TabsList>
           
           {selectedMealPlan.days.map((day, index) => (
@@ -94,21 +108,21 @@ const MealPlanDetailsView: React.FC<MealPlanDetailsViewProps> = ({
               <div>
                 <h4 className="font-medium text-sm text-gray-600 mb-1">Breakfast</h4>
                 <div className="bg-gray-50 rounded-lg overflow-hidden">
-                  {day.breakfast.map((item, i) => renderMealPlanItem(item, i, "breakfast"))}
+                  {day.breakfast.map((item, i) => renderMealPlanItem(item, i, "Breakfast"))}
                 </div>
               </div>
               
               <div>
                 <h4 className="font-medium text-sm text-gray-600 mb-1">Lunch</h4>
                 <div className="bg-gray-50 rounded-lg overflow-hidden">
-                  {day.lunch.map((item, i) => renderMealPlanItem(item, i, "lunch"))}
+                  {day.lunch.map((item, i) => renderMealPlanItem(item, i, "Lunch"))}
                 </div>
               </div>
               
               <div>
                 <h4 className="font-medium text-sm text-gray-600 mb-1">Dinner</h4>
                 <div className="bg-gray-50 rounded-lg overflow-hidden">
-                  {day.dinner.map((item, i) => renderMealPlanItem(item, i, "dinner"))}
+                  {day.dinner.map((item, i) => renderMealPlanItem(item, i, "Dinner"))}
                 </div>
               </div>
               
@@ -116,7 +130,7 @@ const MealPlanDetailsView: React.FC<MealPlanDetailsViewProps> = ({
                 <div>
                   <h4 className="font-medium text-sm text-gray-600 mb-1">Snacks</h4>
                   <div className="bg-gray-50 rounded-lg overflow-hidden">
-                    {day.snacks.map((item, i) => renderMealPlanItem(item, i, "snack"))}
+                    {day.snacks.map((item, i) => renderMealPlanItem(item, i, "Snack"))}
                   </div>
                 </div>
               )}
