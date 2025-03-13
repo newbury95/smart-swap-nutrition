@@ -20,6 +20,11 @@ export const useNutritionCalculator = (settings: NutritionSettings) => {
 
   // Calculate nutrition values whenever settings change
   useEffect(() => {
+    if (!settings) {
+      console.warn('No settings provided for nutrition calculations');
+      return;
+    }
+    
     const { weight, height, age, gender, activityLevel, fitnessGoal, customMacroRatio } = settings;
     
     // Input validation to prevent calculation errors
@@ -29,16 +34,22 @@ export const useNutritionCalculator = (settings: NutritionSettings) => {
     }
     
     // Validate numeric inputs
-    if (isNaN(weight) || isNaN(height) || isNaN(age)) {
-      console.warn('Invalid numeric settings for nutrition calculations', settings);
-      return;
-    }
+    const validWeight = typeof weight === 'number' && !isNaN(weight) ? weight : 70; // Default to 70kg
+    const validHeight = typeof height === 'number' && !isNaN(height) ? height : 170; // Default to 170cm
+    const validAge = typeof age === 'number' && !isNaN(age) ? age : 30; // Default to 30 years
     
-    console.log('Calculating nutrition with settings:', settings);
+    console.log('Calculating nutrition with validated settings:', {
+      weight: validWeight,
+      height: validHeight,
+      age: validAge,
+      gender,
+      activityLevel,
+      fitnessGoal
+    });
     
     try {
       // Calculate BMR, TDEE, and calorie target
-      const bmr = calculateBMR(weight, height, age, gender);
+      const bmr = calculateBMR(validWeight, validHeight, validAge, gender);
       
       // Validate BMR
       if (isNaN(bmr) || bmr <= 0) {
@@ -65,8 +76,16 @@ export const useNutritionCalculator = (settings: NutritionSettings) => {
       // Use custom macro ratio if provided (for premium users) or default
       const macroRatios = customMacroRatio || defaultMacroRatios[fitnessGoal];
       
+      // Make sure macro ratios add up to 100%
+      const totalRatio = macroRatios.protein + macroRatios.carbs + macroRatios.fats;
+      const normalizedRatios = totalRatio !== 100 ? {
+        protein: Math.round((macroRatios.protein / totalRatio) * 100),
+        carbs: Math.round((macroRatios.carbs / totalRatio) * 100),
+        fats: Math.round((macroRatios.fats / totalRatio) * 100)
+      } : macroRatios;
+      
       // Calculate macros in grams
-      const macros = calculateMacroGrams(calorieTarget, macroRatios);
+      const macros = calculateMacroGrams(calorieTarget, normalizedRatios);
       
       // Validate macros
       if (macros.protein < 0 || macros.carbs < 0 || macros.fats < 0) {
@@ -83,10 +102,10 @@ export const useNutritionCalculator = (settings: NutritionSettings) => {
           carbs: Math.round(macros.carbs),
           fats: Math.round(macros.fats)
         },
-        macroRatios,
+        macroRatios: normalizedRatios,
       };
       
-      console.log('New calculations set:', newCalculations);
+      console.log('New nutrition calculations set:', newCalculations);
       
       setCalculations(newCalculations);
     } catch (error) {

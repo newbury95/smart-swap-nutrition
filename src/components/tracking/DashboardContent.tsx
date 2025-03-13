@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import CircularGoalProgress from './CircularGoalProgress';
 import NutritionDashboard from './NutritionDashboard';
@@ -33,13 +33,24 @@ const DashboardContent = ({
   isPremium,
   onSettingsClick
 }: DashboardContentProps) => {
-  // Use useMealManagement to get real data
+  // Use current date for consistent meal data
   const [today] = useState(new Date());
-  const { getAllMealsNutrients } = useMealManagement(today);
+  const { getAllMealsNutrients, isLoading } = useMealManagement(today);
+  const [todayNutrients, setTodayNutrients] = useState({
+    calories: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0
+  });
   
-  // Get actual consumption data
-  const todayNutrients = getAllMealsNutrients();
-  
+  useEffect(() => {
+    // Get actual consumption data when loaded
+    if (!isLoading) {
+      const nutrients = getAllMealsNutrients();
+      setTodayNutrients(nutrients);
+    }
+  }, [isLoading, getAllMealsNutrients]);
+
   // Use real data from meals instead of mock data
   const actualConsumption = {
     calories: todayNutrients.calories || 0,
@@ -49,6 +60,18 @@ const DashboardContent = ({
       fats: todayNutrients.fat || 0
     }
   };
+  
+  // Ensure we have valid calorie target
+  const validCalorieTarget = calculations?.calorieTarget && !isNaN(calculations.calorieTarget) 
+    ? calculations.calorieTarget 
+    : 2000;
+  
+  // Debug output
+  console.log('Dashboard content rendering with:', {
+    calorieTarget: validCalorieTarget,
+    actualConsumption,
+    calculations
+  });
 
   return (
     <ErrorBoundary fallback={<div className="p-4 bg-red-100 rounded-md">Error loading nutrition dashboard</div>}>
@@ -57,14 +80,14 @@ const DashboardContent = ({
         <div className="mb-6 md:mb-0 flex flex-col items-center">
           <CircularGoalProgress 
             value={actualConsumption.calories} 
-            maxValue={calculations.calorieTarget}
+            maxValue={validCalorieTarget}
           >
             <div className="text-center">
               <div className="text-3xl font-bold text-gray-800">
                 {actualConsumption.calories}
               </div>
               <div className="text-sm text-gray-500">
-                of {calculations.calorieTarget} kcal
+                of {validCalorieTarget} kcal
               </div>
             </div>
           </CircularGoalProgress>
@@ -77,18 +100,18 @@ const DashboardContent = ({
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Calories Remaining</span>
               <span className="font-semibold">
-                {calculations.calorieTarget - actualConsumption.calories} kcal
+                {validCalorieTarget - actualConsumption.calories} kcal
               </span>
             </div>
             
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Exercises</span>
-              <span className="font-semibold">{exercises.length}</span>
+              <span className="font-semibold">{exercises?.length || 0}</span>
             </div>
             
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Calories Burned</span>
-              <span className="font-semibold">{caloriesBurned} kcal</span>
+              <span className="font-semibold">{caloriesBurned || 0} kcal</span>
             </div>
             
             <Button 

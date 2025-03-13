@@ -20,27 +20,28 @@ const NutritionDashboard = ({
   currentCalories,
   currentMacros,
 }: NutritionDashboardProps) => {
-  // Add data validation to prevent NaN or undefined values
+  // Defensive programming: ensure we always have valid values
   const validCalculations = {
-    calorieTarget: isNaN(calculations?.calorieTarget) ? 2000 : calculations?.calorieTarget || 2000,
+    calorieTarget: isNaN(calculations?.calorieTarget) || !calculations?.calorieTarget ? 2000 : calculations.calorieTarget,
     macros: {
-      protein: isNaN(calculations?.macros?.protein) ? 0 : calculations?.macros?.protein || 0,
-      carbs: isNaN(calculations?.macros?.carbs) ? 0 : calculations?.macros?.carbs || 0,
-      fats: isNaN(calculations?.macros?.fats) ? 0 : calculations?.macros?.fats || 0,
+      protein: isNaN(calculations?.macros?.protein) || !calculations?.macros?.protein ? 0 : calculations.macros.protein,
+      carbs: isNaN(calculations?.macros?.carbs) || !calculations?.macros?.carbs ? 0 : calculations.macros.carbs,
+      fats: isNaN(calculations?.macros?.fats) || !calculations?.macros?.fats ? 0 : calculations.macros.fats,
     },
     macroRatios: calculations?.macroRatios || { protein: 25, carbs: 45, fats: 30 },
-    bmr: isNaN(calculations?.bmr) ? 0 : calculations?.bmr || 0,
-    tdee: isNaN(calculations?.tdee) ? 0 : calculations?.tdee || 0
+    bmr: isNaN(calculations?.bmr) || !calculations?.bmr ? 0 : calculations.bmr,
+    tdee: isNaN(calculations?.tdee) || !calculations?.tdee ? 0 : calculations.tdee
   };
   
-  const validCurrentCalories = isNaN(currentCalories) ? 0 : currentCalories;
+  // Ensure all current values are valid numbers to prevent NaN
+  const validCurrentCalories = isNaN(currentCalories) || !currentCalories ? 0 : currentCalories;
   const validCurrentMacros = {
-    protein: isNaN(currentMacros?.protein) ? 0 : currentMacros.protein,
-    carbs: isNaN(currentMacros?.carbs) ? 0 : currentMacros.carbs,
-    fats: isNaN(currentMacros?.fats) ? 0 : currentMacros.fats
+    protein: isNaN(currentMacros?.protein) || !currentMacros?.protein ? 0 : currentMacros.protein,
+    carbs: isNaN(currentMacros?.carbs) || !currentMacros?.carbs ? 0 : currentMacros.carbs,
+    fats: isNaN(currentMacros?.fats) || !currentMacros?.fats ? 0 : currentMacros.fats
   };
   
-  console.log('NutritionDashboard rendering with:', {
+  console.log('NutritionDashboard rendering with validated data:', {
     calculations: validCalculations,
     currentCalories: validCurrentCalories, 
     currentMacros: validCurrentMacros
