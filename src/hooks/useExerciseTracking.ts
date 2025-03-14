@@ -24,6 +24,7 @@ export const useExerciseTracking = ({ isPremium, addHealthMetric }: UseExerciseT
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [caloriesBurned, setCaloriesBurned] = useState(0);
   const [showExerciseDialog, setShowExerciseDialog] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Persist calories to localStorage for sharing with other components
   useEffect(() => {
@@ -51,6 +52,8 @@ export const useExerciseTracking = ({ isPremium, addHealthMetric }: UseExerciseT
     }
 
     try {
+      setLoading(true);
+      
       // Create the exercise object
       const exercise: Exercise = {
         id: Date.now().toString(),
@@ -84,6 +87,8 @@ export const useExerciseTracking = ({ isPremium, addHealthMetric }: UseExerciseT
         title: "Error",
         description: "Failed to log exercise",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -93,5 +98,6 @@ export const useExerciseTracking = ({ isPremium, addHealthMetric }: UseExerciseT
     showExerciseDialog,
     setShowExerciseDialog,
     handleAddExercise,
+    loading,
   };
 };

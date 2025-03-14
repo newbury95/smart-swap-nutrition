@@ -54,28 +54,30 @@ const MacrosTooltip = ({ active, payload }: CustomTooltipProps) => {
 export const MacrosChart = ({ data }: MacrosChartProps) => {
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={data} barGap={0} barCategoryGap={8}>
-        <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-        <XAxis dataKey="day" />
-        <YAxis />
-        <Tooltip content={<MacrosTooltip />} />
-        <Legend />
-        <Bar
-          dataKey="protein"
-          fill="#ef4444"
-          name="Protein (g)"
-        />
-        <Bar
-          dataKey="carbs"
-          fill="#3b82f6"
-          name="Carbs (g)"
-        />
-        <Bar
-          dataKey="fats"
-          fill="#eab308"
-          name="Fats (g)"
-        />
-      </BarChart>
+      {React.createElement(
+        BarChart as any,
+        { data, barGap: 0, barCategoryGap: 8 },
+        React.createElement(CartesianGrid as any, { strokeDasharray: "3 3", opacity: 0.3 }),
+        React.createElement(XAxis as any, { dataKey: "day" }),
+        React.createElement(YAxis as any),
+        React.createElement(Tooltip as any, { content: <MacrosTooltip /> }),
+        React.createElement(Legend as any),
+        React.createElement(Bar as any, {
+          dataKey: "protein",
+          fill: "#ef4444",
+          name: "Protein (g)"
+        }),
+        React.createElement(Bar as any, {
+          dataKey: "carbs",
+          fill: "#3b82f6",
+          name: "Carbs (g)"
+        }),
+        React.createElement(Bar as any, {
+          dataKey: "fats",
+          fill: "#eab308",
+          name: "Fats (g)"
+        })
+      )}
     </ResponsiveContainer>
   );
 };
