@@ -1,12 +1,12 @@
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   ResponsiveContainer,
-  AreaChart,
-  BarChart,
+  AreaChart as RechartsAreaChart,
+  BarChart as RechartsBarChart,
   Area,
   Bar,
   CartesianGrid, 
@@ -237,7 +237,7 @@ const WeeklyNutritionChart = ({ isPremium }: { isPremium: boolean }) => {
           ) : chartView === 'calories' ? (
             <ResponsiveContainer width="100%" height="100%">
               {React.createElement(
-                AreaChart as any,
+                RechartsAreaChart as any,
                 { data: data },
                 React.createElement(CartesianGrid as any, { strokeDasharray: "3 3", opacity: 0.3 }),
                 React.createElement(XAxis as any, { dataKey: "day" }),
@@ -258,7 +258,7 @@ const WeeklyNutritionChart = ({ isPremium }: { isPremium: boolean }) => {
           ) : (
             <ResponsiveContainer width="100%" height="100%">
               {React.createElement(
-                BarChart as any,
+                RechartsBarChart as any,
                 { data: data, barGap: 0, barCategoryGap: 8 },
                 React.createElement(CartesianGrid as any, { strokeDasharray: "3 3", opacity: 0.3 }),
                 React.createElement(XAxis as any, { dataKey: "day" }),
