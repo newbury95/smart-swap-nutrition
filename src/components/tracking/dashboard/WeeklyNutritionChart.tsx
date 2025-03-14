@@ -4,15 +4,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
-  Line, 
-  LineChart, 
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid, 
+  ResponsiveContainer,
+  Tooltip,
   XAxis, 
   YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  Legend
+  Legend,
+  Line
 } from "recharts";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { ChartLine, BarChart2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -123,6 +127,14 @@ const WeeklyNutritionChart = ({ isPremium }: { isPremium: boolean }) => {
     fetchWeeklyData();
   }, [toast]);
 
+  // Chart configuration for color customization
+  const chartConfig = {
+    calories: { color: "#22c55e" },
+    protein: { color: "#ef4444" },
+    carbs: { color: "#3b82f6" },
+    fats: { color: "#eab308" },
+  };
+
   return (
     <Card className="mt-6">
       <CardContent className="pt-6">
@@ -175,56 +187,96 @@ const WeeklyNutritionChart = ({ isPremium }: { isPremium: boolean }) => {
               <p className="text-sm text-gray-400">Log your meals to see your progress</p>
             </div>
           ) : chartView === 'calories' ? (
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={data}>
+            <ChartContainer config={chartConfig} className="h-full">
+              <AreaChart data={data}>
                 <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                 <XAxis dataKey="day" />
                 <YAxis />
-                <Tooltip 
-                  formatter={(value) => [`${value} kcal`, 'Calories']}
-                  labelFormatter={(label) => `${label}`}
+                <ChartTooltip
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <ChartTooltipContent>
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-muted-foreground">
+                              {payload[0].payload.day}
+                            </span>
+                            <span className="font-bold">
+                              {`${payload[0].value} kcal`}
+                            </span>
+                          </div>
+                        </ChartTooltipContent>
+                      );
+                    }
+                    return null;
+                  }}
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="calories" 
-                  stroke="#22c55e" 
-                  strokeWidth={2} 
-                  activeDot={{ r: 8 }} 
+                <Area
+                  type="monotone"
+                  dataKey="calories"
+                  stroke="#22c55e"
+                  fill="#22c55e"
+                  fillOpacity={0.2}
+                  activeDot={{ r: 8 }}
+                  strokeWidth={2}
                   name="Calories"
                 />
-              </LineChart>
-            </ResponsiveContainer>
+              </AreaChart>
+            </ChartContainer>
           ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={data}>
+            <ChartContainer config={chartConfig} className="h-full">
+              <BarChart data={data} barGap={0} barCategoryGap={8}>
                 <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                 <XAxis dataKey="day" />
                 <YAxis />
-                <Tooltip />
+                <ChartTooltip
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <ChartTooltipContent>
+                          <div className="text-sm font-medium mb-2">
+                            {payload[0].payload.day}
+                          </div>
+                          {payload.map((entry, index) => (
+                            <div key={`tooltip-${index}`} className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-1">
+                                <div 
+                                  className="w-3 h-3 rounded-full" 
+                                  style={{ backgroundColor: entry.color }}
+                                />
+                                <span className="text-muted-foreground">
+                                  {entry.name}
+                                </span>
+                              </div>
+                              <span className="font-bold">
+                                {`${entry.value} g`}
+                              </span>
+                            </div>
+                          ))}
+                        </ChartTooltipContent>
+                      );
+                    }
+                    return null;
+                  }}
+                />
                 <Legend />
-                <Line 
-                  type="monotone" 
+                <Bar 
                   dataKey="protein" 
-                  stroke="#ef4444" 
-                  strokeWidth={2}
+                  fill="#ef4444" 
                   name="Protein (g)"
                 />
-                <Line 
-                  type="monotone" 
+                <Bar 
                   dataKey="carbs" 
-                  stroke="#3b82f6" 
-                  strokeWidth={2}
+                  fill="#3b82f6" 
                   name="Carbs (g)"
                 />
-                <Line 
-                  type="monotone" 
+                <Bar 
                   dataKey="fats" 
-                  stroke="#eab308" 
-                  strokeWidth={2}
+                  fill="#eab308" 
                   name="Fats (g)"
                 />
-              </LineChart>
-            </ResponsiveContainer>
+              </BarChart>
+            </ChartContainer>
           )}
         </div>
         
