@@ -1,22 +1,35 @@
 
-import { motion } from "framer-motion";
-import { Apple } from "lucide-react";
+import { useState } from "react";
+import { Apple, Settings } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import CalorieSettingsPanel from "./CalorieSettingsPanel";
+import { NutritionSettings, MacroRatio } from "@/hooks/useUserNutrition";
 
 interface CalorieTargetCardProps {
   calorieTarget: number;
   currentCalories: number;
+  settings: NutritionSettings;
+  isPremium: boolean;
+  onUpdateSetting: <K extends keyof NutritionSettings>(key: K, value: NutritionSettings[K]) => Promise<void>;
+  onUpdateCustomMacroRatio: (ratio: MacroRatio) => Promise<void>;
   isLoading?: boolean;
 }
 
 const CalorieTargetCard = ({ 
   calorieTarget = 0, 
   currentCalories = 0, 
+  settings,
+  isPremium,
+  onUpdateSetting,
+  onUpdateCustomMacroRatio,
   isLoading = false 
 }: CalorieTargetCardProps) => {
+  const [showSettings, setShowSettings] = useState(false);
+  
   // Use default value of 0 if invalid input
   const validCalorieTarget = isNaN(calorieTarget) || calorieTarget <= 0 ? 2000 : calorieTarget;
   const validCurrentCalories = isNaN(currentCalories) || currentCalories < 0 ? 0 : currentCalories;
@@ -44,6 +57,22 @@ const CalorieTargetCard = ({
       </Card>
     );
   }
+
+  if (showSettings) {
+    return (
+      <Card className="flex-1 overflow-hidden">
+        <CardContent className="p-4">
+          <CalorieSettingsPanel
+            settings={settings}
+            isPremium={isPremium}
+            onUpdateSetting={onUpdateSetting}
+            onUpdateCustomMacroRatio={onUpdateCustomMacroRatio}
+            onClose={() => setShowSettings(false)}
+          />
+        </CardContent>
+      </Card>
+    );
+  }
   
   return (
     <Card className="flex-1 overflow-hidden">
@@ -57,10 +86,19 @@ const CalorieTargetCard = ({
               <h3 className="text-lg font-semibold text-green-800">Daily Calorie Target</h3>
               <p className="text-3xl font-bold mt-2 text-green-900">{validCalorieTarget} kcal</p>
             </div>
-            <div className="relative z-10">
-              <div className="bg-white p-3 rounded-full">
+            <div className="relative z-10 flex flex-col items-end">
+              <div className="bg-white p-3 rounded-full mb-2">
                 <Apple className="w-10 h-10 text-green-600" />
               </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="bg-white" 
+                onClick={() => setShowSettings(true)}
+              >
+                <Settings className="w-3 h-3 mr-1" />
+                <span className="text-xs">Settings</span>
+              </Button>
             </div>
           </div>
           

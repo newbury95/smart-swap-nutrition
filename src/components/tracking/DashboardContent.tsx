@@ -5,13 +5,15 @@ import CircularGoalProgress from './CircularGoalProgress';
 import NutritionDashboard from './NutritionDashboard';
 import ProgressChartSection from './ProgressChartSection';
 import WeeklyNutritionChart from './dashboard/WeeklyNutritionChart';
-import { Settings, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useMealManagement } from '@/hooks/useMealManagement';
 import { PageLoading } from '@/components/PageLoading';
+import { NutritionSettings, MacroRatio } from '@/hooks/useUserNutrition';
 
 interface DashboardContentProps {
   calculations: any;
+  settings: NutritionSettings;
   currentConsumption: {
     calories: number;
     macros: {
@@ -23,15 +25,18 @@ interface DashboardContentProps {
   exercises: any[];
   caloriesBurned: number;
   isPremium: boolean;
-  onSettingsClick: () => void;
+  onUpdateSetting: <K extends keyof NutritionSettings>(key: K, value: NutritionSettings[K]) => Promise<void>;
+  onUpdateCustomMacroRatio: (ratio: MacroRatio) => Promise<void>;
 }
 
 const DashboardContent = ({
   calculations,
+  settings,
   exercises,
   caloriesBurned,
   isPremium,
-  onSettingsClick
+  onUpdateSetting,
+  onUpdateCustomMacroRatio
 }: DashboardContentProps) => {
   // Use current date for consistent meal data
   const [today] = useState(new Date());
@@ -78,6 +83,7 @@ const DashboardContent = ({
   console.log('Dashboard content rendering:', {
     calculationsLoading,
     calculations,
+    settings,
     isLoading,
     validCalorieTarget,
     actualConsumption
@@ -127,18 +133,6 @@ const DashboardContent = ({
               <span className="text-gray-600">Calories Burned</span>
               <span className="font-semibold">{caloriesBurned || 0} kcal</span>
             </div>
-            
-            <Button 
-              variant="outline" 
-              className="w-full mt-2 flex items-center justify-between"
-              onClick={onSettingsClick}
-            >
-              <div className="flex items-center">
-                <Settings className="w-4 h-4 mr-2" />
-                Update Your Settings
-              </div>
-              <ChevronRight className="w-4 h-4" />
-            </Button>
           </div>
         </div>
       </div>
@@ -146,8 +140,12 @@ const DashboardContent = ({
       {/* Main nutrition dashboard */}
       <NutritionDashboard 
         calculations={calculations}
+        settings={settings}
+        isPremium={isPremium}
         currentCalories={actualConsumption.calories}
         currentMacros={actualConsumption.macros}
+        onUpdateSetting={onUpdateSetting}
+        onUpdateCustomMacroRatio={onUpdateCustomMacroRatio}
         isLoading={dashboardLoading}
       />
 

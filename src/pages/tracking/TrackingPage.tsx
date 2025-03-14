@@ -108,11 +108,13 @@ const TrackingPage = () => {
             <TabsContent value="dashboard" className="space-y-8">
               <DashboardContent
                 calculations={calculations}
+                settings={settings}
                 currentConsumption={currentConsumption}
                 exercises={exercises}
                 caloriesBurned={caloriesBurned}
                 isPremium={isPremium}
-                onSettingsClick={() => setActiveTab("settings")}
+                onUpdateSetting={updateSetting}
+                onUpdateCustomMacroRatio={updateCustomMacroRatio}
               />
             </TabsContent>
             

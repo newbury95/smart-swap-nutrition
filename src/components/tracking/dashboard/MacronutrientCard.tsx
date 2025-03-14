@@ -127,7 +127,6 @@ const MacronutrientCard = ({
           
           <TabsContent value="distribution">
             <div className="p-4 bg-gray-50 rounded-lg mb-4">
-              {/* Replace the invalid call with three separate MacroProgress components */}
               <div className="space-y-4">
                 <MacroProgress
                   label="Protein"

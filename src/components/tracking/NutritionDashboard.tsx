@@ -1,25 +1,33 @@
 
 import { motion } from "framer-motion";
-import { NutritionCalculations } from "@/hooks/useUserNutrition";
+import { NutritionCalculations, NutritionSettings, MacroRatio } from "@/hooks/useUserNutrition";
 import CalorieTargetCard from "./dashboard/CalorieTargetCard";
 import EnergyExpenditureCard from "./dashboard/EnergyExpenditureCard";
 import MacronutrientCard from "./dashboard/MacronutrientCard";
 
 interface NutritionDashboardProps {
   calculations: NutritionCalculations;
+  settings: NutritionSettings;
+  isPremium: boolean;
   currentCalories: number;
   currentMacros: {
     protein: number;
     carbs: number;
     fats: number;
   };
+  onUpdateSetting: <K extends keyof NutritionSettings>(key: K, value: NutritionSettings[K]) => Promise<void>;
+  onUpdateCustomMacroRatio: (ratio: MacroRatio) => Promise<void>;
   isLoading?: boolean;
 }
 
 const NutritionDashboard = ({
   calculations,
+  settings,
+  isPremium,
   currentCalories,
   currentMacros,
+  onUpdateSetting,
+  onUpdateCustomMacroRatio,
   isLoading = false
 }: NutritionDashboardProps) => {
   // Defensive programming: ensure we always have valid values
@@ -62,10 +70,14 @@ const NutritionDashboard = ({
       className="space-y-6 mt-6"
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Calorie target card */}
+        {/* Calorie target card with settings integration */}
         <CalorieTargetCard 
           calorieTarget={validCalculations.calorieTarget} 
           currentCalories={validCurrentCalories}
+          settings={settings}
+          isPremium={isPremium}
+          onUpdateSetting={onUpdateSetting}
+          onUpdateCustomMacroRatio={onUpdateCustomMacroRatio}
           isLoading={isLoading}
         />
 
