@@ -127,11 +127,33 @@ const MacronutrientCard = ({
           
           <TabsContent value="distribution">
             <div className="p-4 bg-gray-50 rounded-lg mb-4">
-              <MacroProgress
-                protein={macroRatios.protein}
-                carbs={macroRatios.carbs}
-                fats={macroRatios.fats}
-              />
+              {/* Replace the invalid call with three separate MacroProgress components */}
+              <div className="space-y-4">
+                <MacroProgress
+                  label="Protein"
+                  color="bg-red-500"
+                  percentage={(validCurrentMacros.protein / (validMacros.protein || 1)) * 100}
+                  current={validCurrentMacros.protein}
+                  target={validMacros.protein}
+                  ratio={macroRatios.protein}
+                />
+                <MacroProgress
+                  label="Carbs"
+                  color="bg-blue-500"
+                  percentage={(validCurrentMacros.carbs / (validMacros.carbs || 1)) * 100}
+                  current={validCurrentMacros.carbs}
+                  target={validMacros.carbs}
+                  ratio={macroRatios.carbs}
+                />
+                <MacroProgress
+                  label="Fats"
+                  color="bg-yellow-500"
+                  percentage={(validCurrentMacros.fats / (validMacros.fats || 1)) * 100}
+                  current={validCurrentMacros.fats}
+                  target={validMacros.fats}
+                  ratio={macroRatios.fats}
+                />
+              </div>
             </div>
             
             <div className="grid grid-cols-3 gap-4 text-center">
