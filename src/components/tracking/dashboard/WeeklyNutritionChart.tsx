@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   ResponsiveContainer,
-  AreaChart as RechartsAreaChart,
-  BarChart as RechartsBarChart,
+  AreaChart,
+  BarChart,
   Area,
   Bar,
   CartesianGrid, 
@@ -15,7 +15,6 @@ import {
   YAxis, 
   Legend
 } from "recharts";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { ChartLine, BarChart2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -135,6 +134,55 @@ const WeeklyNutritionChart = ({ isPremium }: { isPremium: boolean }) => {
     fats: { color: "#eab308" },
   };
 
+  // Custom tooltip for calories chart
+  const renderCaloriesTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-background border border-border/50 rounded-lg px-3 py-2 shadow-lg">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-muted-foreground">
+              {payload[0].payload.day}
+            </span>
+            <span className="font-bold">
+              {`${payload[0].value} kcal`}
+            </span>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // Custom tooltip for macros chart
+  const renderMacrosTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-background border border-border/50 rounded-lg px-3 py-2 shadow-lg">
+          <div className="text-sm font-medium mb-2">
+            {payload[0]?.payload?.day}
+          </div>
+          {payload.map((entry: any, index: number) => (
+            <div key={`tooltip-${index}`} className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1">
+                <div 
+                  className="w-3 h-3 rounded-full" 
+                  style={{ backgroundColor: entry.color }}
+                />
+                <span className="text-muted-foreground">
+                  {entry.name}
+                </span>
+              </div>
+              <span className="font-bold">
+                {`${entry.value} g`}
+              </span>
+            </div>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <Card className="mt-6">
       <CardContent className="pt-6">
@@ -188,94 +236,51 @@ const WeeklyNutritionChart = ({ isPremium }: { isPremium: boolean }) => {
             </div>
           ) : chartView === 'calories' ? (
             <ResponsiveContainer width="100%" height="100%">
-              <RechartsAreaChart data={data}>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                <XAxis dataKey="day" />
-                <YAxis />
-                <Tooltip
-                  content={({ active, payload }) => {
-                    if (active && payload && payload.length) {
-                      return (
-                        <div className="bg-background border border-border/50 rounded-lg px-3 py-2 shadow-lg">
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="text-muted-foreground">
-                              {payload[0].payload.day}
-                            </span>
-                            <span className="font-bold">
-                              {`${payload[0].value} kcal`}
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="calories"
-                  stroke="#22c55e"
-                  fill="#22c55e"
-                  fillOpacity={0.2}
-                  activeDot={{ r: 8 }}
-                  strokeWidth={2}
-                  name="Calories"
-                />
-              </RechartsAreaChart>
+              {React.createElement(
+                AreaChart as any,
+                { data: data },
+                React.createElement(CartesianGrid as any, { strokeDasharray: "3 3", opacity: 0.3 }),
+                React.createElement(XAxis as any, { dataKey: "day" }),
+                React.createElement(YAxis as any),
+                React.createElement(Tooltip as any, { content: renderCaloriesTooltip }),
+                React.createElement(Area as any, {
+                  type: "monotone",
+                  dataKey: "calories",
+                  stroke: "#22c55e",
+                  fill: "#22c55e",
+                  fillOpacity: 0.2,
+                  activeDot: { r: 8 },
+                  strokeWidth: 2,
+                  name: "Calories"
+                })
+              )}
             </ResponsiveContainer>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
-              <RechartsBarChart data={data} barGap={0} barCategoryGap={8}>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                <XAxis dataKey="day" />
-                <YAxis />
-                <Tooltip
-                  content={({ active, payload }) => {
-                    if (active && payload && payload.length) {
-                      return (
-                        <div className="bg-background border border-border/50 rounded-lg px-3 py-2 shadow-lg">
-                          <div className="text-sm font-medium mb-2">
-                            {payload[0]?.payload?.day}
-                          </div>
-                          {payload.map((entry, index) => (
-                            <div key={`tooltip-${index}`} className="flex items-center justify-between gap-2">
-                              <div className="flex items-center gap-1">
-                                <div 
-                                  className="w-3 h-3 rounded-full" 
-                                  style={{ backgroundColor: entry.color }}
-                                />
-                                <span className="text-muted-foreground">
-                                  {entry.name}
-                                </span>
-                              </div>
-                              <span className="font-bold">
-                                {`${entry.value} g`}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-                <Legend />
-                <Bar 
-                  dataKey="protein" 
-                  fill="#ef4444" 
-                  name="Protein (g)"
-                />
-                <Bar 
-                  dataKey="carbs" 
-                  fill="#3b82f6" 
-                  name="Carbs (g)"
-                />
-                <Bar 
-                  dataKey="fats" 
-                  fill="#eab308" 
-                  name="Fats (g)"
-                />
-              </RechartsBarChart>
+              {React.createElement(
+                BarChart as any,
+                { data: data, barGap: 0, barCategoryGap: 8 },
+                React.createElement(CartesianGrid as any, { strokeDasharray: "3 3", opacity: 0.3 }),
+                React.createElement(XAxis as any, { dataKey: "day" }),
+                React.createElement(YAxis as any),
+                React.createElement(Tooltip as any, { content: renderMacrosTooltip }),
+                React.createElement(Legend as any),
+                React.createElement(Bar as any, {
+                  dataKey: "protein",
+                  fill: "#ef4444",
+                  name: "Protein (g)"
+                }),
+                React.createElement(Bar as any, {
+                  dataKey: "carbs",
+                  fill: "#3b82f6",
+                  name: "Carbs (g)"
+                }),
+                React.createElement(Bar as any, {
+                  dataKey: "fats",
+                  fill: "#eab308",
+                  name: "Fats (g)"
+                })
+              )}
             </ResponsiveContainer>
           )}
         </div>
