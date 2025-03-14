@@ -33,15 +33,21 @@ export const useNutritionCalculator = (settings: NutritionSettings) => {
       return;
     }
     
-    // Validate numeric inputs
-    const validWeight = typeof weight === 'number' && !isNaN(weight) ? weight : 70; // Default to 70kg
-    const validHeight = typeof height === 'number' && !isNaN(height) ? height : 170; // Default to 170cm
-    const validAge = typeof age === 'number' && !isNaN(age) ? age : 30; // Default to 30 years
+    // Validate numeric inputs with more restrictive checks
+    if (typeof weight !== 'number' || typeof height !== 'number' || typeof age !== 'number') {
+      console.warn('Invalid numeric settings types for nutrition calculations', { weight, height, age });
+      return;
+    }
+    
+    if (isNaN(weight) || isNaN(height) || isNaN(age) || weight <= 0 || height <= 0 || age <= 0) {
+      console.warn('Invalid numeric settings values for nutrition calculations', { weight, height, age });
+      return;
+    }
     
     console.log('Calculating nutrition with validated settings:', {
-      weight: validWeight,
-      height: validHeight,
-      age: validAge,
+      weight,
+      height,
+      age,
       gender,
       activityLevel,
       fitnessGoal
@@ -49,7 +55,7 @@ export const useNutritionCalculator = (settings: NutritionSettings) => {
     
     try {
       // Calculate BMR, TDEE, and calorie target
-      const bmr = calculateBMR(validWeight, validHeight, validAge, gender);
+      const bmr = calculateBMR(weight, height, age, gender);
       
       // Validate BMR
       if (isNaN(bmr) || bmr <= 0) {

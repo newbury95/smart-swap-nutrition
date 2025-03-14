@@ -1,8 +1,9 @@
 
-import { BarChart2 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { MacroRatio } from "@/hooks/useUserNutrition";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
 import MacroProgress from "./MacroProgress";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface MacronutrientCardProps {
   macros: {
@@ -15,66 +16,140 @@ interface MacronutrientCardProps {
     carbs: number;
     fats: number;
   };
-  macroRatios: MacroRatio;
+  macroRatios: {
+    protein: number;
+    carbs: number;
+    fats: number;
+  };
+  isLoading?: boolean;
 }
 
-const MacronutrientCard = ({ 
-  macros, 
-  currentMacros, 
-  macroRatios 
+const MacronutrientCard = ({
+  macros,
+  currentMacros,
+  macroRatios,
+  isLoading = false
 }: MacronutrientCardProps) => {
-  // Calculate percentage progress for macros
-  const proteinPercentage = Math.min(
-    Math.round((currentMacros.protein / macros.protein) * 100),
-    100
-  );
+  // Validation to prevent NaN or infinity
+  const validMacros = {
+    protein: isNaN(macros?.protein) ? 0 : macros.protein,
+    carbs: isNaN(macros?.carbs) ? 0 : macros.carbs,
+    fats: isNaN(macros?.fats) ? 0 : macros.fats,
+  };
   
-  const carbsPercentage = Math.min(
-    Math.round((currentMacros.carbs / macros.carbs) * 100),
-    100
-  );
+  const validCurrentMacros = {
+    protein: isNaN(currentMacros?.protein) ? 0 : currentMacros.protein,
+    carbs: isNaN(currentMacros?.carbs) ? 0 : currentMacros.carbs,
+    fats: isNaN(currentMacros?.fats) ? 0 : currentMacros.fats,
+  };
   
-  const fatsPercentage = Math.min(
-    Math.round((currentMacros.fats / macros.fats) * 100),
-    100
-  );
-
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            <Skeleton className="h-7 w-48" />
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            <div className="flex justify-between">
+              <Skeleton className="h-8 w-32" />
+              <Skeleton className="h-8 w-32" />
+            </div>
+            
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="space-y-2">
+                  <div className="flex justify-between">
+                    <Skeleton className="h-5 w-24" />
+                    <Skeleton className="h-5 w-24" />
+                  </div>
+                  <Skeleton className="h-2 w-full" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+  
   return (
     <Card>
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">Macronutrient Targets</h3>
-          <BarChart2 className="w-6 h-6 text-indigo-500" />
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <MacroProgress
-            label="Protein"
-            color="bg-red-400"
-            percentage={proteinPercentage}
-            current={currentMacros.protein}
-            target={macros.protein}
-            ratio={macroRatios.protein}
-          />
+      <CardHeader>
+        <CardTitle>Macronutrients Tracking</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Tabs defaultValue="progress">
+          <TabsList className="mb-4">
+            <TabsTrigger value="progress">Progress</TabsTrigger>
+            <TabsTrigger value="distribution">Distribution</TabsTrigger>
+          </TabsList>
           
-          <MacroProgress
-            label="Carbs"
-            color="bg-blue-400"
-            percentage={carbsPercentage}
-            current={currentMacros.carbs}
-            target={macros.carbs}
-            ratio={macroRatios.carbs}
-          />
+          <TabsContent value="progress" className="space-y-4">
+            {/* Protein progress */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="font-medium">Protein</span>
+                <span>{validCurrentMacros.protein}g / {validMacros.protein}g</span>
+              </div>
+              <Progress 
+                value={(validCurrentMacros.protein / (validMacros.protein || 1)) * 100} 
+                indicatorClassName="bg-red-500"
+              />
+            </div>
+            
+            {/* Carbs progress */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="font-medium">Carbs</span>
+                <span>{validCurrentMacros.carbs}g / {validMacros.carbs}g</span>
+              </div>
+              <Progress 
+                value={(validCurrentMacros.carbs / (validMacros.carbs || 1)) * 100}
+                indicatorClassName="bg-blue-500"
+              />
+            </div>
+            
+            {/* Fats progress */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="font-medium">Fats</span>
+                <span>{validCurrentMacros.fats}g / {validMacros.fats}g</span>
+              </div>
+              <Progress 
+                value={(validCurrentMacros.fats / (validMacros.fats || 1)) * 100}
+                indicatorClassName="bg-yellow-500"
+              />
+            </div>
+          </TabsContent>
           
-          <MacroProgress
-            label="Fats"
-            color="bg-yellow-400"
-            percentage={fatsPercentage}
-            current={currentMacros.fats}
-            target={macros.fats}
-            ratio={macroRatios.fats}
-          />
-        </div>
+          <TabsContent value="distribution">
+            <div className="p-4 bg-gray-50 rounded-lg mb-4">
+              <MacroProgress
+                protein={macroRatios.protein}
+                carbs={macroRatios.carbs}
+                fats={macroRatios.fats}
+              />
+            </div>
+            
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <div className="font-semibold">{macroRatios.protein}%</div>
+                <div className="text-sm text-muted-foreground">Protein</div>
+              </div>
+              <div>
+                <div className="font-semibold">{macroRatios.carbs}%</div>
+                <div className="text-sm text-muted-foreground">Carbs</div>
+              </div>
+              <div>
+                <div className="font-semibold">{macroRatios.fats}%</div>
+                <div className="text-sm text-muted-foreground">Fats</div>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   );

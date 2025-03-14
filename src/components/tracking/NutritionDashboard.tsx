@@ -13,20 +13,26 @@ interface NutritionDashboardProps {
     carbs: number;
     fats: number;
   };
+  isLoading?: boolean;
 }
 
 const NutritionDashboard = ({
   calculations,
   currentCalories,
   currentMacros,
+  isLoading = false
 }: NutritionDashboardProps) => {
   // Defensive programming: ensure we always have valid values
   const validCalculations = {
-    calorieTarget: isNaN(calculations?.calorieTarget) || !calculations?.calorieTarget ? 2000 : calculations.calorieTarget,
+    calorieTarget: isNaN(calculations?.calorieTarget) || !calculations?.calorieTarget 
+      ? 2000 : calculations.calorieTarget,
     macros: {
-      protein: isNaN(calculations?.macros?.protein) || !calculations?.macros?.protein ? 0 : calculations.macros.protein,
-      carbs: isNaN(calculations?.macros?.carbs) || !calculations?.macros?.carbs ? 0 : calculations.macros.carbs,
-      fats: isNaN(calculations?.macros?.fats) || !calculations?.macros?.fats ? 0 : calculations.macros.fats,
+      protein: isNaN(calculations?.macros?.protein) || !calculations?.macros?.protein 
+        ? 0 : calculations.macros.protein,
+      carbs: isNaN(calculations?.macros?.carbs) || !calculations?.macros?.carbs 
+        ? 0 : calculations.macros.carbs,
+      fats: isNaN(calculations?.macros?.fats) || !calculations?.macros?.fats 
+        ? 0 : calculations.macros.fats,
     },
     macroRatios: calculations?.macroRatios || { protein: 25, carbs: 45, fats: 30 },
     bmr: isNaN(calculations?.bmr) || !calculations?.bmr ? 0 : calculations.bmr,
@@ -44,7 +50,8 @@ const NutritionDashboard = ({
   console.log('NutritionDashboard rendering with validated data:', {
     calculations: validCalculations,
     currentCalories: validCurrentCalories, 
-    currentMacros: validCurrentMacros
+    currentMacros: validCurrentMacros,
+    isLoading
   });
   
   return (
@@ -58,13 +65,15 @@ const NutritionDashboard = ({
         {/* Calorie target card */}
         <CalorieTargetCard 
           calorieTarget={validCalculations.calorieTarget} 
-          currentCalories={validCurrentCalories} 
+          currentCalories={validCurrentCalories}
+          isLoading={isLoading}
         />
 
         {/* Energy expenditure card */}
         <EnergyExpenditureCard 
           bmr={validCalculations.bmr} 
-          tdee={validCalculations.tdee} 
+          tdee={validCalculations.tdee}
+          isLoading={isLoading}
         />
       </div>
 
@@ -73,6 +82,7 @@ const NutritionDashboard = ({
         macros={validCalculations.macros}
         currentMacros={validCurrentMacros}
         macroRatios={validCalculations.macroRatios}
+        isLoading={isLoading}
       />
     </motion.div>
   );

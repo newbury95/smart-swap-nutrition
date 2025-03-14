@@ -61,12 +61,29 @@ const DashboardContent = ({
     }
   }), [todayNutrients]);
   
-  // Ensure we have valid calorie target
+  // Ensure we have valid calorie target with fallback
+  const calculationsLoading = !calculations || 
+    !calculations.calorieTarget || 
+    !calculations.bmr || 
+    !calculations.tdee;
+  
   const validCalorieTarget = calculations?.calorieTarget && !isNaN(calculations.calorieTarget) 
     ? calculations.calorieTarget 
     : 2000;
   
-  if (isLoading) {
+  // Loading state for the entire dashboard
+  const dashboardLoading = isLoading || calculationsLoading;
+  
+  // Debug information to help trace issues
+  console.log('Dashboard content rendering:', {
+    calculationsLoading,
+    calculations,
+    isLoading,
+    validCalorieTarget,
+    actualConsumption
+  });
+  
+  if (dashboardLoading && !calculations) {
     return <PageLoading />;
   }
 
@@ -131,6 +148,7 @@ const DashboardContent = ({
         calculations={calculations}
         currentCalories={actualConsumption.calories}
         currentMacros={actualConsumption.macros}
+        isLoading={dashboardLoading}
       />
 
       {/* Weekly Nutrition Chart - New Component */}
