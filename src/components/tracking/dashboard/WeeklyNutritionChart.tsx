@@ -4,22 +4,22 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  CartesianGrid, 
   ResponsiveContainer,
+  AreaChart as RechartsAreaChart,
+  BarChart as RechartsBarChart,
+  Area,
+  Bar,
+  CartesianGrid, 
   Tooltip,
   XAxis, 
   YAxis, 
-  Legend,
-  Line
+  Legend
 } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { ChartLine, BarChart2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { PageLoading } from "@/components/PageLoading";
 
 type NutritionData = {
   day: string;
@@ -187,16 +187,16 @@ const WeeklyNutritionChart = ({ isPremium }: { isPremium: boolean }) => {
               <p className="text-sm text-gray-400">Log your meals to see your progress</p>
             </div>
           ) : chartView === 'calories' ? (
-            <ChartContainer config={chartConfig} className="h-full">
-              <AreaChart data={data}>
+            <ResponsiveContainer width="100%" height="100%">
+              <RechartsAreaChart data={data}>
                 <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                 <XAxis dataKey="day" />
                 <YAxis />
-                <ChartTooltip
+                <Tooltip
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
                       return (
-                        <ChartTooltipContent>
+                        <div className="bg-background border border-border/50 rounded-lg px-3 py-2 shadow-lg">
                           <div className="flex items-center justify-between gap-2">
                             <span className="text-muted-foreground">
                               {payload[0].payload.day}
@@ -205,7 +205,7 @@ const WeeklyNutritionChart = ({ isPremium }: { isPremium: boolean }) => {
                               {`${payload[0].value} kcal`}
                             </span>
                           </div>
-                        </ChartTooltipContent>
+                        </div>
                       );
                     }
                     return null;
@@ -221,21 +221,21 @@ const WeeklyNutritionChart = ({ isPremium }: { isPremium: boolean }) => {
                   strokeWidth={2}
                   name="Calories"
                 />
-              </AreaChart>
-            </ChartContainer>
+              </RechartsAreaChart>
+            </ResponsiveContainer>
           ) : (
-            <ChartContainer config={chartConfig} className="h-full">
-              <BarChart data={data} barGap={0} barCategoryGap={8}>
+            <ResponsiveContainer width="100%" height="100%">
+              <RechartsBarChart data={data} barGap={0} barCategoryGap={8}>
                 <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                 <XAxis dataKey="day" />
                 <YAxis />
-                <ChartTooltip
+                <Tooltip
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
                       return (
-                        <ChartTooltipContent>
+                        <div className="bg-background border border-border/50 rounded-lg px-3 py-2 shadow-lg">
                           <div className="text-sm font-medium mb-2">
-                            {payload[0].payload.day}
+                            {payload[0]?.payload?.day}
                           </div>
                           {payload.map((entry, index) => (
                             <div key={`tooltip-${index}`} className="flex items-center justify-between gap-2">
@@ -253,7 +253,7 @@ const WeeklyNutritionChart = ({ isPremium }: { isPremium: boolean }) => {
                               </span>
                             </div>
                           ))}
-                        </ChartTooltipContent>
+                        </div>
                       );
                     }
                     return null;
@@ -275,8 +275,8 @@ const WeeklyNutritionChart = ({ isPremium }: { isPremium: boolean }) => {
                   fill="#eab308" 
                   name="Fats (g)"
                 />
-              </BarChart>
-            </ChartContainer>
+              </RechartsBarChart>
+            </ResponsiveContainer>
           )}
         </div>
         
