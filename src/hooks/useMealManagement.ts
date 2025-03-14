@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useSupabase, type Meal } from "@/hooks/useSupabase";
 
@@ -24,13 +24,14 @@ export const useMealManagement = (date: Date) => {
 
   // Create stable date string for dependency to prevent infinite renders
   const formattedDate = date.toISOString().split('T')[0];
+  const isInitialMount = useRef(true);
 
   // Load meals when date changes
   const loadMeals = useCallback(async () => {
     setIsLoading(true);
     try {
       const fetchedMeals = await getMeals(date);
-      console.log('Fetched meals for date:', date, fetchedMeals);
+      console.log('Fetched meals for date:', formattedDate, fetchedMeals);
       
       // Initialize with empty arrays for all meal types
       const initializedMeals = { 
@@ -86,8 +87,14 @@ export const useMealManagement = (date: Date) => {
   }, [formattedDate, getMeals, toast]);
 
   useEffect(() => {
-    loadMeals();
-  }, [loadMeals]);
+    // Only call loadMeals on initial mount and when formattedDate changes
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      loadMeals();
+    } else {
+      loadMeals();
+    }
+  }, [formattedDate, loadMeals]);
 
   const handleAddFood = useCallback((type: MealType) => async (food: any) => {
     try {
@@ -110,22 +117,16 @@ export const useMealManagement = (date: Date) => {
             ...prev,
             [type]: [...prev[type], meal]
           };
-          
-          // Update nutrients when adding food
-          const allMeals = [...updatedMeals.breakfast, ...updatedMeals.lunch, 
-                           ...updatedMeals.dinner, ...updatedMeals.snack];
-          
-          const newTotals = allMeals.reduce((acc, m) => ({
-            calories: acc.calories + (m.calories || 0),
-            protein: acc.protein + (m.protein || 0),
-            carbs: acc.carbs + (m.carbs || 0),
-            fat: acc.fat + (m.fat || 0)
-          }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
-          
-          setNutrients(newTotals);
-          
           return updatedMeals;
         });
+        
+        // Update nutrients separately after meals state is updated
+        setNutrients(prev => ({
+          calories: prev.calories + (meal.calories || 0),
+          protein: prev.protein + (meal.protein || 0),
+          carbs: prev.carbs + (meal.carbs || 0),
+          fat: prev.fat + (meal.fat || 0)
+        }));
 
         toast({
           title: "Food added",
@@ -144,6 +145,9 @@ export const useMealManagement = (date: Date) => {
 
   const handleDeleteFood = useCallback(async (type: MealType, mealId: string) => {
     try {
+      // Find the meal we're about to delete to update nutrients correctly
+      const mealToDelete = meals[type].find(meal => meal.id === mealId);
+      
       await deleteMeal(mealId);
       
       // Update meals state
@@ -152,22 +156,18 @@ export const useMealManagement = (date: Date) => {
           ...prev,
           [type]: prev[type].filter(meal => meal.id !== mealId)
         };
-        
-        // Update nutrients when deleting food
-        const allMeals = [...updatedMeals.breakfast, ...updatedMeals.lunch, 
-                         ...updatedMeals.dinner, ...updatedMeals.snack];
-        
-        const newTotals = allMeals.reduce((acc, meal) => ({
-          calories: acc.calories + (meal.calories || 0),
-          protein: acc.protein + (meal.protein || 0),
-          carbs: acc.carbs + (meal.carbs || 0),
-          fat: acc.fat + (meal.fat || 0)
-        }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
-        
-        setNutrients(newTotals);
-        
         return updatedMeals;
       });
+      
+      // Update nutrients
+      if (mealToDelete) {
+        setNutrients(prev => ({
+          calories: prev.calories - (mealToDelete.calories || 0),
+          protein: prev.protein - (mealToDelete.protein || 0),
+          carbs: prev.carbs - (mealToDelete.carbs || 0),
+          fat: prev.fat - (mealToDelete.fat || 0)
+        }));
+      }
 
       toast({
         title: "Food removed",
@@ -181,7 +181,7 @@ export const useMealManagement = (date: Date) => {
         description: "Failed to remove food",
       });
     }
-  }, [deleteMeal, toast]);
+  }, [deleteMeal, toast, meals]);
 
   const getTotalNutrients = useCallback((mealList: Meal[]) => {
     return mealList.reduce((acc, meal) => ({

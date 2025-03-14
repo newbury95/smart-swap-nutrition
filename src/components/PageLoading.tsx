@@ -1,8 +1,9 @@
 
 import React from "react";
+import { Loader2 } from "lucide-react";
 
 export const PageLoading: React.FC = () => (
   <div className="min-h-screen flex items-center justify-center">
-    <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600"></div>
+    <Loader2 className="h-16 w-16 animate-spin text-green-600" />
   </div>
 );

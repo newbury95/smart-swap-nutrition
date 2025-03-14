@@ -1,11 +1,10 @@
 
-import { supabase } from './useSupabase';
-import type { Meal } from './types/supabase';
+import { useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import type { Meal } from '@/hooks/useSupabase';
 
 export const useMeals = () => {
-  const getMeals = async (date: Date) => {
-    if (!supabase) return [];
-
+  const getMeals = useCallback(async (date: Date) => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) return [];
@@ -31,11 +30,9 @@ export const useMeals = () => {
       console.error('Error in getMeals:', error);
       return [];
     }
-  };
+  }, []);
 
-  const addMeal = async (meal: Omit<Meal, 'id' | 'created_at'>) => {
-    if (!supabase) return null;
-
+  const addMeal = useCallback(async (meal: Omit<Meal, 'id' | 'created_at'>) => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) return null;
@@ -66,11 +63,9 @@ export const useMeals = () => {
       console.error('Error in addMeal:', error);
       return null;
     }
-  };
+  }, []);
 
-  const deleteMeal = async (mealId: string) => {
-    if (!supabase) return;
-
+  const deleteMeal = useCallback(async (mealId: string) => {
     try {
       const { error } = await supabase
         .from('meals')
@@ -85,7 +80,7 @@ export const useMeals = () => {
       console.error('Error in deleteMeal:', error);
       throw error;
     }
-  };
+  }, []);
 
   return { getMeals, addMeal, deleteMeal };
 };

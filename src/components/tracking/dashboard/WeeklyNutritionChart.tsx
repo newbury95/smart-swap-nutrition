@@ -3,32 +3,14 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  ResponsiveContainer,
-  AreaChart as RechartsAreaChart,
-  BarChart as RechartsBarChart,
-  Area,
-  Bar,
-  CartesianGrid, 
-  Tooltip,
-  XAxis, 
-  YAxis, 
-  Legend
-} from "recharts";
-import { ChartLine, BarChart2 } from "lucide-react";
+import { ChartLine } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { PageLoading } from "@/components/PageLoading";
-
-type NutritionData = {
-  day: string;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fats: number;
-};
-
-type ChartView = 'calories' | 'macros';
+import { ChartLoading } from "./charts/ChartLoading";
+import { EmptyChartState } from "./charts/EmptyChartState";
+import { CaloriesChart } from "./charts/CaloriesChart";
+import { MacrosChart } from "./charts/MacrosChart";
+import { ChartView, NutritionData } from "./types/nutritionData";
 
 const WeeklyNutritionChart = ({ isPremium }: { isPremium: boolean }) => {
   const [data, setData] = useState<NutritionData[]>([]);
@@ -126,63 +108,6 @@ const WeeklyNutritionChart = ({ isPremium }: { isPremium: boolean }) => {
     fetchWeeklyData();
   }, [toast]);
 
-  // Chart configuration for color customization
-  const chartConfig = {
-    calories: { color: "#22c55e" },
-    protein: { color: "#ef4444" },
-    carbs: { color: "#3b82f6" },
-    fats: { color: "#eab308" },
-  };
-
-  // Custom tooltip for calories chart
-  const renderCaloriesTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-background border border-border/50 rounded-lg px-3 py-2 shadow-lg">
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-muted-foreground">
-              {payload[0].payload.day}
-            </span>
-            <span className="font-bold">
-              {`${payload[0].value} kcal`}
-            </span>
-          </div>
-        </div>
-      );
-    }
-    return null;
-  };
-
-  // Custom tooltip for macros chart
-  const renderMacrosTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-background border border-border/50 rounded-lg px-3 py-2 shadow-lg">
-          <div className="text-sm font-medium mb-2">
-            {payload[0]?.payload?.day}
-          </div>
-          {payload.map((entry: any, index: number) => (
-            <div key={`tooltip-${index}`} className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-1">
-                <div 
-                  className="w-3 h-3 rounded-full" 
-                  style={{ backgroundColor: entry.color }}
-                />
-                <span className="text-muted-foreground">
-                  {entry.name}
-                </span>
-              </div>
-              <span className="font-bold">
-                {`${entry.value} g`}
-              </span>
-            </div>
-          ))}
-        </div>
-      );
-    }
-    return null;
-  };
-
   return (
     <Card className="mt-6">
       <CardContent className="pt-6">
@@ -226,62 +151,13 @@ const WeeklyNutritionChart = ({ isPremium }: { isPremium: boolean }) => {
         
         <div className="h-[300px]">
           {isLoading ? (
-            <div className="h-full flex items-center justify-center">
-              <BarChart2 className="h-16 w-16 animate-pulse text-gray-300" />
-            </div>
+            <ChartLoading />
           ) : data.length === 0 ? (
-            <div className="h-full flex items-center justify-center flex-col gap-2">
-              <p className="text-gray-500">No nutrition data available for this week</p>
-              <p className="text-sm text-gray-400">Log your meals to see your progress</p>
-            </div>
+            <EmptyChartState />
           ) : chartView === 'calories' ? (
-            <ResponsiveContainer width="100%" height="100%">
-              {React.createElement(
-                RechartsAreaChart as any,
-                { data: data },
-                React.createElement(CartesianGrid as any, { strokeDasharray: "3 3", opacity: 0.3 }),
-                React.createElement(XAxis as any, { dataKey: "day" }),
-                React.createElement(YAxis as any),
-                React.createElement(Tooltip as any, { content: renderCaloriesTooltip }),
-                React.createElement(Area as any, {
-                  type: "monotone",
-                  dataKey: "calories",
-                  stroke: "#22c55e",
-                  fill: "#22c55e",
-                  fillOpacity: 0.2,
-                  activeDot: { r: 8 },
-                  strokeWidth: 2,
-                  name: "Calories"
-                })
-              )}
-            </ResponsiveContainer>
+            <CaloriesChart data={data} />
           ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              {React.createElement(
-                RechartsBarChart as any,
-                { data: data, barGap: 0, barCategoryGap: 8 },
-                React.createElement(CartesianGrid as any, { strokeDasharray: "3 3", opacity: 0.3 }),
-                React.createElement(XAxis as any, { dataKey: "day" }),
-                React.createElement(YAxis as any),
-                React.createElement(Tooltip as any, { content: renderMacrosTooltip }),
-                React.createElement(Legend as any),
-                React.createElement(Bar as any, {
-                  dataKey: "protein",
-                  fill: "#ef4444",
-                  name: "Protein (g)"
-                }),
-                React.createElement(Bar as any, {
-                  dataKey: "carbs",
-                  fill: "#3b82f6",
-                  name: "Carbs (g)"
-                }),
-                React.createElement(Bar as any, {
-                  dataKey: "fats",
-                  fill: "#eab308",
-                  name: "Fats (g)"
-                })
-              )}
-            </ResponsiveContainer>
+            <MacrosChart data={data} />
           )}
         </div>
         

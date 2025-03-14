@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import CircularGoalProgress from './CircularGoalProgress';
 import NutritionDashboard from './NutritionDashboard';
@@ -8,6 +8,7 @@ import WeeklyNutritionChart from './dashboard/WeeklyNutritionChart';
 import { Settings, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useMealManagement } from '@/hooks/useMealManagement';
+import { PageLoading } from '@/components/PageLoading';
 
 interface DashboardContentProps {
   calculations: any;
@@ -27,7 +28,6 @@ interface DashboardContentProps {
 
 const DashboardContent = ({
   calculations,
-  currentConsumption,
   exercises,
   caloriesBurned,
   isPremium,
@@ -51,27 +51,24 @@ const DashboardContent = ({
     }
   }, [isLoading, getAllMealsNutrients]);
 
-  // Use real data from meals instead of mock data
-  const actualConsumption = {
+  // Convert fat property to fats to match expected interface
+  const actualConsumption = useMemo(() => ({
     calories: todayNutrients.calories || 0,
     macros: {
       protein: todayNutrients.protein || 0,
       carbs: todayNutrients.carbs || 0,
       fats: todayNutrients.fat || 0
     }
-  };
+  }), [todayNutrients]);
   
   // Ensure we have valid calorie target
   const validCalorieTarget = calculations?.calorieTarget && !isNaN(calculations.calorieTarget) 
     ? calculations.calorieTarget 
     : 2000;
   
-  // Debug output
-  console.log('Dashboard content rendering with:', {
-    calorieTarget: validCalorieTarget,
-    actualConsumption,
-    calculations
-  });
+  if (isLoading) {
+    return <PageLoading />;
+  }
 
   return (
     <ErrorBoundary fallback={<div className="p-4 bg-red-100 rounded-md">Error loading nutrition dashboard</div>}>
@@ -142,7 +139,7 @@ const DashboardContent = ({
       {/* Progress chart */}
       <ErrorBoundary fallback={<div className="p-4 bg-red-100 rounded-md">Error loading progress chart</div>}>
         <ProgressChartSection 
-          data={[]} // This would be actual tracking data
+          data={[]} // This can be updated later with real tracking data
           timeRange="weekly"
           onTimeRangeChange={() => {}}
           isPremium={isPremium}

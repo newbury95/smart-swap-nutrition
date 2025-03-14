@@ -1,5 +1,5 @@
 
-import { memo, useState } from "react";
+import { memo, useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useUserNutrition } from "@/hooks/useUserNutrition";
@@ -13,6 +13,7 @@ import ExerciseDialog from "@/components/tracking/ExerciseDialog";
 import DashboardContent from "@/components/tracking/DashboardContent";
 import { Dumbbell } from "lucide-react";
 import { useMealManagement } from "@/hooks/useMealManagement";
+import { PageLoading } from "@/components/PageLoading";
 
 const TrackingPage = () => {
   const { toast } = useToast();
@@ -21,7 +22,7 @@ const TrackingPage = () => {
   const [today] = useState(new Date());
 
   const {
-    loading,
+    loading: settingsLoading,
     settings,
     calculations,
     updateSetting,
@@ -33,25 +34,18 @@ const TrackingPage = () => {
     caloriesBurned,
     showExerciseDialog,
     setShowExerciseDialog,
-    handleAddExercise
+    handleAddExercise,
+    loading: exercisesLoading
   } = useExerciseTracking({ 
     isPremium, 
     addHealthMetric 
   });
 
   // Get actual consumption data from meals
-  const { getAllMealsNutrients } = useMealManagement(today);
-  const todayNutrients = getAllMealsNutrients();
+  const { getAllMealsNutrients, isLoading: mealsLoading } = useMealManagement(today);
   
-  // Create current consumption with real data
-  const currentConsumption = {
-    calories: todayNutrients.calories || 0,
-    macros: {
-      protein: todayNutrients.protein || 0,
-      carbs: todayNutrients.carbs || 0,
-      fats: todayNutrients.fat || 0
-    }
-  };
+  // Check if any data is still loading
+  const isLoading = settingsLoading || exercisesLoading || mealsLoading;
 
   const handleAddExerciseWithFeedback = async (exerciseData: any) => {
     try {
@@ -70,16 +64,22 @@ const TrackingPage = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
-      </div>
-    );
+  if (isLoading) {
+    return <PageLoading />;
   }
 
-  console.log('TrackingPage rendering with calculations:', calculations);
-  console.log('Current consumption from meals:', currentConsumption);
+  // Get latest nutrition data
+  const todayNutrients = getAllMealsNutrients();
+  
+  // Create current consumption with real data
+  const currentConsumption = {
+    calories: todayNutrients.calories || 0,
+    macros: {
+      protein: todayNutrients.protein || 0,
+      carbs: todayNutrients.carbs || 0,
+      fats: todayNutrients.fat || 0
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
