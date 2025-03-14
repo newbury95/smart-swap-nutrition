@@ -70,7 +70,7 @@ const NutritionDashboard = ({
       className="space-y-6 mt-6"
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Calorie target card with settings integration */}
+        {/* Calorie target card with dialog integration */}
         <CalorieTargetCard 
           calorieTarget={validCalculations.calorieTarget} 
           currentCalories={validCurrentCalories}

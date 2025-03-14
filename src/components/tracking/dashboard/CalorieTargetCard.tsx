@@ -6,8 +6,9 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
-import CalorieSettingsPanel from "./CalorieSettingsPanel";
 import { NutritionSettings, MacroRatio } from "@/hooks/useUserNutrition";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import CalorieSettingsDialog from "./CalorieSettingsDialog";
 
 interface CalorieTargetCardProps {
   calorieTarget: number;
@@ -28,7 +29,7 @@ const CalorieTargetCard = ({
   onUpdateCustomMacroRatio,
   isLoading = false 
 }: CalorieTargetCardProps) => {
-  const [showSettings, setShowSettings] = useState(false);
+  const [openSettings, setOpenSettings] = useState(false);
   
   // Use default value of 0 if invalid input
   const validCalorieTarget = isNaN(calorieTarget) || calorieTarget <= 0 ? 2000 : calorieTarget;
@@ -57,22 +58,6 @@ const CalorieTargetCard = ({
       </Card>
     );
   }
-
-  if (showSettings) {
-    return (
-      <Card className="flex-1 overflow-hidden">
-        <CardContent className="p-4">
-          <CalorieSettingsPanel
-            settings={settings}
-            isPremium={isPremium}
-            onUpdateSetting={onUpdateSetting}
-            onUpdateCustomMacroRatio={onUpdateCustomMacroRatio}
-            onClose={() => setShowSettings(false)}
-          />
-        </CardContent>
-      </Card>
-    );
-  }
   
   return (
     <Card className="flex-1 overflow-hidden">
@@ -90,15 +75,26 @@ const CalorieTargetCard = ({
               <div className="bg-white p-3 rounded-full mb-2">
                 <Apple className="w-10 h-10 text-green-600" />
               </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="bg-white" 
-                onClick={() => setShowSettings(true)}
-              >
-                <Settings className="w-3 h-3 mr-1" />
-                <span className="text-xs">Settings</span>
-              </Button>
+              
+              <Dialog open={openSettings} onOpenChange={setOpenSettings}>
+                <DialogTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="bg-white" 
+                  >
+                    <Settings className="w-3 h-3 mr-1" />
+                    <span className="text-xs">Settings</span>
+                  </Button>
+                </DialogTrigger>
+                <CalorieSettingsDialog 
+                  settings={settings}
+                  isPremium={isPremium}
+                  onUpdateSetting={onUpdateSetting}
+                  onUpdateCustomMacroRatio={onUpdateCustomMacroRatio}
+                  onClose={() => setOpenSettings(false)}
+                />
+              </Dialog>
             </div>
           </div>
           
