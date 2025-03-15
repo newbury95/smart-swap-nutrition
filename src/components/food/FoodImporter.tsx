@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useFoodImport } from '@/hooks/useFoodImport';
 import { Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 // Food data for import
 import { aldiFoods } from '@/data/food/aldi-foods';
@@ -21,6 +22,7 @@ import { nandosFoods } from '@/data/food/nandos-foods';
 export const FoodImporter = () => {
   const { importFoods, isImporting } = useFoodImport();
   const [importStatus, setImportStatus] = useState<Record<string, string>>({});
+  const { toast } = useToast();
   
   const foodSources = {
     // Supermarkets
@@ -39,32 +41,83 @@ export const FoodImporter = () => {
   };
   
   const handleImport = async (source: string, foods: any[]) => {
-    setImportStatus(prev => ({
-      ...prev,
-      [source]: 'Importing...'
-    }));
+    if (isImporting) {
+      toast({
+        title: "Import in progress",
+        description: "Please wait for the current import to complete",
+      });
+      return;
+    }
     
     try {
+      setImportStatus(prev => ({
+        ...prev,
+        [source]: 'Importing...'
+      }));
+      
+      console.log(`Starting import for ${source} with ${foods.length} items`);
       const result = await importFoods(foods);
       
+      if (result.success) {
+        toast({
+          title: "Import successful",
+          description: `Imported ${result.count} items from ${source}`,
+        });
+        
+        setImportStatus(prev => ({
+          ...prev,
+          [source]: `Success: Imported ${result.count} items`
+        }));
+      } else {
+        console.error(`Import failed for ${source}:`, result.error);
+        toast({
+          variant: "destructive",
+          title: "Import failed",
+          description: result.error || `Failed to import data from ${source}`,
+        });
+        
+        setImportStatus(prev => ({
+          ...prev,
+          [source]: `Error: ${result.error || 'Unknown error'}`
+        }));
+      }
+    } catch (error: any) {
+      console.error(`Unexpected error importing from ${source}:`, error);
       setImportStatus(prev => ({
         ...prev,
-        [source]: result.success 
-          ? `Success: Imported ${result.count} items` 
-          : `Error: ${result.error}`
+        [source]: `Error: ${error.message || 'Unexpected error'}`
       }));
-    } catch (error) {
-      setImportStatus(prev => ({
-        ...prev,
-        [source]: `Error: ${error.message}`
-      }));
+      
+      toast({
+        variant: "destructive",
+        title: "Import error",
+        description: error.message || `Failed to import data from ${source}`,
+      });
     }
   };
   
   const handleImportAll = async () => {
+    if (isImporting) {
+      toast({
+        title: "Import in progress",
+        description: "Please wait for the current import to complete",
+      });
+      return;
+    }
+    
+    toast({
+      title: "Starting batch import",
+      description: "Importing food data from all sources",
+    });
+    
     for (const [source, foods] of Object.entries(foodSources)) {
       await handleImport(source, foods);
     }
+    
+    toast({
+      title: "Batch import complete",
+      description: "All food data sources have been processed",
+    });
   };
   
   return (

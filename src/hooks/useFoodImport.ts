@@ -30,53 +30,67 @@ export const useFoodImport = () => {
   const [isImporting, setIsImporting] = useState(false);
 
   const importFoods = async (foodItems: FoodItem[]): Promise<ImportFoodResult> => {
+    if (!foodItems || !Array.isArray(foodItems) || foodItems.length === 0) {
+      return { 
+        success: false, 
+        message: 'No valid food items provided',
+        error: 'No valid food items provided'
+      };
+    }
+    
     setIsImporting(true);
     
     try {
-      console.log(`Starting import of ${foodItems.length} food items`);
+      console.log(`Preparing to import ${foodItems.length} food items`);
       
-      // Get the function URL from the environment
-      const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/import-food-data`;
+      // Validate data before sending
+      const validFoodItems = foodItems.filter(item => 
+        item && typeof item === 'object' && 
+        item.name && 
+        !isNaN(Number(item.calories)) && 
+        !isNaN(Number(item.protein)) && 
+        !isNaN(Number(item.carbs)) && 
+        !isNaN(Number(item.fat))
+      );
       
-      // Get the authorization token
+      if (validFoodItems.length === 0) {
+        throw new Error('No valid food items after validation');
+      }
+      
+      if (validFoodItems.length < foodItems.length) {
+        console.warn(`Filtered out ${foodItems.length - validFoodItems.length} invalid food items`);
+      }
+      
+      // Get the session for authentication
       const { data: { session } } = await supabase.auth.getSession();
-      const token = session ? `Bearer ${session.access_token}` : '';
-      
-      // Log the function URL and token status
-      console.log(`Function URL: ${functionUrl}`);
-      console.log(`Auth token available: ${!!token}`);
       
       // Call the Supabase Edge Function
-      const response = await fetch(functionUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': token,
-        },
-        body: JSON.stringify({ foodItems }),
+      const response = await supabase.functions.invoke('import-food-data', {
+        body: { foodItems: validFoodItems }
       });
       
-      console.log(`Response status: ${response.status}`);
+      console.log('Import function response:', response);
       
-      const result = await response.json();
-      console.log('Import result:', result);
+      if (response.error) {
+        throw new Error(response.error.message || 'Failed to import food data');
+      }
       
-      if (!response.ok || !result.success) {
-        throw new Error(result.error || 'Failed to import food data');
+      if (!response.data?.success) {
+        throw new Error(response.data?.error || 'Failed to import food data');
       }
       
       toast({
         title: 'Success',
-        description: `Successfully imported ${result.count} food items`,
+        description: `Successfully imported ${response.data.count} food items`,
       });
       
       return {
         success: true,
-        message: `Successfully imported ${result.count} food items`,
-        count: result.count,
+        message: `Successfully imported ${response.data.count} food items`,
+        count: response.data.count,
       };
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error importing food data:', error);
       
       toast({
@@ -88,7 +102,7 @@ export const useFoodImport = () => {
       return {
         success: false,
         message: 'Failed to import food data',
-        error: error.message,
+        error: error.message || 'Unknown error',
       };
     } finally {
       setIsImporting(false);

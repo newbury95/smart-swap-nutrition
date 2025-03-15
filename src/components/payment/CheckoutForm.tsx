@@ -25,6 +25,21 @@ const CheckoutForm = () => {
     
     if (!stripe || !elements) {
       // Stripe.js has not loaded yet
+      toast({
+        variant: "destructive",
+        title: "Payment Error",
+        description: "Stripe has not loaded properly. Please try again.",
+      });
+      return;
+    }
+    
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Authentication Required",
+        description: "You must be logged in to complete this purchase.",
+      });
+      navigate("/auth");
       return;
     }
     
@@ -32,15 +47,11 @@ const CheckoutForm = () => {
     setError(null);
     
     try {
-      if (!user) {
-        throw new Error('User not authenticated');
-      }
-      
       // Get a reference to the CardElement
       const cardElement = elements.getElement(CardElement);
       
       if (!cardElement) {
-        throw new Error('Card element not found');
+        throw new Error('Payment form not found');
       }
       
       // Create a payment method using the CardElement
@@ -53,8 +64,7 @@ const CheckoutForm = () => {
         throw stripeError;
       }
       
-      // In a real implementation, you would call your backend API to process the payment
-      // and create a subscription with Stripe. For this demo, we'll just simulate success.
+      console.log('Payment method created:', paymentMethod.id);
       
       // Create payment record
       const { error: paymentError } = await supabase
@@ -69,7 +79,7 @@ const CheckoutForm = () => {
         
       if (paymentError) {
         console.error('Payment record error:', paymentError);
-        throw paymentError;
+        throw new Error(`Failed to save payment: ${paymentError.message}`);
       }
       
       // Update user's premium status
@@ -80,11 +90,14 @@ const CheckoutForm = () => {
         
       if (updateError) {
         console.error('Premium status update error:', updateError);
-        throw updateError;
+        throw new Error(`Failed to update premium status: ${updateError.message}`);
       }
       
       // Refresh the premium status
       await refreshPremiumStatus();
+      
+      // Clear the card element
+      cardElement.clear();
       
       toast({
         title: "Success!",
@@ -94,10 +107,10 @@ const CheckoutForm = () => {
       navigate("/diary");
     } catch (error: any) {
       console.error('Upgrade error:', error);
-      setError(error.message);
+      setError(error.message || "An unknown error occurred during payment processing");
       toast({
         variant: "destructive",
-        title: "Error",
+        title: "Payment Failed",
         description: error.message || "Failed to process payment. Please try again.",
       });
     } finally {
@@ -143,6 +156,10 @@ const CheckoutForm = () => {
         <CreditCard className="w-4 h-4 mr-2" />
         {loading ? "Processing..." : "Pay £7.99/month"}
       </Button>
+      
+      <p className="text-xs text-center text-gray-500 mt-2">
+        Your card will be charged immediately. You can cancel anytime.
+      </p>
     </form>
   );
 };
