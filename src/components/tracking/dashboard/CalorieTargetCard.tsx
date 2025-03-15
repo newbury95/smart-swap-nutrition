@@ -45,7 +45,7 @@ const CalorieTargetCard = ({
     return (
       <Card className="flex-1 overflow-hidden">
         <CardContent className="p-0">
-          <div className="relative w-full bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-t-lg">
+          <div className="relative w-full bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-t-lg">
             <Skeleton className="h-7 w-48 mb-2" />
             <Skeleton className="h-9 w-32 mb-4" />
             <Skeleton className="h-6 w-full" />
@@ -62,18 +62,18 @@ const CalorieTargetCard = ({
   return (
     <Card className="flex-1 overflow-hidden">
       <CardContent className="p-0">
-        <div className="relative w-full bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-t-lg">
+        <div className="relative w-full bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-t-lg">
           <div className="absolute -right-5 -top-5 w-24 h-24 bg-white/20 rounded-full backdrop-blur-sm" />
           <div className="absolute -right-3 -bottom-8 w-16 h-16 bg-white/20 rounded-full backdrop-blur-sm" />
           
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-green-800">Daily Calorie Target</h3>
-              <p className="text-3xl font-bold mt-2 text-green-900">{validCalorieTarget} kcal</p>
+              <h3 className="text-lg font-semibold text-purple-800">Daily Calorie Target</h3>
+              <p className="text-3xl font-bold mt-2 text-purple-900">{validCalorieTarget} kcal</p>
             </div>
             <div className="relative z-10 flex flex-col items-end">
               <div className="bg-white p-3 rounded-full mb-2">
-                <Apple className="w-10 h-10 text-green-600" />
+                <Apple className="w-10 h-10 text-purple-600" />
               </div>
               
               <Dialog open={openSettings} onOpenChange={setOpenSettings}>
@@ -100,11 +100,11 @@ const CalorieTargetCard = ({
           
           <div className="mt-4">
             <div className="flex justify-between text-sm mb-1">
-              <span className="text-green-800">Progress</span>
-              <span className="font-medium text-green-900">{caloriePercentage}%</span>
+              <span className="text-purple-800">Progress</span>
+              <span className="font-medium text-purple-900">{caloriePercentage}%</span>
             </div>
-            <Progress value={caloriePercentage} className="h-2 bg-green-200" 
-              indicatorClassName="bg-green-600" />
+            <Progress value={caloriePercentage} className="h-2 bg-purple-200" 
+              indicatorClassName="bg-purple-600" />
           </div>
         </div>
         
@@ -117,7 +117,7 @@ const CalorieTargetCard = ({
             <span className="text-gray-500">Remaining</span>
             <span className={cn(
               "font-medium",
-              validCalorieTarget - validCurrentCalories < 0 ? "text-red-500" : "text-green-500"
+              validCalorieTarget - validCurrentCalories < 0 ? "text-red-500" : "text-purple-500"
             )}>
               {validCalorieTarget - validCurrentCalories} kcal
             </span>

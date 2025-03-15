@@ -11,15 +11,17 @@ import TrackingHeader from "@/components/tracking/TrackingHeader";
 import { NutritionSettingsForm } from "@/components/tracking/settings";
 import ExerciseDialog from "@/components/tracking/ExerciseDialog";
 import DashboardContent from "@/components/tracking/DashboardContent";
-import { Dumbbell } from "lucide-react";
+import { Dumbbell, Calculator } from "lucide-react";
 import { useMealManagement } from "@/hooks/useMealManagement";
 import { PageLoading } from "@/components/PageLoading";
+import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 
 const TrackingPage = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("dashboard");
   const { addHealthMetric, isPremium } = useSupabase();
   const [today] = useState(new Date());
+  const [showCalorieDialog, setShowCalorieDialog] = useState(false);
 
   const {
     loading: settingsLoading,
@@ -63,6 +65,16 @@ const TrackingPage = () => {
       });
     }
   };
+  
+  const handleAcceptRecommended = () => {
+    if (!calculations?.calorieTarget) return;
+    
+    toast({
+      title: "Recommended Calories Applied",
+      description: `Your daily target is now ${calculations.calorieTarget} calories`,
+    });
+    setShowCalorieDialog(false);
+  };
 
   if (isLoading) {
     return <PageLoading />;
@@ -80,6 +92,10 @@ const TrackingPage = () => {
       fats: todayNutrients.fat || 0
     }
   };
+  
+  // Calculate remaining calories
+  const calorieTarget = calculations?.calorieTarget || 2000;
+  const remainingCalories = calorieTarget - currentConsumption.calories;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -94,15 +110,74 @@ const TrackingPage = () => {
                 <TabsTrigger value="settings">Settings</TabsTrigger>
               </TabsList>
               
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="flex items-center gap-1"
-                onClick={() => setShowExerciseDialog(true)}
-              >
-                <Dumbbell className="w-4 h-4" />
-                Log Exercise
-              </Button>
+              <div className="flex items-center gap-2">
+                <Dialog open={showCalorieDialog} onOpenChange={setShowCalorieDialog}>
+                  <DialogTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex items-center gap-1"
+                    >
+                      <Calculator className="w-4 h-4" />
+                      Calculate Targets
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogTitle>Recommended Calorie Target</DialogTitle>
+                    <DialogDescription>
+                      Based on your metrics, we recommend the following daily calorie intake:
+                    </DialogDescription>
+                    
+                    <div className="my-6">
+                      <div className="bg-purple-50 p-6 rounded-lg text-center">
+                        <h3 className="text-lg text-purple-800 font-medium mb-2">Recommended Daily Calories</h3>
+                        <p className="text-3xl font-bold text-purple-900">{calorieTarget} kcal</p>
+                        <p className="text-sm text-purple-700 mt-2">Based on your BMR, activity level, and goals</p>
+                      </div>
+                      
+                      <div className="grid grid-cols-3 gap-4 mt-4">
+                        <div className="bg-blue-50 p-3 rounded-md text-center">
+                          <p className="text-sm text-blue-800 font-medium">BMR</p>
+                          <p className="text-lg font-semibold text-blue-900">{calculations?.bmr || 0} kcal</p>
+                        </div>
+                        <div className="bg-green-50 p-3 rounded-md text-center">
+                          <p className="text-sm text-green-800 font-medium">TDEE</p>
+                          <p className="text-lg font-semibold text-green-900">{calculations?.tdee || 0} kcal</p>
+                        </div>
+                        <div className="bg-orange-50 p-3 rounded-md text-center">
+                          <p className="text-sm text-orange-800 font-medium">Remaining</p>
+                          <p className="text-lg font-semibold text-orange-900">{remainingCalories} kcal</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <DialogFooter className="flex-col sm:flex-row sm:justify-between">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setShowCalorieDialog(false)}
+                      >
+                        Adjust in Settings
+                      </Button>
+                      <Button 
+                        onClick={handleAcceptRecommended}
+                        className="bg-purple-600 hover:bg-purple-700"
+                      >
+                        Accept Recommended
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+                
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex items-center gap-1"
+                  onClick={() => setShowExerciseDialog(true)}
+                >
+                  <Dumbbell className="w-4 h-4" />
+                  Log Exercise
+                </Button>
+              </div>
             </div>
 
             <TabsContent value="dashboard" className="space-y-8">
