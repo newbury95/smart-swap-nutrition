@@ -68,7 +68,10 @@ export const useTrackingData = () => {
   }, [isPremium, getHealthMetrics, exercises.length, caloriesBurned]);
 
   const handleBMISubmit = useCallback((weight: number, height: number) => {
-    const bmi = calculateBMI(weight, height);
+    // Calculate BMI using the standard formula: weight(kg) / (height(m) * height(m))
+    const heightInMeters = height / 100;
+    const bmi = Number((weight / (heightInMeters * heightInMeters)).toFixed(1));
+    
     const exerciseMinutes = exercises.reduce((total, ex) => total + ex.duration, 0);
     
     const newEntry: TrackingData = {
@@ -116,10 +119,4 @@ export const useTrackingData = () => {
     handleAddExercise,
     handleBMISubmit
   };
-};
-
-// Helper function moved from healthCalculations.ts
-const calculateBMI = (weight: number, height: number) => {
-  const heightInMeters = height / 100;
-  return Number((weight / (heightInMeters * heightInMeters)).toFixed(1));
 };

@@ -96,7 +96,7 @@ const DashboardContent = ({
   return (
     <ErrorBoundary fallback={<div className="p-4 bg-red-100 rounded-md">Error loading nutrition dashboard</div>}>
       {/* Circular progress for calories */}
-      <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col md:flex-row items-center justify-between">
+      <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col md:flex-row items-center justify-between hover:shadow-md transition-shadow duration-300">
         <div className="mb-6 md:mb-0 flex flex-col items-center">
           <CircularGoalProgress 
             value={actualConsumption.calories} 
@@ -104,10 +104,10 @@ const DashboardContent = ({
           >
             <div className="text-center">
               <div className="text-3xl font-bold text-gray-800">
-                {actualConsumption.calories}
+                {actualConsumption.calories.toLocaleString()}
               </div>
               <div className="text-sm text-gray-500">
-                of {validCalorieTarget} kcal
+                of {validCalorieTarget.toLocaleString()} kcal
               </div>
             </div>
           </CircularGoalProgress>
@@ -119,8 +119,8 @@ const DashboardContent = ({
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Calories Remaining</span>
-              <span className="font-semibold">
-                {validCalorieTarget - actualConsumption.calories} kcal
+              <span className={`font-semibold ${(validCalorieTarget - actualConsumption.calories) < 0 ? 'text-red-500' : ''}`}>
+                {(validCalorieTarget - actualConsumption.calories).toLocaleString()} kcal
               </span>
             </div>
             

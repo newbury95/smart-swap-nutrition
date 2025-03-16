@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Apple, Settings } from "lucide-react";
+import { Apple, Settings, Info } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,11 @@ import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { NutritionSettings, MacroRatio } from "@/hooks/useUserNutrition";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { 
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from "@/components/ui/popover";
 import CalorieSettingsDialog from "./CalorieSettingsDialog";
 
 interface CalorieTargetCardProps {
@@ -32,8 +37,8 @@ const CalorieTargetCard = ({
   const [openSettings, setOpenSettings] = useState(false);
   
   // Use default value of 0 if invalid input
-  const validCalorieTarget = isNaN(calorieTarget) || calorieTarget <= 0 ? 2000 : calorieTarget;
-  const validCurrentCalories = isNaN(currentCalories) || currentCalories < 0 ? 0 : currentCalories;
+  const validCalorieTarget = isNaN(calorieTarget) || calorieTarget <= 0 ? 2000 : Math.round(calorieTarget);
+  const validCurrentCalories = isNaN(currentCalories) || currentCalories < 0 ? 0 : Math.round(currentCalories);
   
   // Calculate percentage progress for calories (with validation)
   const caloriePercentage = Math.min(
@@ -60,7 +65,7 @@ const CalorieTargetCard = ({
   }
   
   return (
-    <Card className="flex-1 overflow-hidden">
+    <Card className="flex-1 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
       <CardContent className="p-0">
         <div className="relative w-full bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-t-lg">
           <div className="absolute -right-5 -top-5 w-24 h-24 bg-white/20 rounded-full backdrop-blur-sm" />
@@ -69,7 +74,7 @@ const CalorieTargetCard = ({
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-semibold text-purple-800">Daily Calorie Target</h3>
-              <p className="text-3xl font-bold mt-2 text-purple-900">{validCalorieTarget} kcal</p>
+              <p className="text-3xl font-bold mt-2 text-purple-900">{validCalorieTarget.toLocaleString()} kcal</p>
             </div>
             <div className="relative z-10 flex flex-col items-end">
               <div className="bg-white p-3 rounded-full mb-2">
@@ -81,7 +86,7 @@ const CalorieTargetCard = ({
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="bg-white" 
+                    className="bg-white shadow-sm"
                   >
                     <Settings className="w-3 h-3 mr-1" />
                     <span className="text-xs">Settings</span>
@@ -100,18 +105,33 @@ const CalorieTargetCard = ({
           
           <div className="mt-4">
             <div className="flex justify-between text-sm mb-1">
-              <span className="text-purple-800">Progress</span>
+              <span className="text-purple-800 flex items-center">
+                Progress
+                <Popover>
+                  <PopoverTrigger>
+                    <Info className="h-3.5 w-3.5 ml-1 text-purple-400 cursor-help" />
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 text-xs p-3 bg-white z-50 shadow-lg">
+                    <p>This shows your current progress toward your daily calorie target.</p>
+                  </PopoverContent>
+                </Popover>
+              </span>
               <span className="font-medium text-purple-900">{caloriePercentage}%</span>
             </div>
-            <Progress value={caloriePercentage} className="h-2 bg-purple-200" 
-              indicatorClassName="bg-purple-600" />
+            <Progress 
+              value={caloriePercentage} 
+              className="h-2 bg-purple-200" 
+              indicatorClassName={cn(
+                caloriePercentage > 100 ? "bg-red-500" : "bg-purple-600"
+              )} 
+            />
           </div>
         </div>
         
         <div className="p-4 bg-white rounded-b-lg">
           <div className="flex justify-between text-sm">
             <span className="text-gray-500">Current</span>
-            <span className="font-medium">{validCurrentCalories} kcal</span>
+            <span className="font-medium">{validCurrentCalories.toLocaleString()} kcal</span>
           </div>
           <div className="flex justify-between text-sm mt-1">
             <span className="text-gray-500">Remaining</span>
@@ -119,7 +139,7 @@ const CalorieTargetCard = ({
               "font-medium",
               validCalorieTarget - validCurrentCalories < 0 ? "text-red-500" : "text-purple-500"
             )}>
-              {validCalorieTarget - validCurrentCalories} kcal
+              {(validCalorieTarget - validCurrentCalories).toLocaleString()} kcal
             </span>
           </div>
         </div>
