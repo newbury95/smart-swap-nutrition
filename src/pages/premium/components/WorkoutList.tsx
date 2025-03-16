@@ -1,16 +1,23 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Clock, Info } from 'lucide-react';
+import { Clock, Info, Plus } from 'lucide-react';
 import { Workout } from '../data/workoutData';
+import { Spinner } from '@/components/ui/spinner';
 
 export interface WorkoutListProps {
   workouts: Workout[];
   onSelect?: (workoutId: string) => void;
   onAddToWorkouts?: (workoutId: string) => void;
+  isLoading?: boolean;
 }
 
-const WorkoutList: React.FC<WorkoutListProps> = ({ workouts, onSelect, onAddToWorkouts }) => {
+const WorkoutList: React.FC<WorkoutListProps> = ({ 
+  workouts, 
+  onSelect, 
+  onAddToWorkouts,
+  isLoading = false
+}) => {
   // Function to get the badge color based on difficulty
   const getDifficultyColor = (difficulty: string) => {
     switch(difficulty) {
@@ -25,6 +32,14 @@ const WorkoutList: React.FC<WorkoutListProps> = ({ workouts, onSelect, onAddToWo
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-20">
+        <Spinner />
+      </div>
+    );
+  }
+
   if (workouts.length === 0) {
     return (
       <div className="text-center py-10">
@@ -36,7 +51,10 @@ const WorkoutList: React.FC<WorkoutListProps> = ({ workouts, onSelect, onAddToWo
   return (
     <div className="space-y-4">
       {workouts.map((workout) => (
-        <div key={workout.id} className="border rounded-lg p-4 flex flex-col md:flex-row md:items-center gap-4 hover:bg-gray-50 transition-colors">
+        <div 
+          key={workout.id} 
+          className="border rounded-lg p-4 flex flex-col md:flex-row md:items-center gap-4 hover:bg-gray-50 transition-colors"
+        >
           <div className="flex-grow">
             <div className="flex flex-wrap items-center gap-2 mb-1">
               <h3 className="font-medium">{workout.name}</h3>
@@ -63,7 +81,7 @@ const WorkoutList: React.FC<WorkoutListProps> = ({ workouts, onSelect, onAddToWo
                 onClick={() => onSelect(workout.id)}
                 className="md:self-center whitespace-nowrap"
               >
-                <Info className="w-4 h-4 mr-2" />
+                <Info className="w-4 h-4" />
                 Details
               </Button>
             )}
@@ -75,6 +93,7 @@ const WorkoutList: React.FC<WorkoutListProps> = ({ workouts, onSelect, onAddToWo
                 onClick={() => onAddToWorkouts(workout.id)}
                 className="md:self-center whitespace-nowrap"
               >
+                <Plus className="w-4 h-4" />
                 Add to Workouts
               </Button>
             )}

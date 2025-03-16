@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
+import { PageSpinner } from "@/components/ui/spinner";
 
 // Lazy load components for better code splitting
 const FreePlanCard = lazy(() => import("@/components/pricing/FreePlanCard"));
@@ -24,6 +25,16 @@ const CardPlaceholder = () => (
 
 const Index = () => {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate loading for demonstration
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 200);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   // Memoize these values to prevent unnecessary re-renders
   const premiumFeatures = [
@@ -64,6 +75,10 @@ const Index = () => {
       } 
     }
   };
+  
+  if (isLoading) {
+    return <PageSpinner />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-soft-green/20 to-white">
