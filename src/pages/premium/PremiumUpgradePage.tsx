@@ -5,7 +5,7 @@ import { Crown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
-import LoadingSpinner from "./components/LoadingSpinner";
+import { PageSpinner } from "@/components/ui/spinner";
 import PremiumBenefits from "./components/PremiumBenefits";
 import StripeConfig from "./components/StripeConfig";
 
@@ -29,7 +29,7 @@ const PremiumUpgradePage = () => {
   }, [loading, user, navigate]);
 
   if (loading) {
-    return <LoadingSpinner />;
+    return <PageSpinner />;
   }
 
   if (!user) return null;
