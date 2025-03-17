@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -19,16 +18,13 @@ const AuthPage = () => {
   const { toast } = useToast();
   const { user, loading } = useAuth();
   
-  // Get tab from URL query parameters
   const params = new URLSearchParams(location.search);
   const tabParam = params.get('tab');
   const redirectParam = params.get('redirect');
   
-  // Login state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   
-  // Signup state
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
@@ -42,7 +38,6 @@ const AuthPage = () => {
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState(tabParam === 'signup' ? 'signup' : 'signin');
 
-  // Redirect authenticated users
   useEffect(() => {
     if (!loading && user) {
       if (redirectParam === 'premium') {
@@ -93,7 +88,6 @@ const AuthPage = () => {
     setIsLoading(true);
     setError("");
     
-    // Validate passwords match
     if (signupPassword !== confirmPassword) {
       setError("Passwords do not match");
       setIsLoading(false);
@@ -258,7 +252,11 @@ const AuthPage = () => {
                           <Button 
                             variant="link" 
                             className="text-xs p-0 h-auto" 
-                            onClick={() => setIsResetMode(true)}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setIsResetMode(true);
+                            }}
+                            type="button"
                           >
                             Forgot password?
                           </Button>
