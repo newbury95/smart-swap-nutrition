@@ -1,12 +1,11 @@
 
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Mail } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { FormField } from "./FormField";
 
 interface PasswordResetFormProps {
   onBack: () => void;
@@ -48,17 +47,16 @@ export const PasswordResetForm = ({ onBack }: PasswordResetFormProps) => {
 
   return (
     <form onSubmit={handlePasswordReset} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Enter your email"
-        />
-      </div>
+      <FormField
+        id="email"
+        label="Email"
+        type="email"
+        required
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Enter your email"
+        icon={<Mail className="h-4 w-4" />}
+      />
       
       {error && (
         <Alert variant="destructive">

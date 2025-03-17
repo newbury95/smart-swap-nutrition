@@ -1,12 +1,13 @@
 
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { AlertCircle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { AlertCircle, Mail, Lock } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { FormField } from "./FormField";
 
 interface SignInFormProps {
   onForgotPassword: () => void;
@@ -53,21 +54,23 @@ export const SignInForm = ({ onForgotPassword, onSuccess }: SignInFormProps) => 
 
   return (
     <form onSubmit={handleSignIn} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Enter your email"
-        />
-      </div>
+      <FormField
+        id="email"
+        label="Email"
+        type="email"
+        required
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Enter your email"
+        icon={<Mail className="h-4 w-4" />}
+      />
       
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password" className="flex items-center gap-2">
+            <Lock className="h-4 w-4" />
+            Password
+          </Label>
           <Button 
             variant="link" 
             className="text-xs p-0 h-auto" 

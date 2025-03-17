@@ -1,12 +1,13 @@
 
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, User, Mail, Ruler, Weight, Lock } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { FormField } from "./FormField";
+import { Input } from "@/components/ui/input";
 
 interface SignUpFormProps {
   onSuccess: () => void;
@@ -74,81 +75,74 @@ export const SignUpForm = ({ onSuccess }: SignUpFormProps) => {
   return (
     <form onSubmit={handleSignUp} className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="firstName">First Name</Label>
-          <Input
-            id="firstName"
-            required
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="lastName">Last Name</Label>
-          <Input
-            id="lastName"
-            required
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-          />
-        </div>
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="signupEmail">Email</Label>
-        <Input
-          id="signupEmail"
-          type="email"
+        <FormField
+          id="firstName"
+          label="First Name"
           required
-          value={email}
-          onChange={(e) => setSignupEmail(e.target.value)}
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
+          icon={<User className="h-4 w-4" />}
+        />
+        <FormField
+          id="lastName"
+          label="Last Name"
+          required
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
+          icon={<User className="h-4 w-4" />}
         />
       </div>
+      
+      <FormField
+        id="signupEmail"
+        label="Email"
+        type="email"
+        required
+        value={email}
+        onChange={(e) => setSignupEmail(e.target.value)}
+        icon={<Mail className="h-4 w-4" />}
+      />
       
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="height">Height (cm)</Label>
-          <Input
-            id="height"
-            type="number"
-            required
-            value={height}
-            onChange={(e) => setHeight(e.target.value)}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="weight">Weight (kg)</Label>
-          <Input
-            id="weight"
-            type="number"
-            required
-            value={weight}
-            onChange={(e) => setWeight(e.target.value)}
-          />
-        </div>
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="signupPassword">Password</Label>
-        <Input
-          id="signupPassword"
-          type="password"
+        <FormField
+          id="height"
+          label="Height (cm)"
+          type="number"
           required
-          value={password}
-          onChange={(e) => setSignupPassword(e.target.value)}
+          value={height}
+          onChange={(e) => setHeight(e.target.value)}
+          icon={<Ruler className="h-4 w-4" />}
+        />
+        <FormField
+          id="weight"
+          label="Weight (kg)"
+          type="number"
+          required
+          value={weight}
+          onChange={(e) => setWeight(e.target.value)}
+          icon={<Weight className="h-4 w-4" />}
         />
       </div>
       
-      <div className="space-y-2">
-        <Label htmlFor="confirmPassword">Confirm Password</Label>
-        <Input
-          id="confirmPassword"
-          type="password"
-          required
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-        />
-      </div>
+      <FormField
+        id="signupPassword"
+        label="Password"
+        type="password"
+        required
+        value={password}
+        onChange={(e) => setSignupPassword(e.target.value)}
+        icon={<Lock className="h-4 w-4" />}
+      />
+      
+      <FormField
+        id="confirmPassword"
+        label="Confirm Password"
+        type="password"
+        required
+        value={confirmPassword}
+        onChange={(e) => setConfirmPassword(e.target.value)}
+        icon={<Lock className="h-4 w-4" />}
+      />
       
       {error && (
         <Alert variant="destructive">
