@@ -1,0 +1,272 @@
+
+export const chopsticksNoodleBarFoods = [
+  // Noodle Boxes
+  {
+    name: "Chopsticks Singapore Noodles",
+    calories: 550,
+    protein: 16,
+    carbs: 74,
+    fat: 21,
+    saturates: 3.5,
+    sugar: 9,
+    salt: 3.1,
+    servingSize: "Regular box (350g)",
+    supermarket: "Chopsticks Noodle Bar",
+    barcode: "17000000001"
+  },
+  {
+    name: "Chopsticks Chicken Chow Mein",
+    calories: 580,
+    protein: 25,
+    carbs: 78,
+    fat: 18,
+    saturates: 3,
+    sugar: 8,
+    salt: 2.9,
+    servingSize: "Regular box (350g)",
+    supermarket: "Chopsticks Noodle Bar",
+    barcode: "17000000002"
+  },
+  {
+    name: "Chopsticks Beef Chow Mein",
+    calories: 600,
+    protein: 28,
+    carbs: 76,
+    fat: 20,
+    saturates: 4,
+    sugar: 8,
+    salt: 3.0,
+    servingSize: "Regular box (350g)",
+    supermarket: "Chopsticks Noodle Bar",
+    barcode: "17000000003"
+  },
+  {
+    name: "Chopsticks Vegetable Chow Mein",
+    calories: 510,
+    protein: 12,
+    carbs: 79,
+    fat: 16,
+    saturates: 2.5,
+    sugar: 10,
+    salt: 2.7,
+    servingSize: "Regular box (350g)",
+    supermarket: "Chopsticks Noodle Bar",
+    barcode: "17000000004"
+  },
+  {
+    name: "Chopsticks Duck Chow Mein",
+    calories: 620,
+    protein: 26,
+    carbs: 76,
+    fat: 23,
+    saturates: 4.5,
+    sugar: 9,
+    salt: 3.2,
+    servingSize: "Regular box (350g)",
+    supermarket: "Chopsticks Noodle Bar",
+    barcode: "17000000005"
+  },
+  
+  // Rice Boxes
+  {
+    name: "Chopsticks Chicken Fried Rice",
+    calories: 620,
+    protein: 24,
+    carbs: 90,
+    fat: 19,
+    saturates: 3.5,
+    sugar: 4,
+    salt: 3.0,
+    servingSize: "Regular box (350g)",
+    supermarket: "Chopsticks Noodle Bar",
+    barcode: "17000000006"
+  },
+  {
+    name: "Chopsticks Special Fried Rice",
+    calories: 650,
+    protein: 26,
+    carbs: 88,
+    fat: 22,
+    saturates: 4.5,
+    sugar: 4,
+    salt: 3.4,
+    servingSize: "Regular box (350g)",
+    supermarket: "Chopsticks Noodle Bar",
+    barcode: "17000000007"
+  },
+  {
+    name: "Chopsticks Egg Fried Rice",
+    calories: 560,
+    protein: 15,
+    carbs: 88,
+    fat: 16,
+    saturates: 3,
+    sugar: 3,
+    salt: 2.5,
+    servingSize: "Regular box (350g)",
+    supermarket: "Chopsticks Noodle Bar",
+    barcode: "17000000008"
+  },
+  {
+    name: "Chopsticks Sweet & Sour Chicken with Rice",
+    calories: 680,
+    protein: 23,
+    carbs: 110,
+    fat: 16,
+    saturates: 3,
+    sugar: 25,
+    salt: 2.9,
+    servingSize: "Regular box (380g)",
+    supermarket: "Chopsticks Noodle Bar",
+    barcode: "17000000009"
+  },
+  {
+    name: "Chopsticks Beef in Black Bean Sauce with Rice",
+    calories: 650,
+    protein: 30,
+    carbs: 90,
+    fat: 18,
+    saturates: 4.5,
+    sugar: 12,
+    salt: 3.5,
+    servingSize: "Regular box (380g)",
+    supermarket: "Chopsticks Noodle Bar",
+    barcode: "17000000010"
+  },
+  
+  // Side Dishes
+  {
+    name: "Chopsticks Spring Rolls (2 pieces)",
+    calories: 260,
+    protein: 5,
+    carbs: 28,
+    fat: 14,
+    saturates: 2.5,
+    sugar: 5,
+    salt: 1.3,
+    servingSize: "2 rolls (100g)",
+    supermarket: "Chopsticks Noodle Bar",
+    barcode: "17000000011"
+  },
+  {
+    name: "Chopsticks Salt & Pepper Chicken Wings",
+    calories: 380,
+    protein: 28,
+    carbs: 14,
+    fat: 24,
+    saturates: 5,
+    sugar: 1,
+    salt: 2.2,
+    servingSize: "6 pieces (180g)",
+    supermarket: "Chopsticks Noodle Bar",
+    barcode: "17000000012"
+  },
+  {
+    name: "Chopsticks Chicken Balls (6 pieces)",
+    calories: 420,
+    protein: 22,
+    carbs: 46,
+    fat: 18,
+    saturates: 3.5,
+    sugar: 10,
+    salt: 1.9,
+    servingSize: "6 balls (180g)",
+    supermarket: "Chopsticks Noodle Bar",
+    barcode: "17000000013"
+  },
+  {
+    name: "Chopsticks Prawn Toast",
+    calories: 340,
+    protein: 14,
+    carbs: 26,
+    fat: 20,
+    saturates: 3,
+    sugar: 2,
+    salt: 1.5,
+    servingSize: "4 pieces (100g)",
+    supermarket: "Chopsticks Noodle Bar",
+    barcode: "17000000014"
+  },
+  {
+    name: "Chopsticks Vegetable Spring Rolls (2 pieces)",
+    calories: 230,
+    protein: 4,
+    carbs: 28,
+    fat: 12,
+    saturates: 2,
+    sugar: 6,
+    salt: 1.2,
+    servingSize: "2 rolls (100g)",
+    supermarket: "Chopsticks Noodle Bar",
+    barcode: "17000000015"
+  },
+  
+  // Soups
+  {
+    name: "Chopsticks Won Ton Soup",
+    calories: 180,
+    protein: 9,
+    carbs: 20,
+    fat: 7,
+    saturates: 1.5,
+    sugar: 3,
+    salt: 2.1,
+    servingSize: "1 bowl (250ml)",
+    supermarket: "Chopsticks Noodle Bar",
+    barcode: "17000000016"
+  },
+  {
+    name: "Chopsticks Hot & Sour Soup",
+    calories: 160,
+    protein: 7,
+    carbs: 18,
+    fat: 6,
+    saturates: 1,
+    sugar: 4,
+    salt: 2.3,
+    servingSize: "1 bowl (250ml)",
+    supermarket: "Chopsticks Noodle Bar",
+    barcode: "17000000017"
+  },
+  {
+    name: "Chopsticks Chicken Noodle Soup",
+    calories: 220,
+    protein: 12,
+    carbs: 28,
+    fat: 7,
+    saturates: 1.5,
+    sugar: 3,
+    salt: 2.5,
+    servingSize: "1 bowl (300ml)",
+    supermarket: "Chopsticks Noodle Bar",
+    barcode: "17000000018"
+  },
+  
+  // Specials
+  {
+    name: "Chopsticks Katsu Curry with Rice",
+    calories: 720,
+    protein: 26,
+    carbs: 95,
+    fat: 26,
+    saturates: 5,
+    sugar: 15,
+    salt: 3.2,
+    servingSize: "Regular box (380g)",
+    supermarket: "Chopsticks Noodle Bar",
+    barcode: "17000000019"
+  },
+  {
+    name: "Chopsticks Thai Green Curry with Rice",
+    calories: 650,
+    protein: 25,
+    carbs: 80,
+    fat: 24,
+    saturates: 8,
+    sugar: 10,
+    salt: 3.0,
+    servingSize: "Regular box (380g)",
+    supermarket: "Chopsticks Noodle Bar",
+    barcode: "17000000020"
+  }
+];

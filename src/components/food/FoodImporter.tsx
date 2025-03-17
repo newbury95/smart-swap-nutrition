@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,6 +17,14 @@ import { pizzaHutFoods } from '@/data/food/pizzahut-foods';
 import { dominosFoods } from '@/data/food/dominos-foods';
 import { kfcFoods } from '@/data/food/kfc-foods';
 import { nandosFoods } from '@/data/food/nandos-foods';
+import { burgerKingFoods } from '@/data/food/burger-king-foods';
+import { costaCoffeeFoods } from '@/data/food/costa-foods';
+import { starbucksFoods } from '@/data/food/starbucks-foods';
+import { subwayFoods } from '@/data/food/subway-foods';
+import { greggsFoods } from '@/data/food/greggs-foods';
+import { dunkinFoods } from '@/data/food/dunkin-foods';
+import { barBurritoFoods } from '@/data/food/barburrito-foods';
+import { chopsticksNoodleBarFoods } from '@/data/food/chopsticks-foods';
 
 export const FoodImporter = () => {
   const { importFoods, isImporting } = useFoodImport();
@@ -37,7 +44,15 @@ export const FoodImporter = () => {
     'Pizza Hut': pizzaHutFoods,
     'Dominos': dominosFoods,
     'KFC': kfcFoods,
-    'Nandos': nandosFoods
+    'Nandos': nandosFoods,
+    'Burger King': burgerKingFoods,
+    'Costa Coffee': costaCoffeeFoods,
+    'Starbucks': starbucksFoods,
+    'Subway': subwayFoods,
+    'Greggs': greggsFoods,
+    'Dunkin': dunkinFoods,
+    'Bar Burrito': barBurritoFoods,
+    'Chopsticks Noodle Bar': chopsticksNoodleBarFoods
   };
   
   const handleImport = async (source: string, foods: any[]) => {
