@@ -1,13 +1,19 @@
 
-import type { NutritionSettings, MacroRatio } from '../useUserNutrition';
-import { 
-  ActivityLevel,
-  FitnessGoal,
-  Gender,
-  HealthMetricType
-} from '@/utils/nutritionCalculations';
+import { ActivityLevel, FitnessGoal, Gender } from '@/utils/nutritionCalculations';
 
-// Helper functions to validate types
+// Mapping from settings keys to health metric types in the database
+export const metricTypeMap: Record<string, string> = {
+  weight: 'weight',
+  height: 'height', 
+  age: 'age',
+  activityLevel: 'activity_level',
+  fitnessGoal: 'fitness_goal',
+  gender: 'gender',
+  customMacroRatio: 'custom_macro_ratio',
+  calorieTarget: 'calorie_target' // Add direct calorie target mapping
+};
+
+// Type validation helpers
 export const isValidActivityLevel = (value: string): value is ActivityLevel => {
   return ['sedentary', 'light', 'moderate', 'active', 'very_active'].includes(value);
 };
@@ -18,15 +24,4 @@ export const isValidFitnessGoal = (value: string): value is FitnessGoal => {
 
 export const isValidGender = (value: string): value is Gender => {
   return ['male', 'female', 'other'].includes(value);
-};
-
-// Mapping from settings keys to metric types
-export const metricTypeMap: Record<string, string> = {
-  weight: 'weight',
-  height: 'height',
-  age: 'age',
-  gender: 'gender',
-  activityLevel: 'activity_level',
-  fitnessGoal: 'fitness_goal',
-  customMacroRatio: 'custom_macro_ratio'
 };

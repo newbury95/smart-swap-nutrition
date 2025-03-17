@@ -20,6 +20,7 @@ export interface NutritionSettings {
   activityLevel: ActivityLevel;
   fitnessGoal: FitnessGoal;
   customMacroRatio?: MacroRatio;
+  calorieTarget?: number; // Add direct calorie target setting
 }
 
 export interface NutritionCalculations {
