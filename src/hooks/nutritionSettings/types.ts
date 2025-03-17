@@ -10,7 +10,7 @@ export const metricTypeMap: Record<string, string> = {
   fitnessGoal: 'fitness_goal',
   gender: 'gender',
   customMacroRatio: 'custom_macro_ratio',
-  calorieTarget: 'calorie_target' // Add direct calorie target mapping
+  calorieTarget: 'calorie_target' // Ensure calorie target mapping is available
 };
 
 // Type validation helpers

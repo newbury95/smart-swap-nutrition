@@ -8,6 +8,7 @@ import TrackingHeader from "@/components/tracking/TrackingHeader";
 import { HealthMetrics } from "@/components/diary/HealthMetrics";
 import { useMealManagement } from "@/hooks/useMealManagement";
 import { PageLoading } from "@/components/PageLoading";
+import BMIFormSection from "@/components/tracking/BMIFormSection";
 
 const TrackingPage = () => {
   const { toast } = useToast();
@@ -41,6 +42,25 @@ const TrackingPage = () => {
         description: "Failed to update calorie goal. Please try again.",
       });
       return Promise.reject(error);
+    }
+  };
+
+  const handleBMISubmit = async (weight: number, height: number) => {
+    try {
+      await updateSetting('weight', weight);
+      await updateSetting('height', height);
+      
+      toast({
+        title: "Measurements Updated",
+        description: "Your height and weight have been updated successfully.",
+      });
+    } catch (error) {
+      console.error("Error updating measurements:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update measurements. Please try again.",
+      });
     }
   };
 
@@ -79,7 +99,7 @@ const TrackingPage = () => {
             </ErrorBoundary>
 
             {/* Daily Summary Card */}
-            <div className="bg-white p-6 rounded-xl border shadow-sm hover:shadow-md transition-shadow duration-300">
+            <div className="bg-white p-6 rounded-xl border shadow-sm hover:shadow-md transition-shadow duration-300 mt-6">
               <h2 className="text-lg font-semibold mb-4">Today's Summary</h2>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -102,6 +122,9 @@ const TrackingPage = () => {
               </div>
             </div>
           </div>
+
+          {/* Add BMI form section */}
+          <BMIFormSection onSubmit={handleBMISubmit} />
         </div>
       </main>
     </div>
