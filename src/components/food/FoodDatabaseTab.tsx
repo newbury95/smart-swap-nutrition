@@ -24,6 +24,7 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
   const [showCustomFoodForm, setShowCustomFoodForm] = useState(false);
   const [showAdminImporter, setShowAdminImporter] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [forceRefresh, setForceRefresh] = useState(0);
 
   // Check if user is admin (this is a placeholder - in a real app you'd check roles)
   const checkAdminStatus = useCallback(async () => {
@@ -48,7 +49,7 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
     isLoading, 
     refetch 
   } = useQuery({
-    queryKey: ['foods', searchQuery],
+    queryKey: ['foods', searchQuery, forceRefresh],
     queryFn: async () => {
       try {
         let query = supabase.from('nutritional_info').select(`
@@ -70,6 +71,16 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
 
         if (error) {
           throw error;
+        }
+
+        // Make sure we have data
+        if (!data || data.length === 0) {
+          // If we don't have data, but also don't have a search query, it might mean
+          // the database is empty or the foods haven't been imported yet
+          if (!searchQuery) {
+            console.log("No foods found in database, might need to import first");
+            setShowAdminImporter(true);
+          }
         }
 
         return data.map(item => ({
@@ -119,10 +130,12 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
       title: "Success",
       description: "Custom food created successfully"
     });
+    // Refresh foods list
+    refetch();
   };
 
   const handleRefreshFoods = () => {
-    refetch();
+    setForceRefresh(prev => prev + 1);
     toast({
       title: "Refreshing",
       description: "Getting the latest food data from the database"
@@ -132,7 +145,7 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
   const handleAdminClose = () => {
     setShowAdminImporter(false);
     // Refresh the foods list to show newly imported foods
-    refetch();
+    setForceRefresh(prev => prev + 1);
   };
 
   return (
