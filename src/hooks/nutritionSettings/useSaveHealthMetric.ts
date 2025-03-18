@@ -30,10 +30,7 @@ export const useSaveHealthMetric = (
         value: stringValue,
       });
       
-      toast({
-        title: 'Success',
-        description: 'Health metric updated successfully',
-      });
+      console.log(`Successfully saved ${metricType} with value:`, stringValue);
     } catch (error) {
       console.error(`Error saving ${metricType}:`, error);
       toast({

@@ -14,6 +14,7 @@ import {
   Weight, 
   ArrowRight 
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const TrackingPage = () => {
   const { toast } = useToast();
@@ -38,6 +39,11 @@ const TrackingPage = () => {
       // Update the calorie target - this effectively updates the fitnessGoal behind the scenes
       await updateSetting('calorieTarget', calories);
       
+      toast({
+        title: "Calorie Goal Updated",
+        description: `Your daily target is now ${calories} calories`,
+      });
+      
       return Promise.resolve();
     } catch (error) {
       console.error("Error updating calorie goal:", error);
@@ -52,6 +58,7 @@ const TrackingPage = () => {
 
   const handleBMISubmit = async (weight: number, height: number) => {
     try {
+      // Store weight and height in the database
       await updateSetting('weight', weight);
       await updateSetting('height', height);
       
@@ -87,6 +94,18 @@ const TrackingPage = () => {
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-2xl font-bold text-gray-900 mb-6">Nutrition Tracking</h1>
+          
+          {/* BMR and Calorie Goals Section */}
+          <div className="bg-white p-6 rounded-xl shadow-sm mb-6">
+            <ErrorBoundary fallback={<div className="p-4 bg-red-100 rounded-md">Error loading health metrics</div>}>
+              <HealthMetrics
+                bmr={calculations?.bmr || 1800}
+                currentCalories={calorieTarget}
+                isPremium={isPremium}
+                onUpdateCalories={handleUpdateCalories}
+              />
+            </ErrorBoundary>
+          </div>
           
           {/* Current Measurements Card */}
           <Card className="mb-6 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
@@ -124,18 +143,6 @@ const TrackingPage = () => {
               </div>
             </CardContent>
           </Card>
-          
-          {/* BMR and Calorie Goals Section */}
-          <div className="bg-white p-6 rounded-xl shadow-sm mb-6">
-            <ErrorBoundary fallback={<div className="p-4 bg-red-100 rounded-md">Error loading health metrics</div>}>
-              <HealthMetrics
-                bmr={calculations?.bmr || 1800}
-                currentCalories={calorieTarget}
-                isPremium={isPremium}
-                onUpdateCalories={handleUpdateCalories}
-              />
-            </ErrorBoundary>
-          </div>
 
           {/* Daily Summary Card */}
           <Card className="mb-6 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
@@ -213,12 +220,12 @@ const TrackingPage = () => {
                     />
                   </div>
                 </div>
-                <button
+                <Button
                   type="submit"
                   className="w-full md:w-auto px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"
                 >
                   Save Measurements
-                </button>
+                </Button>
               </form>
             </CardContent>
           </Card>

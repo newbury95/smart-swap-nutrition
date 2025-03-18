@@ -24,6 +24,7 @@ export const useUpdateSetting = (
       return;
     }
     
+    // Immediately update the state
     setSettings(prev => ({ ...prev, [key]: value }));
     
     // Save to database if it's a basic metric and we have a type mapping for it
