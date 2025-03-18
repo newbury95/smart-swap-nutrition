@@ -1,3 +1,4 @@
+
 import { memo, useState, useEffect } from "react";
 import { useUserNutrition } from "@/hooks/useUserNutrition";
 import { useToast } from "@/hooks/use-toast";
@@ -46,6 +47,7 @@ const TrackingPage = () => {
     const fetchWeightHistory = async () => {
       try {
         setIsWeightHistoryLoading(true);
+        // Use supabase query directly instead of getHealthMetrics since 'weight' is not in the allowed metric types
         const { data: weightData, error } = await supabase
           .from('health_metrics')
           .select('value, recorded_at')
