@@ -25,6 +25,9 @@ interface ImportFoodResult {
   error?: string;
 }
 
+// Define the allowed provider types to match the database enum
+type ProviderType = "Tesco" | "Sainsburys" | "Asda" | "Morrisons" | "Waitrose" | "Coop" | "M&S" | "Ocado" | "Generic" | "Aldi";
+
 export const useFoodImport = () => {
   const { toast } = useToast();
   const [isImporting, setIsImporting] = useState(false);
@@ -87,30 +90,48 @@ export const useFoodImport = () => {
       
       console.log(`Importing ${newFoodItems.length} new food items (${existingFoodNames.size} already exist)`);
       
-      // Map the data to match the database schema
-      const foodsToInsert = newFoodItems.map(item => ({
-        food_item: String(item.name).substring(0, 255),
-        kcal: Number(item.calories) || 0,
-        protein: Number(item.protein) || 0,
-        fats: Number(item.fat) || 0,
-        saturates: Number(item.saturates) || 0,
-        carbohydrates: Number(item.carbs) || 0,
-        sugar: Number(item.sugar) || 0,
-        salt: Number(item.salt) || 0,
-        calcium: Number(item.calcium) || 0,
-        serving_size: String(item.servingSize || "100g").substring(0, 50),
-        provider: String(item.supermarket || "Generic").substring(0, 50),
-        barcode: item.barcode ? String(item.barcode) : null,
-        created_at: new Date().toISOString(),
-        calcium_unit: 'mg',
-        carbohydrates_unit: 'g',
-        fats_unit: 'g',
-        kcal_unit: 'kcal',
-        protein_unit: 'g',
-        salt_unit: 'g',
-        saturates_unit: 'g',
-        sugar_unit: 'g'
-      }));
+      // Map the data to match the database schema and ensure provider is a valid enum value
+      const foodsToInsert = newFoodItems.map(item => {
+        // Map supermarket to a valid provider value or default to "Generic"
+        let provider: ProviderType = "Generic";
+        
+        // Try to match the supermarket to one of the allowed values
+        const normalizedSupermarket = String(item.supermarket || "").trim();
+        
+        if (normalizedSupermarket.includes("Tesco")) provider = "Tesco";
+        else if (normalizedSupermarket.includes("Sainsbury")) provider = "Sainsburys";
+        else if (normalizedSupermarket.includes("Asda")) provider = "Asda";
+        else if (normalizedSupermarket.includes("Morrison")) provider = "Morrisons";
+        else if (normalizedSupermarket.includes("Waitrose")) provider = "Waitrose";
+        else if (normalizedSupermarket.includes("Co-op") || normalizedSupermarket.includes("Coop")) provider = "Coop";
+        else if (normalizedSupermarket.includes("M&S") || normalizedSupermarket.includes("Marks")) provider = "M&S";
+        else if (normalizedSupermarket.includes("Ocado")) provider = "Ocado";
+        else if (normalizedSupermarket.includes("Aldi")) provider = "Aldi";
+        
+        return {
+          food_item: String(item.name).substring(0, 255),
+          kcal: Number(item.calories) || 0,
+          protein: Number(item.protein) || 0,
+          fats: Number(item.fat) || 0,
+          saturates: Number(item.saturates) || 0,
+          carbohydrates: Number(item.carbs) || 0,
+          sugar: Number(item.sugar) || 0,
+          salt: Number(item.salt) || 0,
+          calcium: Number(item.calcium) || 0,
+          serving_size: String(item.servingSize || "100g").substring(0, 50),
+          provider, // Now using the correctly mapped provider value
+          barcode: item.barcode ? String(item.barcode) : null,
+          created_at: new Date().toISOString(),
+          calcium_unit: 'mg',
+          carbohydrates_unit: 'g',
+          fats_unit: 'g',
+          kcal_unit: 'kcal',
+          protein_unit: 'g',
+          salt_unit: 'g',
+          saturates_unit: 'g',
+          sugar_unit: 'g'
+        };
+      });
 
       // Insert in batches to avoid timeouts and excessive payload sizes
       const batchSize = 20;

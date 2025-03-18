@@ -11,7 +11,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { CustomFoodForm } from "./CustomFoodForm";
-import { AdminFoodImporter } from "./AdminFoodImporter";
 
 interface FoodDatabaseTabProps {
   onSelect: (food: Food) => void;
@@ -22,27 +21,7 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isScanning, setIsScanning] = useState(false);
   const [showCustomFoodForm, setShowCustomFoodForm] = useState(false);
-  const [showAdminImporter, setShowAdminImporter] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [forceRefresh, setForceRefresh] = useState(0);
-
-  // Check if user is admin (this is a placeholder - in a real app you'd check roles)
-  const checkAdminStatus = useCallback(async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      // This is a placeholder. In a real app, you would check user roles
-      // For now, we'll just allow any logged-in user to access the admin panel
-      setIsAdmin(!!session?.user);
-    } catch (error) {
-      console.error("Error checking admin status:", error);
-      setIsAdmin(false);
-    }
-  }, []);
-
-  // Check admin status on component mount
-  useEffect(() => {
-    checkAdminStatus();
-  }, [checkAdminStatus]);
 
   const { 
     data: foods = [], 
@@ -67,7 +46,7 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
           query = query.ilike('food_item', `%${searchQuery}%`);
         }
 
-        const { data, error } = await query.limit(50); // Limit for better performance
+        const { data, error } = await query.limit(100); // Increased limit for better selection
 
         if (error) {
           throw error;
@@ -75,12 +54,8 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
 
         // Make sure we have data
         if (!data || data.length === 0) {
-          // If we don't have data, but also don't have a search query, it might mean
-          // the database is empty or the foods haven't been imported yet
-          if (!searchQuery) {
-            console.log("No foods found in database, might need to import first");
-            setShowAdminImporter(true);
-          }
+          console.log("No foods found in database");
+          return [];
         }
 
         return data.map(item => ({
@@ -93,7 +68,7 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
           fat: Number(item.fats),
           servingSize: item.serving_size,
           barcode: item.barcode || undefined,
-          supermarket: item.provider as Supermarket || "All Supermarkets" as Supermarket,
+          supermarket: item.provider as Supermarket || "Generic" as Supermarket,
           category: "All Categories" as FoodCategory,
           servingSizeOptions: item.serving_size_options || []
         }));
@@ -142,12 +117,6 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
     });
   };
 
-  const handleAdminClose = () => {
-    setShowAdminImporter(false);
-    // Refresh the foods list to show newly imported foods
-    setForceRefresh(prev => prev + 1);
-  };
-
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center gap-4">
@@ -168,16 +137,6 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
             <RefreshCw className="w-4 h-4" />
           </Button>
           
-          {isAdmin && (
-            <Button 
-              variant="outline"
-              onClick={() => setShowAdminImporter(true)}
-              className="relative"
-              title="Food Database Admin"
-            >
-              <Database className="w-4 h-4" />
-            </Button>
-          )}
           <Button 
             variant="outline"
             onClick={() => setShowCustomFoodForm(true)}
@@ -207,14 +166,6 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
         <DialogContent className="sm:max-w-[425px]">
           <DialogTitle>Create Custom Food</DialogTitle>
           <CustomFoodForm onSuccess={handleCustomFoodSuccess} />
-        </DialogContent>
-      </Dialog>
-
-      {/* Admin Food Importer Dialog */}
-      <Dialog open={showAdminImporter} onOpenChange={handleAdminClose}>
-        <DialogContent className="sm:max-w-[700px]">
-          <DialogTitle>Food Database Admin</DialogTitle>
-          <AdminFoodImporter />
         </DialogContent>
       </Dialog>
     </div>
