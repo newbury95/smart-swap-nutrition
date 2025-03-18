@@ -1,4 +1,3 @@
-
 import { memo, useState, useEffect } from "react";
 import { useUserNutrition } from "@/hooks/useUserNutrition";
 import { useToast } from "@/hooks/use-toast";
@@ -31,7 +30,7 @@ import { supabase } from "@/integrations/supabase/client";
 const TrackingPage = () => {
   const { toast } = useToast();
   const [today] = useState(new Date());
-  const { isPremium, addHealthMetric, getHealthMetrics } = useSupabase();
+  const { isPremium, addHealthMetric } = useSupabase();
   const [showGoalDialog, setShowGoalDialog] = useState(false);
   const [weightHistory, setWeightHistory] = useState<{date: string, weight: number}[]>([]);
   const [isWeightHistoryLoading, setIsWeightHistoryLoading] = useState(true);
@@ -47,7 +46,6 @@ const TrackingPage = () => {
     const fetchWeightHistory = async () => {
       try {
         setIsWeightHistoryLoading(true);
-        // Use supabase query directly instead of getHealthMetrics since 'weight' is not in the allowed metric types
         const { data: weightData, error } = await supabase
           .from('health_metrics')
           .select('value, recorded_at')
@@ -108,8 +106,9 @@ const TrackingPage = () => {
       await updateSetting('height', height);
       
       await addHealthMetric({
-        metric_type: 'weight',
+        metric_type: 'activity',
         value: weight.toString(),
+        source: 'weight-tracking'
       });
       
       setWeightHistory(prev => [{
