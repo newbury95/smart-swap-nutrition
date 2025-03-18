@@ -1,11 +1,11 @@
 
-import { useState, useCallback, memo } from "react";
+import { useState, useCallback, memo, useEffect } from "react";
 import { Food, Supermarket, FoodCategory } from "./types";
 import { FoodSearchBar } from "./FoodSearchBar";
 import { BarcodeScanner } from "./BarcodeScanner";
 import { FoodList } from "./FoodList";
 import { Button } from "@/components/ui/button";
-import { Crown, Database } from "lucide-react";
+import { Crown, Database, RefreshCw } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -39,11 +39,15 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
   }, []);
 
   // Check admin status on component mount
-  useState(() => {
+  useEffect(() => {
     checkAdminStatus();
-  });
+  }, [checkAdminStatus]);
 
-  const { data: foods = [], isLoading } = useQuery({
+  const { 
+    data: foods = [], 
+    isLoading, 
+    refetch 
+  } = useQuery({
     queryKey: ['foods', searchQuery],
     queryFn: async () => {
       try {
@@ -71,14 +75,14 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
         return data.map(item => ({
           id: item.id,
           name: item.food_item,
-          brand: "",
+          brand: item.provider || "",
           calories: Math.round(item.kcal),
           protein: Number(item.protein),
           carbs: Number(item.carbohydrates),
           fat: Number(item.fats),
           servingSize: item.serving_size,
           barcode: item.barcode || undefined,
-          supermarket: "All Supermarkets" as Supermarket,
+          supermarket: item.provider as Supermarket || "All Supermarkets" as Supermarket,
           category: "All Categories" as FoodCategory,
           servingSizeOptions: item.serving_size_options || []
         }));
@@ -117,6 +121,20 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
     });
   };
 
+  const handleRefreshFoods = () => {
+    refetch();
+    toast({
+      title: "Refreshing",
+      description: "Getting the latest food data from the database"
+    });
+  };
+
+  const handleAdminClose = () => {
+    setShowAdminImporter(false);
+    // Refresh the foods list to show newly imported foods
+    refetch();
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center gap-4">
@@ -128,6 +146,15 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
           isScanning={isScanning}
         />
         <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={handleRefreshFoods}
+            size="icon"
+            title="Refresh food database"
+          >
+            <RefreshCw className="w-4 h-4" />
+          </Button>
+          
           {isAdmin && (
             <Button 
               variant="outline"
@@ -171,7 +198,7 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
       </Dialog>
 
       {/* Admin Food Importer Dialog */}
-      <Dialog open={showAdminImporter} onOpenChange={setShowAdminImporter}>
+      <Dialog open={showAdminImporter} onOpenChange={handleAdminClose}>
         <DialogContent className="sm:max-w-[700px]">
           <DialogTitle>Food Database Admin</DialogTitle>
           <AdminFoodImporter />
