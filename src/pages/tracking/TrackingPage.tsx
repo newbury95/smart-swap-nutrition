@@ -1,4 +1,3 @@
-
 import { memo, useState, useEffect } from "react";
 import { useUserNutrition } from "@/hooks/useUserNutrition";
 import { useToast } from "@/hooks/use-toast";
@@ -7,6 +6,12 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import TrackingHeader from "@/components/tracking/TrackingHeader";
 import { PageLoading } from "@/components/PageLoading";
 import { Card, CardContent } from "@/components/ui/card";
+import { 
+  Tabs, 
+  TabsContent, 
+  TabsList, 
+  TabsTrigger 
+} from "@/components/ui/tabs";
 import { 
   Activity, 
   Weight, 
@@ -19,13 +24,8 @@ import { Button } from "@/components/ui/button";
 import { format, subDays } from "date-fns";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { 
-  Tabs, 
-  TabsContent, 
-  TabsList, 
-  TabsTrigger 
-} from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 const TrackingPage = () => {
   const { toast } = useToast();
@@ -42,7 +42,6 @@ const TrackingPage = () => {
     updateSetting,
   } = useUserNutrition();
 
-  // Load weight history
   useEffect(() => {
     const fetchWeightHistory = async () => {
       try {
@@ -82,7 +81,6 @@ const TrackingPage = () => {
 
   const handleUpdateCalories = async (calories: number) => {
     try {
-      // Update the calorie target - this effectively updates the fitnessGoal behind the scenes
       await updateSetting('calorieTarget', calories);
       
       toast({
@@ -104,17 +102,14 @@ const TrackingPage = () => {
 
   const handleBMISubmit = async (weight: number, height: number) => {
     try {
-      // Store weight and height in the database
       await updateSetting('weight', weight);
       await updateSetting('height', height);
       
-      // Add weight to history for tracking
       await addHealthMetric({
         metric_type: 'weight',
         value: weight.toString(),
       });
       
-      // Update local weight history
       setWeightHistory(prev => [{
         date: format(new Date(), 'yyyy-MM-dd'),
         weight
@@ -157,24 +152,20 @@ const TrackingPage = () => {
     return <PageLoading />;
   }
 
-  // Get calorie target and calorie breakdown
   const calorieTarget = calculations?.calorieTarget || 2000;
   const { protein: proteinTarget, carbs: carbsTarget, fats: fatsTarget } = calculations?.macros || { protein: 0, carbs: 0, fats: 0 };
   
-  // Mock data for today's consumption (in a real app, this would come from the meal tracking)
-  const consumedCalories = 1200; // Example value
-  const consumedProtein = 60; // Example value
-  const consumedCarbs = 120; // Example value
-  const consumedFats = 45; // Example value
+  const consumedCalories = 1200;
+  const consumedProtein = 60;
+  const consumedCarbs = 120;
+  const consumedFats = 45;
   
-  // Calculate remaining calories and percentages
   const remainingCalories = calorieTarget - consumedCalories;
   const caloriePercentage = Math.min(Math.round((consumedCalories / calorieTarget) * 100), 100);
   const proteinPercentage = Math.min(Math.round((consumedProtein / proteinTarget) * 100), 100);
   const carbsPercentage = Math.min(Math.round((consumedCarbs / carbsTarget) * 100), 100);
   const fatsPercentage = Math.min(Math.round((consumedFats / fatsTarget) * 100), 100);
   
-  // Generate mock weight data for the chart if we don't have real data
   const weightChartData = weightHistory.length > 0 ? weightHistory : 
     Array.from({ length: 7 }).map((_, i) => ({
       date: format(subDays(new Date(), i), 'yyyy-MM-dd'),
@@ -189,9 +180,7 @@ const TrackingPage = () => {
         <div className="max-w-4xl mx-auto">
           <h1 className="text-2xl font-bold text-gray-900 mb-6">Nutrition Tracking</h1>
           
-          {/* Top Cards Section */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            {/* BMR Card */}
             <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
               <CardContent className="p-0">
                 <div className="relative w-full bg-gradient-to-br from-purple-50 to-purple-100 p-6">
@@ -218,7 +207,6 @@ const TrackingPage = () => {
               </CardContent>
             </Card>
             
-            {/* Calorie Target Card */}
             <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
               <CardContent className="p-0">
                 <div className="relative w-full bg-gradient-to-br from-blue-50 to-blue-100 p-6">
@@ -267,7 +255,6 @@ const TrackingPage = () => {
               </CardContent>
             </Card>
             
-            {/* Fitness Goal Card */}
             <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
               <CardContent className="p-0">
                 <div className="relative w-full bg-gradient-to-br from-green-50 to-green-100 p-6">
@@ -300,7 +287,6 @@ const TrackingPage = () => {
             </Card>
           </div>
           
-          {/* Macro Progress Section */}
           <Card className="mb-6 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-6">
               <h2 className="text-xl font-semibold mb-4">Macro Nutrients Progress</h2>
@@ -345,7 +331,6 @@ const TrackingPage = () => {
             </CardContent>
           </Card>
           
-          {/* Current Measurements Card */}
           <Card className="mb-6 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-6">
               <div className="flex justify-between items-center mb-4">
@@ -382,7 +367,6 @@ const TrackingPage = () => {
             </CardContent>
           </Card>
           
-          {/* Weight History Chart */}
           <Card className="mb-6 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-6">
               <h2 className="text-xl font-semibold mb-4">Weight History</h2>
@@ -401,7 +385,6 @@ const TrackingPage = () => {
                 </div>
               ) : (
                 <div className="h-64">
-                  {/* In a real app, you would render a chart here using a library like recharts */}
                   <div className="bg-gray-100 h-full rounded-lg p-4 flex items-center justify-center">
                     <div className="text-center">
                       <p className="text-gray-800 font-medium">Weight Chart</p>
@@ -414,8 +397,7 @@ const TrackingPage = () => {
               )}
             </CardContent>
           </Card>
-
-          {/* Update Measurements Form */}
+          
           <Card id="measurements-form" className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-6">
               <h2 className="text-xl font-semibold mb-4">Update Your Measurements</h2>
@@ -475,7 +457,6 @@ const TrackingPage = () => {
             </CardContent>
           </Card>
           
-          {/* Goal Selection Dialog */}
           <Dialog open={showGoalDialog} onOpenChange={setShowGoalDialog}>
             <DialogContent className="sm:max-w-md">
               <DialogTitle>Choose Your Fitness Goal</DialogTitle>
