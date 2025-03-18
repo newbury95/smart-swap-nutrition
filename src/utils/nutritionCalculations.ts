@@ -2,11 +2,11 @@
 // Utility functions for nutrition and calorie calculations
 
 // Database health metric types (as defined in the database)
-export type DbHealthMetricType = 'steps' | 'activity' | 'heart-rate';
+export type DbHealthMetricType = 'steps' | 'activity' | 'heart-rate' | 'weight' | 'height';
 
 // Extended health metric types for application use
 export type HealthMetricType = DbHealthMetricType | 
-  'weight' | 'height' | 'age' | 'activity_level' | 
+  'activity_level' | 
   'fitness_goal' | 'gender' | 'custom_protein_ratio' | 
   'custom_carbs_ratio' | 'custom_fats_ratio';
 

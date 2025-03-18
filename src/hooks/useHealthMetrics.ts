@@ -6,7 +6,8 @@ import { HealthMetricType, DbHealthMetricType } from '@/utils/nutritionCalculati
 // Helper function to ensure metric type is valid for the database
 const validateMetricType = (metricType: HealthMetricType | string): DbHealthMetricType => {
   // Only allow valid database enum values
-  if (metricType === "steps" || metricType === "activity" || metricType === "heart-rate") {
+  if (metricType === "steps" || metricType === "activity" || metricType === "heart-rate" || 
+      metricType === "weight" || metricType === "height") {
     return metricType as DbHealthMetricType;
   }
   // Default to activity for any other types

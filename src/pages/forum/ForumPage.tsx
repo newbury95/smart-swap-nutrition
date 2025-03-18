@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Crown, Flag, Plus, MessageSquare, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,18 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
+
+interface ThreadType {
+  id: string;
+  title: string;
+  content: string;
+  user_id: string;
+  created_at: string;
+  author: string;
+  replies: number;
+}
 
 const ForumPage = () => {
   const navigate = useNavigate();
@@ -19,9 +31,67 @@ const ForumPage = () => {
   const [newThreadTitle, setNewThreadTitle] = useState("");
   const [newThreadContent, setNewThreadContent] = useState("");
   const [reportReason, setReportReason] = useState("");
-  const [threads, setThreads] = useState([]);
+  const [threads, setThreads] = useState<ThreadType[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleCreateThread = () => {
+  // Fetch threads
+  useEffect(() => {
+    const fetchThreads = async () => {
+      try {
+        setIsLoading(true);
+        const { data: threadsData, error } = await supabase
+          .from('forum_threads')
+          .select(`
+            id,
+            title,
+            content,
+            user_id,
+            created_at,
+            profiles(first_name, last_name),
+            (SELECT count(*) FROM forum_replies WHERE thread_id = forum_threads.id) as replies_count
+          `)
+          .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        
+        // Format the threads data
+        const formattedThreads = threadsData?.map(thread => ({
+          id: thread.id,
+          title: thread.title,
+          content: thread.content,
+          user_id: thread.user_id,
+          created_at: format(new Date(thread.created_at), 'PP'),
+          author: thread.profiles ? `${thread.profiles.first_name} ${thread.profiles.last_name}` : 'Anonymous',
+          replies: thread.replies_count || 0
+        })) || [];
+        
+        setThreads(formattedThreads);
+      } catch (error) {
+        console.error('Error fetching threads:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load forum threads."
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchThreads();
+  }, [toast]);
+
+  const handleCreateThread = async () => {
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Authentication Required",
+        description: "You must be logged in to create a thread."
+      });
+      navigate("/auth");
+      return;
+    }
+    
     if (!newThreadTitle.trim() || !newThreadContent.trim()) {
       toast({
         variant: "destructive",
@@ -31,23 +101,76 @@ const ForumPage = () => {
       return;
     }
 
-    // In a real implementation, you would save to Supabase here
-    toast({
-      title: "Thread created",
-      description: "Your thread has been posted successfully."
-    });
-    
-    setNewThreadTitle("");
-    setNewThreadContent("");
-    setShowNewThreadDialog(false);
+    try {
+      const { data, error } = await supabase
+        .from('forum_threads')
+        .insert([{
+          title: newThreadTitle,
+          content: newThreadContent,
+          user_id: user.id
+        }])
+        .select();
+      
+      if (error) throw error;
+      
+      // Add the new thread to the state
+      if (data && data[0]) {
+        const newThread = {
+          id: data[0].id,
+          title: data[0].title,
+          content: data[0].content,
+          user_id: data[0].user_id,
+          created_at: format(new Date(), 'PP'),
+          author: user.email?.split('@')[0] || 'Anonymous',
+          replies: 0
+        };
+        
+        setThreads(prev => [newThread, ...prev]);
+      }
+      
+      toast({
+        title: "Thread created",
+        description: "Your thread has been posted successfully."
+      });
+      
+      setNewThreadTitle("");
+      setNewThreadContent("");
+      setShowNewThreadDialog(false);
+    } catch (error) {
+      console.error('Error creating thread:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to create thread. Please try again."
+      });
+    }
   };
 
   const handleReportThread = (threadId: string) => {
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Authentication Required",
+        description: "You must be logged in to report a thread."
+      });
+      navigate("/auth");
+      return;
+    }
+    
     setReportedThreadId(threadId);
     setShowReportDialog(true);
   };
 
-  const submitReport = () => {
+  const submitReport = async () => {
+    if (!user || !reportedThreadId) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Authentication or thread information missing."
+      });
+      return;
+    }
+    
     if (!reportReason.trim()) {
       toast({
         variant: "destructive",
@@ -57,15 +180,33 @@ const ForumPage = () => {
       return;
     }
 
-    // In a real implementation, you would save the report to Supabase here
-    toast({
-      title: "Report submitted",
-      description: "Thank you for helping keep our community safe."
-    });
-    
-    setReportReason("");
-    setReportedThreadId(null);
-    setShowReportDialog(false);
+    try {
+      const { error } = await supabase
+        .from('forum_reports')
+        .insert([{
+          thread_id: reportedThreadId,
+          user_id: user.id,
+          reason: reportReason
+        }]);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Report submitted",
+        description: "Thank you for helping keep our community safe."
+      });
+      
+      setReportReason("");
+      setReportedThreadId(null);
+      setShowReportDialog(false);
+    } catch (error) {
+      console.error('Error submitting report:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to submit report. Please try again."
+      });
+    }
   };
 
   return (
@@ -88,15 +229,20 @@ const ForumPage = () => {
               Connect with other members, share your journey, and get support from the community.
             </p>
             
-            {threads.length > 0 ? (
+            {isLoading ? (
+              <div className="text-center py-12 text-gray-500">
+                <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-30 animate-pulse" />
+                <p>Loading threads...</p>
+              </div>
+            ) : threads.length > 0 ? (
               <div className="space-y-4">
-                {threads.map((thread: any) => (
+                {threads.map((thread) => (
                   <div key={thread.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
                     <div className="flex justify-between">
                       <div>
                         <h3 className="font-medium text-lg mb-1">{thread.title}</h3>
                         <div className="flex items-center text-sm text-gray-500">
-                          <span>By {thread.author} • {thread.createdAt}</span>
+                          <span>By {thread.author} • {thread.created_at}</span>
                         </div>
                       </div>
                       <div className="flex items-center">

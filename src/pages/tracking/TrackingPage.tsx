@@ -18,7 +18,8 @@ import {
   ArrowRight,
   LineChart,
   Flame,
-  Target
+  Target,
+  Crown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format, subDays } from "date-fns";
@@ -26,6 +27,7 @@ import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import { Database, Upload } from "lucide-react";
 
 const TrackingPage = () => {
   const { toast } = useToast();
@@ -102,24 +104,45 @@ const TrackingPage = () => {
 
   const handleBMISubmit = async (weight: number, height: number) => {
     try {
+      // First update settings
       await updateSetting('weight', weight);
       await updateSetting('height', height);
       
-      await addHealthMetric({
-        metric_type: 'activity',
-        value: weight.toString(),
-        source: 'weight-tracking'
-      });
-      
-      setWeightHistory(prev => [{
-        date: format(new Date(), 'yyyy-MM-dd'),
-        weight
-      }, ...prev]);
-      
-      toast({
-        title: "Measurements Updated",
-        description: "Your height and weight have been updated successfully.",
-      });
+      // Then directly save weight and height metrics
+      try {
+        // Save weight metric
+        await addHealthMetric({
+          metric_type: 'weight',
+          value: weight.toString(),
+          source: 'manual-tracking'
+        });
+        
+        // Save height metric
+        await addHealthMetric({
+          metric_type: 'height',
+          value: height.toString(),
+          source: 'manual-tracking'
+        });
+        
+        // Update weight history state to reflect the new weight immediately
+        setWeightHistory(prev => [{
+          date: format(new Date(), 'yyyy-MM-dd'),
+          weight
+        }, ...prev]);
+        
+        toast({
+          title: "Measurements Updated",
+          description: "Your height and weight have been updated successfully.",
+        });
+      } catch (error) {
+        console.error("Error saving health metrics:", error);
+        // The settings were already updated, so we only show a warning
+        toast({
+          variant: "warning",
+          title: "Partial Update",
+          description: "Your settings were updated but we couldn't save the measurements history.",
+        });
+      }
     } catch (error) {
       console.error("Error updating measurements:", error);
       toast({
@@ -153,6 +176,8 @@ const TrackingPage = () => {
     return <PageLoading />;
   }
 
+  // Ensure BMR is properly calculated and round it to the nearest whole number
+  const bmr = calculations?.bmr || 0;
   const calorieTarget = calculations?.calorieTarget || 2000;
   const { protein: proteinTarget, carbs: carbsTarget, fats: fatsTarget } = calculations?.macros || { protein: 0, carbs: 0, fats: 0 };
   
@@ -190,7 +215,7 @@ const TrackingPage = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-lg font-semibold text-purple-800">Basal Metabolic Rate</h3>
-                      <p className="text-3xl font-bold mt-2 text-purple-900">{calculations?.bmr.toLocaleString()} kcal</p>
+                      <p className="text-3xl font-bold mt-2 text-purple-900">{bmr.toLocaleString()} kcal</p>
                     </div>
                     <div className="relative z-10">
                       <div className="bg-white p-3 rounded-full">
@@ -455,6 +480,91 @@ const TrackingPage = () => {
                   Save Measurements
                 </Button>
               </form>
+            </CardContent>
+          </Card>
+          
+          <Card className="mb-6 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="p-6">
+              <h2 className="text-xl font-semibold mb-4">Database Management</h2>
+              <p className="text-gray-600 mb-6">Import food data into the database or run a test payment.</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Button
+                  onClick={async () => {
+                    try {
+                      const { data: { session } } = await supabase.auth.getSession();
+                      
+                      if (!session) {
+                        toast({
+                          variant: "destructive",
+                          title: "Authentication Required",
+                          description: "You need to be logged in to perform this action."
+                        });
+                        return;
+                      }
+                      
+                      toast({
+                        title: "Importing Food Data",
+                        description: "This might take a while. Please wait..."
+                      });
+                      
+                      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/import-food-data`, {
+                        method: 'POST',
+                        headers: {
+                          'Authorization': `Bearer ${session.access_token}`,
+                          'Content-Type': 'application/json'
+                        }
+                      });
+                      
+                      if (!response.ok) {
+                        throw new Error(`Failed to import data: ${response.statusText}`);
+                      }
+                      
+                      const result = await response.json();
+                      
+                      if (result.success) {
+                        toast({
+                          title: "Success",
+                          description: result.message
+                        });
+                      } else {
+                        throw new Error(result.error || 'Unknown error occurred');
+                      }
+                    } catch (error) {
+                      console.error('Error importing food data:', error);
+                      toast({
+                        variant: "destructive",
+                        title: "Import Failed",
+                        description: error.message || "Failed to import food data. Please try again."
+                      });
+                    }
+                  }}
+                  className="flex items-center justify-center bg-green-600 hover:bg-green-700 text-white"
+                >
+                  <Database className="w-4 h-4 mr-2" />
+                  Import UK Fast Food Data
+                </Button>
+                
+                <Button
+                  onClick={async () => {
+                    try {
+                      // Go to the payment page
+                      window.location.href = '/premium';
+                    } catch (error) {
+                      console.error('Error navigating to payment page:', error);
+                      toast({
+                        variant: "destructive",
+                        title: "Navigation Failed",
+                        description: "Failed to navigate to payment page. Please try again."
+                      });
+                    }
+                  }}
+                  className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <Crown className="w-4 h-4 mr-2" />
+                  Test Premium Payment
+                </Button>
+              </div>
             </CardContent>
           </Card>
           
