@@ -64,20 +64,25 @@ const ForumPage = () => {
             console.error('Error counting replies:', countError);
             return {
               ...thread,
+              author: 'Anonymous', // Set a default author name
               replies: 0
             };
           }
           
           // Fetch author information separately
-          const { data: profileData, error: profileError } = await supabase
-            .from('profiles')
-            .select('first_name, last_name')
-            .eq('id', thread.user_id)
-            .single();
-          
           let authorName = 'Anonymous';
-          if (!profileError && profileData) {
-            authorName = `${profileData.first_name} ${profileData.last_name}`;
+          try {
+            const { data: profileData, error: profileError } = await supabase
+              .from('profiles')
+              .select('first_name, last_name')
+              .eq('id', thread.user_id)
+              .single();
+            
+            if (!profileError && profileData) {
+              authorName = `${profileData.first_name} ${profileData.last_name}`;
+            }
+          } catch (err) {
+            console.error('Error fetching profile data:', err);
           }
           
           return {
