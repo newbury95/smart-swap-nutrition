@@ -56,6 +56,8 @@ export const goalCalorieAdjustments: Record<FitnessGoal, number> = {
 
 /**
  * Calculate BMR using the Mifflin-St Jeor Equation
+ * Men: BMR = 88.362 + (13.397 x weight in kg) + (4.799 x height in cm) – (5.677 x age in years)
+ * Women: BMR = 447.593 + (9.247 x weight in kg) + (3.098 x height in cm) – (4.330 x age in years)
  */
 export const calculateBMR = (weight: number, height: number, age: number, gender: Gender): number => {
   // Ensure inputs are valid numbers
@@ -65,16 +67,18 @@ export const calculateBMR = (weight: number, height: number, age: number, gender
     return 0;
   }
 
-  // Mifflin-St Jeor Equation
-  let bmr = 10 * weight + 6.25 * height - 5 * age;
+  // Apply the correct formula based on gender
+  let bmr: number;
   
   if (gender === 'male') {
-    bmr += 5;
+    bmr = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age);
   } else if (gender === 'female') {
-    bmr -= 161;
+    bmr = 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age);
   } else {
-    // For non-binary individuals, use an average
-    bmr -= 78;
+    // For non-binary individuals, use an average of the two formulas
+    const maleBMR = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age);
+    const femaleBMR = 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age);
+    bmr = (maleBMR + femaleBMR) / 2;
   }
   
   // Ensure BMR is always positive

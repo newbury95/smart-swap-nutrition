@@ -23,6 +23,12 @@ const TrackingPage = () => {
   const [weightHistory, setWeightHistory] = useState<{date: string, weight: number}[]>([]);
   const [isWeightHistoryLoading, setIsWeightHistoryLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [consumedNutrition, setConsumedNutrition] = useState({
+    calories: 0,
+    protein: 0,
+    carbs: 0,
+    fats: 0
+  });
 
   const {
     loading: settingsLoading,
@@ -30,6 +36,47 @@ const TrackingPage = () => {
     calculations,
     updateSetting,
   } = useUserNutrition();
+
+  // Fetch today's consumed nutrition
+  useEffect(() => {
+    const fetchTodayNutrition = async () => {
+      try {
+        const today = format(new Date(), 'yyyy-MM-dd');
+        const { data, error } = await supabase
+          .from('meals')
+          .select('calories, protein, carbs, fat')
+          .eq('date', today);
+        
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+          const totals = data.reduce((acc, meal) => {
+            return {
+              calories: acc.calories + (meal.calories || 0),
+              protein: acc.protein + (meal.protein || 0),
+              carbs: acc.carbs + (meal.carbs || 0),
+              fats: acc.fats + (meal.fat || 0)
+            };
+          }, { calories: 0, protein: 0, carbs: 0, fats: 0 });
+          
+          setConsumedNutrition(totals);
+        } else {
+          setConsumedNutrition({
+            calories: 0,
+            protein: 0,
+            carbs: 0,
+            fats: 0
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching today's nutrition:", error);
+      }
+    };
+    
+    if (!settingsLoading) {
+      fetchTodayNutrition();
+    }
+  }, [settingsLoading]);
 
   useEffect(() => {
     const fetchWeightHistory = async () => {
@@ -184,16 +231,16 @@ const TrackingPage = () => {
     return <PageLoading />;
   }
 
-  // Use memoized values to prevent unnecessary recalculations
+  // Use calculations directly, no mock data
   const bmr = calculations?.bmr || 0;
   const calorieTarget = calculations?.calorieTarget || 2000;
   const { protein: proteinTarget, carbs: carbsTarget, fats: fatsTarget } = calculations?.macros || { protein: 0, carbs: 0, fats: 0 };
   
-  // Sample mock data for display - in a real app, this would come from actual tracking
-  const consumedCalories = 1200;
-  const consumedProtein = 60;
-  const consumedCarbs = 120;
-  const consumedFats = 45;
+  // Use actual consumed nutrition data
+  const consumedCalories = consumedNutrition.calories;
+  const consumedProtein = consumedNutrition.protein;
+  const consumedCarbs = consumedNutrition.carbs;
+  const consumedFats = consumedNutrition.fats;
   
   const remainingCalories = calorieTarget - consumedCalories;
   const caloriePercentage = Math.min(Math.round((consumedCalories / calorieTarget) * 100), 100);
