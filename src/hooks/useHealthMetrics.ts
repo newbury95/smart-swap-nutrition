@@ -24,43 +24,44 @@ export const useHealthMetrics = () => {
   }): Promise<HealthMetric | null> => {
     if (!supabase) return null;
 
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user) return null;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return null;
 
-    // Validate metric type
-    const validMetricType = validateMetricType(metric.metric_type);
-    
-    // Convert value to number if it's a string
-    const numericValue = typeof metric.value === 'string' ? parseFloat(metric.value) : metric.value;
-    
-    if (isNaN(numericValue)) {
-      console.error("Invalid numeric value for health metric:", metric.value);
-      return null;
-    }
+      // Validate metric type
+      const validMetricType = validateMetricType(metric.metric_type);
+      
+      // Convert value to number if it's a string
+      const numericValue = typeof metric.value === 'string' ? parseFloat(metric.value) : metric.value;
+      
+      if (isNaN(numericValue)) {
+        console.error("Invalid numeric value for health metric:", metric.value);
+        return null;
+      }
 
-    const metricData = { 
-      user_id: metric.user_id || session.user.id, 
-      metric_type: validMetricType,
-      value: numericValue 
-    };
-    
-    // Add source if provided
-    if (metric.source) {
-      Object.assign(metricData, { source: metric.source });
-    }
+      const metricData = { 
+        user_id: metric.user_id || session.user.id, 
+        metric_type: validMetricType,
+        value: numericValue,
+        source: metric.source || 'manual'
+      };
 
-    const { data, error } = await supabase
-      .from('health_metrics')
-      .insert([metricData])
-      .select()
-      .single();
+      const { data, error } = await supabase
+        .from('health_metrics')
+        .insert([metricData])
+        .select()
+        .single();
 
-    if (error) {
-      console.error("Error adding health metric:", error);
+      if (error) {
+        console.error("Error adding health metric:", error);
+        throw error;
+      }
+      
+      return data;
+    } catch (error) {
+      console.error("Error in addHealthMetric:", error);
       throw error;
     }
-    
-    return data;
   };
 
   const getHealthMetrics = async (type: HealthMetricType | string): Promise<HealthMetric[]> => {

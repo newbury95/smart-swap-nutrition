@@ -61,3 +61,27 @@ export type MealPlanDay = {
   dinner: string[];
   snacks: string[];
 };
+
+export type ForumThread = {
+  id: string;
+  title: string;
+  content: string;
+  user_id: string;
+  created_at: string;
+};
+
+export type ForumReply = {
+  id: string;
+  thread_id: string;
+  content: string;
+  user_id: string;
+  created_at: string;
+};
+
+export type ForumReport = {
+  id: string;
+  thread_id: string;
+  user_id: string;
+  reason: string;
+  created_at: string;
+};

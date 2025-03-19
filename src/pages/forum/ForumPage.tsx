@@ -47,8 +47,7 @@ const ForumPage = () => {
             title,
             content,
             user_id,
-            created_at,
-            profiles(first_name, last_name)
+            created_at
           `)
           .order('created_at', { ascending: false });
         
@@ -69,8 +68,21 @@ const ForumPage = () => {
             };
           }
           
+          // Fetch author information separately
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('first_name, last_name')
+            .eq('id', thread.user_id)
+            .single();
+          
+          let authorName = 'Anonymous';
+          if (!profileError && profileData) {
+            authorName = `${profileData.first_name} ${profileData.last_name}`;
+          }
+          
           return {
             ...thread,
+            author: authorName,
             replies: count || 0
           };
         }) || []);
@@ -82,7 +94,7 @@ const ForumPage = () => {
           content: thread.content,
           user_id: thread.user_id,
           created_at: format(new Date(thread.created_at), 'PP'),
-          author: thread.profiles ? `${thread.profiles.first_name} ${thread.profiles.last_name}` : 'Anonymous',
+          author: thread.author,
           replies: thread.replies
         }));
         

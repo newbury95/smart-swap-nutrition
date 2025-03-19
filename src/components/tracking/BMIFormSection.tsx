@@ -7,16 +7,19 @@ interface BMIFormSectionProps {
   initialWeight?: number;
   initialHeight?: number;
   isSubmitting?: boolean;
+  id?: string;
 }
 
 const BMIFormSection = ({ 
   onSubmit, 
   initialWeight, 
   initialHeight, 
-  isSubmitting 
+  isSubmitting,
+  id
 }: BMIFormSectionProps) => {
   return (
     <motion.div
+      id={id}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
