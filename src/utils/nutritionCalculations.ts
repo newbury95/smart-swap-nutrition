@@ -1,4 +1,3 @@
-
 // Utility functions for nutrition and calorie calculations
 
 // Database health metric types (as defined in the database)

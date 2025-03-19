@@ -18,7 +18,7 @@ const validateMetricType = (metricType: HealthMetricType | string): DbHealthMetr
 export const useHealthMetrics = () => {
   const addHealthMetric = async (metric: { 
     metric_type: HealthMetricType | string; 
-    value: string; 
+    value: string | number; 
     user_id?: string;
     source?: string;
   }): Promise<HealthMetric | null> => {
@@ -27,9 +27,11 @@ export const useHealthMetrics = () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.user) return null;
 
-    // Validate metric type and convert value to number
+    // Validate metric type
     const validMetricType = validateMetricType(metric.metric_type);
-    const numericValue = parseFloat(metric.value);
+    
+    // Convert value to number if it's a string
+    const numericValue = typeof metric.value === 'string' ? parseFloat(metric.value) : metric.value;
     
     if (isNaN(numericValue)) {
       console.error("Invalid numeric value for health metric:", metric.value);
@@ -37,7 +39,7 @@ export const useHealthMetrics = () => {
     }
 
     const metricData = { 
-      user_id: session.user.id, 
+      user_id: metric.user_id || session.user.id, 
       metric_type: validMetricType,
       value: numericValue 
     };
@@ -53,7 +55,11 @@ export const useHealthMetrics = () => {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error("Error adding health metric:", error);
+      throw error;
+    }
+    
     return data;
   };
 
@@ -63,15 +69,20 @@ export const useHealthMetrics = () => {
     // Validate the metric type before querying
     const validMetricType = validateMetricType(type);
 
-    const { data, error } = await supabase
-      .from('health_metrics')
-      .select('*')
-      .eq('metric_type', validMetricType)
-      .order('recorded_at', { ascending: false })
-      .limit(30);
+    try {
+      const { data, error } = await supabase
+        .from('health_metrics')
+        .select('*')
+        .eq('metric_type', validMetricType)
+        .order('recorded_at', { ascending: false })
+        .limit(30);
 
-    if (error) throw error;
-    return data || [];
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error(`Error fetching ${type} metrics:`, error);
+      return [];
+    }
   };
 
   return { addHealthMetric, getHealthMetrics };

@@ -33,6 +33,7 @@ const ForumPage = () => {
   const [reportReason, setReportReason] = useState("");
   const [threads, setThreads] = useState<ThreadType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch threads
   useEffect(() => {
@@ -47,23 +48,43 @@ const ForumPage = () => {
             content,
             user_id,
             created_at,
-            profiles(first_name, last_name),
-            (SELECT count(*) FROM forum_replies WHERE thread_id = forum_threads.id) as replies_count
+            profiles(first_name, last_name)
           `)
           .order('created_at', { ascending: false });
         
         if (error) throw error;
         
+        // Get replies count for each thread
+        const threadsWithReplies = await Promise.all(threadsData?.map(async (thread) => {
+          const { count, error: countError } = await supabase
+            .from('forum_replies')
+            .select('*', { count: 'exact', head: true })
+            .eq('thread_id', thread.id);
+          
+          if (countError) {
+            console.error('Error counting replies:', countError);
+            return {
+              ...thread,
+              replies: 0
+            };
+          }
+          
+          return {
+            ...thread,
+            replies: count || 0
+          };
+        }) || []);
+        
         // Format the threads data
-        const formattedThreads = threadsData?.map(thread => ({
+        const formattedThreads = threadsWithReplies.map(thread => ({
           id: thread.id,
           title: thread.title,
           content: thread.content,
           user_id: thread.user_id,
           created_at: format(new Date(thread.created_at), 'PP'),
           author: thread.profiles ? `${thread.profiles.first_name} ${thread.profiles.last_name}` : 'Anonymous',
-          replies: thread.replies_count || 0
-        })) || [];
+          replies: thread.replies
+        }));
         
         setThreads(formattedThreads);
       } catch (error) {
@@ -102,6 +123,8 @@ const ForumPage = () => {
     }
 
     try {
+      setIsSubmitting(true);
+      
       const { data, error } = await supabase
         .from('forum_threads')
         .insert([{
@@ -109,19 +132,38 @@ const ForumPage = () => {
           content: newThreadContent,
           user_id: user.id
         }])
-        .select();
+        .select()
+        .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error details:', error);
+        throw error;
+      }
+      
+      // Get the user's profile information
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('first_name, last_name')
+        .eq('id', user.id)
+        .single();
+      
+      if (profileError) {
+        console.warn('Could not fetch profile data:', profileError);
+      }
       
       // Add the new thread to the state
-      if (data && data[0]) {
+      if (data) {
+        const authorName = profileData 
+          ? `${profileData.first_name} ${profileData.last_name}` 
+          : user.email?.split('@')[0] || 'Anonymous';
+          
         const newThread = {
-          id: data[0].id,
-          title: data[0].title,
-          content: data[0].content,
-          user_id: data[0].user_id,
+          id: data.id,
+          title: data.title,
+          content: data.content,
+          user_id: data.user_id,
           created_at: format(new Date(), 'PP'),
-          author: user.email?.split('@')[0] || 'Anonymous',
+          author: authorName,
           replies: 0
         };
         
@@ -143,6 +185,8 @@ const ForumPage = () => {
         title: "Error",
         description: "Failed to create thread. Please try again."
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -181,6 +225,8 @@ const ForumPage = () => {
     }
 
     try {
+      setIsSubmitting(true);
+      
       const { error } = await supabase
         .from('forum_reports')
         .insert([{
@@ -206,7 +252,19 @@ const ForumPage = () => {
         title: "Error",
         description: "Failed to submit report. Please try again."
       });
+    } finally {
+      setIsSubmitting(false);
     }
+  };
+
+  const viewThread = (threadId: string) => {
+    // This would navigate to a thread detail page in a real app
+    console.log("Viewing thread:", threadId);
+    
+    toast({
+      title: "Feature coming soon",
+      description: "Thread viewing will be available in the next update."
+    });
   };
 
   return (
@@ -237,7 +295,11 @@ const ForumPage = () => {
             ) : threads.length > 0 ? (
               <div className="space-y-4">
                 {threads.map((thread) => (
-                  <div key={thread.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                  <div 
+                    key={thread.id} 
+                    className="border rounded-lg p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+                    onClick={() => viewThread(thread.id)}
+                  >
                     <div className="flex justify-between">
                       <div>
                         <h3 className="font-medium text-lg mb-1">{thread.title}</h3>
@@ -253,7 +315,10 @@ const ForumPage = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleReportThread(thread.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleReportThread(thread.id);
+                          }}
                           className="text-gray-500 hover:text-red-500"
                         >
                           <Flag className="w-4 h-4" />
@@ -314,14 +379,16 @@ const ForumPage = () => {
             <Button
               variant="outline"
               onClick={() => setShowNewThreadDialog(false)}
+              disabled={isSubmitting}
             >
               Cancel
             </Button>
             <Button 
               onClick={handleCreateThread}
               className="bg-green-600 hover:bg-green-700"
+              disabled={isSubmitting}
             >
-              Post Thread
+              {isSubmitting ? "Posting..." : "Post Thread"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -356,14 +423,16 @@ const ForumPage = () => {
             <Button
               variant="outline"
               onClick={() => setShowReportDialog(false)}
+              disabled={isSubmitting}
             >
               Cancel
             </Button>
             <Button 
               onClick={submitReport}
               variant="destructive"
+              disabled={isSubmitting}
             >
-              Submit Report
+              {isSubmitting ? "Submitting..." : "Submit Report"}
             </Button>
           </DialogFooter>
         </DialogContent>

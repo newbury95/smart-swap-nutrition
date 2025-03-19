@@ -13,7 +13,7 @@ export type CustomFood = {
 
 export type HealthMetric = {
   id: string;
-  metric_type: 'activity' | 'heart-rate' | 'steps';
+  metric_type: 'activity' | 'heart-rate' | 'steps' | 'weight' | 'height';
   value: number;
   recorded_at: string;
   source: string;

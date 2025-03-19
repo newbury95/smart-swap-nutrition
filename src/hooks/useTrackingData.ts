@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns";
 import { TimeRange, TrackingData } from "@/types/tracking";
 import { useSupabase } from "@/hooks/useSupabase";
@@ -12,9 +12,10 @@ export const useTrackingData = () => {
   const [steps, setSteps] = useState(0);
   const [heartRate, setHeartRate] = useState(0);
   const [trackingData, setTrackingData] = useState<TrackingData[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { isPremium, addHealthMetric, getHealthMetrics } = useSupabase();
   
-  // Use the exercise tracking hook with memoized callback
+  // Use the exercise tracking hook
   const { 
     exercises, 
     caloriesBurned, 
@@ -38,27 +39,48 @@ export const useTrackingData = () => {
           setSteps(stepMetrics[0].value);
         }
         
-        // Update the tracking data only if we have new data
-        setTrackingData(prevData => {
-          if (prevData.length === 0) return prevData;
+        // Fetch heart rate data
+        const heartRateMetrics = await getHealthMetrics('heart-rate');
+        if (heartRateMetrics.length > 0) {
+          setHeartRate(heartRateMetrics[0].value);
+        }
+        
+        // Fetch weight and height data for initial tracking data
+        const weightMetrics = await getHealthMetrics('weight');
+        const heightMetrics = await getHealthMetrics('height');
+        
+        // Only create tracking data if we have both weight and height
+        if (weightMetrics.length > 0 && heightMetrics.length > 0) {
+          const weight = weightMetrics[0].value;
+          const height = heightMetrics[0].value;
+          const heightInMeters = height / 100;
+          const bmi = Number((weight / (heightInMeters * heightInMeters)).toFixed(1));
           
-          const latestData = [...prevData];
-          const todayIndex = latestData.findIndex(
-            (item) => item.date === format(new Date(), "yyyy-MM-dd")
-          );
-          
-          if (todayIndex >= 0) {
-            latestData[todayIndex] = {
-              ...latestData[todayIndex],
+          // Update tracking data with the latest metrics
+          setTrackingData(prevData => {
+            // Check if we already have an entry for today
+            const todayStr = format(new Date(), "yyyy-MM-dd");
+            const existingEntryIndex = prevData.findIndex(item => item.date === todayStr);
+            
+            const newEntry: TrackingData = {
+              date: todayStr,
+              weight,
+              height,
+              bmi,
               steps: stepMetrics.length > 0 ? stepMetrics[0].value : 0,
+              exerciseMinutes: exercises.reduce((total, ex) => total + ex.duration, 0),
               caloriesBurned,
-              exerciseMinutes: exercises.reduce((total, ex) => total + ex.duration, 0)
             };
-            return latestData;
-          }
-          
-          return prevData;
-        });
+            
+            if (existingEntryIndex >= 0) {
+              const updatedData = [...prevData];
+              updatedData[existingEntryIndex] = newEntry;
+              return updatedData;
+            } else {
+              return [...prevData, newEntry];
+            }
+          });
+        }
       } catch (error) {
         console.error('Error fetching health metrics:', error);
       }
@@ -67,43 +89,71 @@ export const useTrackingData = () => {
     fetchHealthData();
   }, [isPremium, getHealthMetrics, exercises.length, caloriesBurned]);
 
-  const handleBMISubmit = useCallback((weight: number, height: number) => {
+  const handleBMISubmit = useCallback(async (weight: number, height: number) => {
     // Calculate BMI using the standard formula: weight(kg) / (height(m) * height(m))
     const heightInMeters = height / 100;
     const bmi = Number((weight / (heightInMeters * heightInMeters)).toFixed(1));
     
-    const exerciseMinutes = exercises.reduce((total, ex) => total + ex.duration, 0);
+    setIsSubmitting(true);
     
-    const newEntry: TrackingData = {
-      date: format(new Date(), "yyyy-MM-dd"),
-      weight,
-      height,
-      bmi,
-      steps,
-      exerciseMinutes,
-      caloriesBurned,
-    };
-
-    // Update or add the entry for today
-    setTrackingData(prevData => {
-      const existingEntryIndex = prevData.findIndex(
-        (item) => item.date === format(new Date(), "yyyy-MM-dd")
-      );
+    try {
+      // Save weight metric
+      await addHealthMetric({
+        metric_type: 'weight',
+        value: weight,
+        source: 'user-input'
+      });
       
-      if (existingEntryIndex >= 0) {
-        const updatedData = [...prevData];
-        updatedData[existingEntryIndex] = newEntry;
-        return updatedData;
-      } else {
-        return [...prevData, newEntry];
-      }
-    });
+      // Save height metric
+      await addHealthMetric({
+        metric_type: 'height',
+        value: height,
+        source: 'user-input'
+      });
+      
+      const exerciseMinutes = exercises.reduce((total, ex) => total + ex.duration, 0);
+      
+      // Update tracking data with new measurements
+      const newEntry: TrackingData = {
+        date: format(new Date(), "yyyy-MM-dd"),
+        weight,
+        height,
+        bmi,
+        steps,
+        exerciseMinutes,
+        caloriesBurned,
+      };
 
-    toast({
-      title: "Measurements updated",
-      description: `Your BMI is ${bmi}`,
-    });
-  }, [exercises, steps, caloriesBurned, toast]);
+      // Update or add the entry for today
+      setTrackingData(prevData => {
+        const existingEntryIndex = prevData.findIndex(
+          (item) => item.date === format(new Date(), "yyyy-MM-dd")
+        );
+        
+        if (existingEntryIndex >= 0) {
+          const updatedData = [...prevData];
+          updatedData[existingEntryIndex] = newEntry;
+          return updatedData;
+        } else {
+          return [...prevData, newEntry];
+        }
+      });
+
+      toast({
+        title: "Measurements updated",
+        description: `Your BMI is ${bmi}`,
+      });
+    } catch (error) {
+      console.error('Error saving health metrics:', error);
+      toast({
+        variant: "destructive",
+        title: "Failed to save measurements",
+        description: "Please try again later",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [exercises, steps, caloriesBurned, toast, addHealthMetric]);
 
   return {
     timeRange,
@@ -117,6 +167,7 @@ export const useTrackingData = () => {
     showExerciseDialog,
     setShowExerciseDialog,
     handleAddExercise,
-    handleBMISubmit
+    handleBMISubmit,
+    isSubmitting
   };
 };
