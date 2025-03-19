@@ -5,6 +5,9 @@ export type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'active' | 'ver
 export type FitnessGoal = 'weight_loss' | 'maintenance' | 'mass_building';
 export type HealthMetricType = 'weight' | 'height' | 'steps' | 'heart-rate' | 'activity';
 
+// Database type for health metrics
+export type DbHealthMetricType = 'weight' | 'height' | 'steps' | 'heart-rate' | 'activity';
+
 export interface MacroRatio {
   protein: number;
   carbs: number;

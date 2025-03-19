@@ -85,3 +85,28 @@ export const calculateCalorieBurn = (
   // Calories burned = MET × weight (kg) × time (hours)
   return Math.round(metValues[activity] * weight);
 };
+
+/**
+ * Exercise type definition for tracking
+ */
+export type ExerciseType = 
+  | 'cardio'
+  | 'weightlifting'
+  | 'yoga'
+  | 'swimming'
+  | 'running'
+  | 'cycling'
+  | 'other';
+
+/**
+ * Estimated calories burned per minute for different exercise types
+ */
+export const calorieEstimates: Record<ExerciseType, number> = {
+  cardio: 8, // ~8 calories per minute
+  weightlifting: 5, // ~5 calories per minute
+  yoga: 3, // ~3 calories per minute
+  swimming: 7, // ~7 calories per minute
+  running: 10, // ~10 calories per minute
+  cycling: 7, // ~7 calories per minute
+  other: 5 // ~5 calories per minute (default)
+};
