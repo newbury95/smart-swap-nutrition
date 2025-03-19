@@ -3,22 +3,23 @@ import { memo, useState, useEffect } from "react";
 import { useUserNutrition } from "@/hooks/useUserNutrition";
 import { useToast } from "@/hooks/use-toast";
 import { useSupabase } from "@/hooks/useSupabase";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
-import TrackingHeader from "@/components/tracking/TrackingHeader";
+import { TrackingHeader } from "@/components/tracking/TrackingHeader";
 import { PageLoading } from "@/components/PageLoading";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
-import BMIFormSection from "@/components/tracking/BMIFormSection";
 import NutritionSummaryCards from "@/components/tracking/dashboard/NutritionSummaryCards";
 import MacroProgressDisplay from "@/components/tracking/dashboard/MacroProgressDisplay";
 import WeightMetricsDisplay from "@/components/tracking/dashboard/WeightMetricsDisplay";
 import GoalSelectionDialog from "@/components/tracking/GoalSelectionDialog";
+import MeasurementsDialog from "@/components/tracking/MeasurementsDialog";
+import { Gender } from "@/utils/nutritionCalculations";
 
 const TrackingPage = () => {
   const { toast } = useToast();
   const [today] = useState(new Date());
   const { isPremium, addHealthMetric } = useSupabase();
   const [showGoalDialog, setShowGoalDialog] = useState(false);
+  const [showMeasurementsDialog, setShowMeasurementsDialog] = useState(false);
   const [weightHistory, setWeightHistory] = useState<{date: string, weight: number}[]>([]);
   const [isWeightHistoryLoading, setIsWeightHistoryLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -88,14 +89,16 @@ const TrackingPage = () => {
     }
   };
 
-  const handleBMISubmit = async (weight: number, height: number) => {
+  const handleMeasurementsSubmit = async (weight: number, height: number, age: number, gender: Gender) => {
     setIsSubmitting(true);
     try {
-      // First update settings
+      // Update all settings
       await updateSetting('weight', weight);
       await updateSetting('height', height);
+      await updateSetting('age', age);
+      await updateSetting('gender', gender);
       
-      // Then directly save weight and height metrics
+      // Save metrics to history
       try {
         // Save weight metric
         await addHealthMetric({
@@ -111,7 +114,21 @@ const TrackingPage = () => {
           source: 'manual-tracking'
         });
         
-        // Update weight history state to reflect the new weight immediately
+        // Save age metric
+        await addHealthMetric({
+          metric_type: 'age',
+          value: age.toString(),
+          source: 'manual-tracking'
+        });
+        
+        // Save gender metric
+        await addHealthMetric({
+          metric_type: 'gender',
+          value: gender,
+          source: 'manual-tracking'
+        });
+        
+        // Update weight history state
         setWeightHistory(prev => [{
           date: format(new Date(), 'yyyy-MM-dd'),
           weight
@@ -119,11 +136,13 @@ const TrackingPage = () => {
         
         toast({
           title: "Measurements Updated",
-          description: "Your height and weight have been updated successfully.",
+          description: "Your measurements have been updated successfully.",
         });
+        
+        // Close dialog after successful submission
+        setShowMeasurementsDialog(false);
       } catch (error) {
         console.error("Error saving health metrics:", error);
-        // The settings were already updated, so we only show a warning
         toast({
           variant: "destructive",
           title: "Partial Update",
@@ -161,22 +180,16 @@ const TrackingPage = () => {
     }
   };
 
-  const scrollToMeasurementsForm = () => {
-    document.getElementById('measurements-form')?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   if (settingsLoading) {
     return <PageLoading />;
   }
 
   // Use memoized values to prevent unnecessary recalculations
-  // This ensures stability of the displayed data
   const bmr = calculations?.bmr || 0;
   const calorieTarget = calculations?.calorieTarget || 2000;
   const { protein: proteinTarget, carbs: carbsTarget, fats: fatsTarget } = calculations?.macros || { protein: 0, carbs: 0, fats: 0 };
   
   // Sample mock data for display - in a real app, this would come from actual tracking
-  // Hardcoded for now to ensure stability - should be replaced with real data from a tracking service
   const consumedCalories = 1200;
   const consumedProtein = 60;
   const consumedCarbs = 120;
@@ -223,23 +236,26 @@ const TrackingPage = () => {
             height={settings.height}
             weightHistory={weightHistory}
             isWeightHistoryLoading={isWeightHistoryLoading}
-            onUpdateClick={scrollToMeasurementsForm}
+            onUpdateClick={() => setShowMeasurementsDialog(true)}
           />
           
-          <BMIFormSection 
-            id="measurements-form" 
-            onSubmit={handleBMISubmit}
-            initialWeight={settings.weight}
-            initialHeight={settings.height}
-            isSubmitting={isSubmitting}
-          />
-          
-          {/* Removed DatabaseManagementSection which contained admin data */}
-          
+          {/* Goal Selection Dialog */}
           <GoalSelectionDialog 
             open={showGoalDialog} 
             onOpenChange={setShowGoalDialog} 
             onSelectGoal={handleSetGoal} 
+          />
+          
+          {/* Measurements Dialog */}
+          <MeasurementsDialog
+            open={showMeasurementsDialog}
+            onOpenChange={setShowMeasurementsDialog}
+            initialWeight={settings.weight}
+            initialHeight={settings.height}
+            initialAge={settings.age}
+            initialGender={settings.gender}
+            onSubmit={handleMeasurementsSubmit}
+            isSubmitting={isSubmitting}
           />
         </div>
       </main>

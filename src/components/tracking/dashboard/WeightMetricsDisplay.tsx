@@ -86,7 +86,7 @@ const WeightMetricsDisplay = ({
             variant="outline"
             className="w-full"
           >
-            Update Measurements
+            Update
           </Button>
         </div>
       </CardContent>
