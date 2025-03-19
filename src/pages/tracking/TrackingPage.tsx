@@ -3,7 +3,7 @@ import { memo, useState, useEffect } from "react";
 import { useUserNutrition } from "@/hooks/useUserNutrition";
 import { useToast } from "@/hooks/use-toast";
 import { useSupabase } from "@/hooks/useSupabase";
-import { TrackingHeader } from "@/components/tracking/TrackingHeader";
+import TrackingHeader from "@/components/tracking/TrackingHeader";
 import { PageLoading } from "@/components/PageLoading";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
