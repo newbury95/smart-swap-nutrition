@@ -1,9 +1,11 @@
 
 import { memo } from "react";
+import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
-import { Flame, Activity, Target } from "lucide-react";
+import { Flame, Activity, Target, Info } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface NutritionSummaryCardsProps {
   bmr: number;
@@ -24,8 +26,16 @@ const NutritionSummaryCards = ({
   fitnessGoal,
   onChangeGoalClick
 }: NutritionSummaryCardsProps) => {
+  // Format goal name for display
+  const formattedGoal = fitnessGoal.replace('_', ' ');
+  
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6"
+    >
       <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
         <CardContent className="p-0">
           <div className="relative w-full bg-gradient-to-br from-purple-50 to-purple-100 p-6">
@@ -46,6 +56,14 @@ const NutritionSummaryCards = ({
             <div className="mt-4 text-sm text-purple-800">
               <span className="flex items-center">
                 Your BMR is the calories your body needs at rest
+                <Popover>
+                  <PopoverTrigger>
+                    <Info className="h-3.5 w-3.5 ml-1 text-purple-400 cursor-help" />
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 text-xs p-3">
+                    <p>Your Basal Metabolic Rate (BMR) is the number of calories your body needs at complete rest to maintain basic functions like breathing and circulation.</p>
+                  </PopoverContent>
+                </Popover>
               </span>
             </div>
           </div>
@@ -109,7 +127,7 @@ const NutritionSummaryCards = ({
               <div>
                 <h3 className="text-lg font-semibold text-green-800">Current Goal</h3>
                 <p className="text-3xl font-bold mt-2 text-green-900 capitalize">
-                  {fitnessGoal.replace('_', ' ')}
+                  {formattedGoal}
                 </p>
               </div>
               <div className="relative z-10">
@@ -130,7 +148,7 @@ const NutritionSummaryCards = ({
           </div>
         </CardContent>
       </Card>
-    </div>
+    </motion.div>
   );
 };
 

@@ -25,7 +25,10 @@ const BMIFormSection = ({
       transition={{ duration: 0.6 }}
       className="bg-white rounded-xl p-6 shadow-sm mb-8"
     >
-      <h2 className="text-lg font-semibold mb-4">Enter New Measurements</h2>
+      <h2 className="text-lg font-semibold mb-4">Update Your Measurements</h2>
+      <p className="text-sm text-gray-500 mb-5">
+        Enter your current weight and height to update your nutrition calculations and track your progress.
+      </p>
       <BMIForm 
         onSubmit={onSubmit} 
         initialWeight={initialWeight}

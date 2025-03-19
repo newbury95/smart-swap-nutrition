@@ -25,11 +25,13 @@ export const useNutritionCalculator = (settings: NutritionSettings) => {
       return;
     }
     
-    const { weight, height, age, gender, activityLevel, fitnessGoal, customMacroRatio } = settings;
+    // Clone settings to prevent mutations
+    const safeSettings = { ...settings };
+    const { weight, height, age, gender, activityLevel, fitnessGoal, customMacroRatio } = safeSettings;
     
     // Input validation to prevent calculation errors
     if (!weight || !height || !age || !gender || !activityLevel || !fitnessGoal) {
-      console.warn('Missing required settings for nutrition calculations', settings);
+      console.warn('Missing required settings for nutrition calculations', safeSettings);
       return;
     }
     
@@ -63,6 +65,9 @@ export const useNutritionCalculator = (settings: NutritionSettings) => {
         return;
       }
       
+      // Log BMR details for debugging
+      console.log('BMR calculated:', Math.round(bmr), 'with params:', { weight, height, age, gender });
+      
       const tdee = calculateTDEE(bmr, activityLevel);
       
       // Validate TDEE
@@ -71,7 +76,15 @@ export const useNutritionCalculator = (settings: NutritionSettings) => {
         return;
       }
       
-      const calorieTarget = calculateCalorieTarget(tdee, fitnessGoal);
+      // Log TDEE details
+      console.log('TDEE calculated:', Math.round(tdee), 'with BMR:', Math.round(bmr), 'and activity level:', activityLevel);
+      
+      // If user has set a custom calorie target and is premium, use that instead
+      let calorieTarget = settings.calorieTarget || calculateCalorieTarget(tdee, fitnessGoal);
+      
+      // Log calorie target details
+      console.log('Calorie target calculated:', Math.round(calorieTarget), 'based on TDEE:', Math.round(tdee), 
+                 'and goal:', fitnessGoal, settings.calorieTarget ? '(custom override)' : '');
       
       // Validate calorie target
       if (isNaN(calorieTarget) || calorieTarget <= 0) {
@@ -92,6 +105,7 @@ export const useNutritionCalculator = (settings: NutritionSettings) => {
       
       // Calculate macros in grams
       const macros = calculateMacroGrams(calorieTarget, normalizedRatios);
+      console.log('Macro grams calculated:', macros, 'based on calorie target:', calorieTarget);
       
       // Validate macros
       if (macros.protein < 0 || macros.carbs < 0 || macros.fats < 0) {

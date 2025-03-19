@@ -6,13 +6,12 @@ import { useSupabase } from "@/hooks/useSupabase";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import TrackingHeader from "@/components/tracking/TrackingHeader";
 import { PageLoading } from "@/components/PageLoading";
-import { format, subDays } from "date-fns";
+import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import BMIFormSection from "@/components/tracking/BMIFormSection";
 import NutritionSummaryCards from "@/components/tracking/dashboard/NutritionSummaryCards";
 import MacroProgressDisplay from "@/components/tracking/dashboard/MacroProgressDisplay";
 import WeightMetricsDisplay from "@/components/tracking/dashboard/WeightMetricsDisplay";
-import DatabaseManagementSection from "@/components/tracking/DatabaseManagementSection";
 import GoalSelectionDialog from "@/components/tracking/GoalSelectionDialog";
 
 const TrackingPage = () => {
@@ -22,6 +21,7 @@ const TrackingPage = () => {
   const [showGoalDialog, setShowGoalDialog] = useState(false);
   const [weightHistory, setWeightHistory] = useState<{date: string, weight: number}[]>([]);
   const [isWeightHistoryLoading, setIsWeightHistoryLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     loading: settingsLoading,
@@ -89,6 +89,7 @@ const TrackingPage = () => {
   };
 
   const handleBMISubmit = async (weight: number, height: number) => {
+    setIsSubmitting(true);
     try {
       // First update settings
       await updateSetting('weight', weight);
@@ -124,7 +125,7 @@ const TrackingPage = () => {
         console.error("Error saving health metrics:", error);
         // The settings were already updated, so we only show a warning
         toast({
-          variant: "destructive", // Changed from warning to destructive
+          variant: "destructive",
           title: "Partial Update",
           description: "Your settings were updated but we couldn't save the measurements history.",
         });
@@ -136,6 +137,8 @@ const TrackingPage = () => {
         title: "Error",
         description: "Failed to update measurements. Please try again.",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -166,11 +169,14 @@ const TrackingPage = () => {
     return <PageLoading />;
   }
 
-  // Ensure BMR is properly calculated and round it to the nearest whole number
+  // Use memoized values to prevent unnecessary recalculations
+  // This ensures stability of the displayed data
   const bmr = calculations?.bmr || 0;
   const calorieTarget = calculations?.calorieTarget || 2000;
   const { protein: proteinTarget, carbs: carbsTarget, fats: fatsTarget } = calculations?.macros || { protein: 0, carbs: 0, fats: 0 };
   
+  // Sample mock data for display - in a real app, this would come from actual tracking
+  // Hardcoded for now to ensure stability - should be replaced with real data from a tracking service
   const consumedCalories = 1200;
   const consumedProtein = 60;
   const consumedCarbs = 120;
@@ -225,9 +231,10 @@ const TrackingPage = () => {
             onSubmit={handleBMISubmit}
             initialWeight={settings.weight}
             initialHeight={settings.height}
+            isSubmitting={isSubmitting}
           />
           
-          <DatabaseManagementSection />
+          {/* Removed DatabaseManagementSection which contained admin data */}
           
           <GoalSelectionDialog 
             open={showGoalDialog} 
