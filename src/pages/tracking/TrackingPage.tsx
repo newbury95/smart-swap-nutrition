@@ -1,4 +1,3 @@
-
 import { memo, useState, useEffect } from "react";
 import { useUserNutrition } from "@/hooks/useUserNutrition";
 import { useToast } from "@/hooks/use-toast";
@@ -10,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import NutritionSummaryCards from "@/components/tracking/dashboard/NutritionSummaryCards";
 import MacroProgressDisplay from "@/components/tracking/dashboard/MacroProgressDisplay";
 import WeightMetricsDisplay from "@/components/tracking/dashboard/WeightMetricsDisplay";
+import WeightProgressChart from "@/components/tracking/WeightProgressChart";
 import GoalSelectionDialog from "@/components/tracking/GoalSelectionDialog";
 import MeasurementsDialog from "@/components/tracking/MeasurementsDialog";
 import { Gender } from "@/utils/nutritionCalculations";
@@ -37,7 +37,6 @@ const TrackingPage = () => {
     updateSetting,
   } = useUserNutrition();
 
-  // Fetch today's consumed nutrition
   useEffect(() => {
     const fetchTodayNutrition = async () => {
       try {
@@ -139,43 +138,36 @@ const TrackingPage = () => {
   const handleMeasurementsSubmit = async (weight: number, height: number, age: number, gender: Gender) => {
     setIsSubmitting(true);
     try {
-      // Update all settings
       await updateSetting('weight', weight);
       await updateSetting('height', height);
       await updateSetting('age', age);
       await updateSetting('gender', gender);
       
-      // Save metrics to history
       try {
-        // Save weight metric
         await addHealthMetric({
           metric_type: 'weight',
           value: weight.toString(),
           source: 'manual-tracking'
         });
         
-        // Save height metric
         await addHealthMetric({
           metric_type: 'height',
           value: height.toString(),
           source: 'manual-tracking'
         });
         
-        // Save age metric
         await addHealthMetric({
           metric_type: 'age',
           value: age.toString(),
           source: 'manual-tracking'
         });
         
-        // Save gender metric
         await addHealthMetric({
           metric_type: 'gender',
           value: gender,
           source: 'manual-tracking'
         });
         
-        // Update weight history state
         setWeightHistory(prev => [{
           date: format(new Date(), 'yyyy-MM-dd'),
           weight
@@ -186,7 +178,6 @@ const TrackingPage = () => {
           description: "Your measurements have been updated successfully.",
         });
         
-        // Close dialog after successful submission
         setShowMeasurementsDialog(false);
       } catch (error) {
         console.error("Error saving health metrics:", error);
@@ -231,12 +222,10 @@ const TrackingPage = () => {
     return <PageLoading />;
   }
 
-  // Use calculations directly, no mock data
   const bmr = calculations?.bmr || 0;
   const calorieTarget = calculations?.calorieTarget || 2000;
   const { protein: proteinTarget, carbs: carbsTarget, fats: fatsTarget } = calculations?.macros || { protein: 0, carbs: 0, fats: 0 };
   
-  // Use actual consumed nutrition data
   const consumedCalories = consumedNutrition.calories;
   const consumedProtein = consumedNutrition.protein;
   const consumedCarbs = consumedNutrition.carbs;
@@ -278,6 +267,11 @@ const TrackingPage = () => {
             fatsPercentage={fatsPercentage}
           />
           
+          <WeightProgressChart 
+            weightHistory={weightHistory}
+            isLoading={isWeightHistoryLoading}
+          />
+          
           <WeightMetricsDisplay 
             weight={settings.weight}
             height={settings.height}
@@ -286,14 +280,12 @@ const TrackingPage = () => {
             onUpdateClick={() => setShowMeasurementsDialog(true)}
           />
           
-          {/* Goal Selection Dialog */}
           <GoalSelectionDialog 
             open={showGoalDialog} 
             onOpenChange={setShowGoalDialog} 
             onSelectGoal={handleSetGoal} 
           />
           
-          {/* Measurements Dialog */}
           <MeasurementsDialog
             open={showMeasurementsDialog}
             onOpenChange={setShowMeasurementsDialog}

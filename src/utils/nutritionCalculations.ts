@@ -47,11 +47,11 @@ export const defaultMacroRatios: Record<FitnessGoal, MacroRatio> = {
   }
 };
 
-// Goal-specific calorie adjustments
+// Fixed calorie adjustments instead of percentage-based
 export const goalCalorieAdjustments: Record<FitnessGoal, number> = {
-  weight_loss: 0.8, // 20% deficit
-  maintenance: 1.0, // No adjustment
-  mass_building: 1.15 // 15% surplus
+  weight_loss: -600, // Deficit of 600 calories
+  maintenance: 0,    // No adjustment for maintenance
+  mass_building: 600 // Surplus of 600 calories
 };
 
 /**
@@ -100,6 +100,7 @@ export const calculateTDEE = (bmr: number, activityLevel: ActivityLevel): number
 
 /**
  * Calculate calorie target based on TDEE and fitness goal
+ * Now uses fixed adjustments (+/- 600 kcal) instead of percentages
  */
 export const calculateCalorieTarget = (tdee: number, fitnessGoal: FitnessGoal): number => {
   if (isNaN(tdee) || tdee <= 0) {
@@ -107,10 +108,10 @@ export const calculateCalorieTarget = (tdee: number, fitnessGoal: FitnessGoal): 
     return 2000; // Default to a common target
   }
   
-  const adjustment = goalCalorieAdjustments[fitnessGoal] || goalCalorieAdjustments.maintenance;
+  const adjustment = goalCalorieAdjustments[fitnessGoal] || 0;
   
-  // Ensure minimum healthy calorie intake (1200 for most adults)
-  return Math.max(Math.round(tdee * adjustment), 1200);
+  // Apply the fixed adjustment (+ or - 600 calories) and ensure minimum healthy intake
+  return Math.max(Math.round(tdee + adjustment), 1200);
 };
 
 /**
