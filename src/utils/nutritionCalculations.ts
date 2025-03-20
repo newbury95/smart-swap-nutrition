@@ -99,19 +99,19 @@ export const calculateTDEE = (bmr: number, activityLevel: ActivityLevel): number
 };
 
 /**
- * Calculate calorie target based on TDEE and fitness goal
- * Uses fixed adjustments (+/- 600 kcal) instead of percentages
+ * Calculate calorie target based on BMR and fitness goal
+ * Uses fixed adjustments (+/- 600 kcal) based on BMR, not TDEE
  */
-export const calculateCalorieTarget = (tdee: number, fitnessGoal: FitnessGoal): number => {
-  if (isNaN(tdee) || tdee <= 0) {
-    console.error('Invalid TDEE for calorie target calculation:', tdee);
+export const calculateCalorieTarget = (bmr: number, fitnessGoal: FitnessGoal): number => {
+  if (isNaN(bmr) || bmr <= 0) {
+    console.error('Invalid BMR for calorie target calculation:', bmr);
     return 2000; // Default to a common target
   }
   
   const adjustment = goalCalorieAdjustments[fitnessGoal] || 0;
   
-  // Apply the fixed adjustment (+ or - 600 calories) and ensure minimum healthy intake
-  return Math.max(Math.round(tdee + adjustment), 1200);
+  // Apply the fixed adjustment directly to BMR
+  return Math.max(Math.round(bmr + adjustment), 1200);
 };
 
 /**

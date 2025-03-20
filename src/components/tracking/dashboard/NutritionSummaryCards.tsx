@@ -6,6 +6,7 @@ import { Flame, Activity, Target, Info } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 
 interface NutritionSummaryCardsProps {
   bmr: number;
@@ -15,6 +16,7 @@ interface NutritionSummaryCardsProps {
   caloriePercentage: number;
   fitnessGoal: string;
   onChangeGoalClick: () => void;
+  isGoalUpdating?: boolean;
 }
 
 const NutritionSummaryCards = ({
@@ -24,7 +26,8 @@ const NutritionSummaryCards = ({
   remainingCalories,
   caloriePercentage,
   fitnessGoal,
-  onChangeGoalClick
+  onChangeGoalClick,
+  isGoalUpdating = false
 }: NutritionSummaryCardsProps) => {
   // Format goal name for display
   const formattedGoal = fitnessGoal.replace('_', ' ');
@@ -138,12 +141,13 @@ const NutritionSummaryCards = ({
             </div>
             
             <div className="mt-4">
-              <button 
+              <Button 
                 onClick={onChangeGoalClick} 
                 className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded font-medium"
+                disabled={isGoalUpdating}
               >
-                Change Goal
-              </button>
+                {isGoalUpdating ? "Updating..." : "Change Goal"}
+              </Button>
             </div>
           </div>
         </CardContent>

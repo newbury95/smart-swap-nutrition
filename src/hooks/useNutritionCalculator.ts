@@ -79,11 +79,12 @@ export const useNutritionCalculator = (settings: NutritionSettings) => {
       // Log TDEE details
       console.log('TDEE calculated:', Math.round(tdee), 'with BMR:', Math.round(bmr), 'and activity level:', activityLevel);
       
+      // Use BMR for calorie target calculation with goal adjustments
       // If user has set a custom calorie target and is premium, use that instead
-      let calorieTarget = settings.calorieTarget || calculateCalorieTarget(tdee, fitnessGoal);
+      let calorieTarget = settings.calorieTarget || calculateCalorieTarget(bmr, fitnessGoal);
       
       // Log calorie target details
-      console.log('Calorie target calculated:', Math.round(calorieTarget), 'based on TDEE:', Math.round(tdee), 
+      console.log('Calorie target calculated:', Math.round(calorieTarget), 'based on BMR:', Math.round(bmr), 
                  'and goal:', fitnessGoal, settings.calorieTarget ? '(custom override)' : '');
       
       // Validate calorie target

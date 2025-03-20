@@ -11,42 +11,49 @@ export const useNutritionData = () => {
     fats: 0
   });
   
-  useEffect(() => {
-    const fetchTodayNutrition = async () => {
-      try {
-        const today = format(new Date(), 'yyyy-MM-dd');
-        const { data, error } = await supabase
-          .from('meals')
-          .select('calories, protein, carbs, fat')
-          .eq('date', today);
+  const fetchTodayNutrition = async () => {
+    try {
+      const today = format(new Date(), 'yyyy-MM-dd');
+      const { data, error } = await supabase
+        .from('meals')
+        .select('calories, protein, carbs, fat')
+        .eq('date', today);
+      
+      if (error) throw error;
+      
+      if (data && data.length > 0) {
+        const totals = data.reduce((acc, meal) => {
+          return {
+            calories: acc.calories + (meal.calories || 0),
+            protein: acc.protein + (meal.protein || 0),
+            carbs: acc.carbs + (meal.carbs || 0),
+            fats: acc.fats + (meal.fat || 0)
+          };
+        }, { calories: 0, protein: 0, carbs: 0, fats: 0 });
         
-        if (error) throw error;
-        
-        if (data && data.length > 0) {
-          const totals = data.reduce((acc, meal) => {
-            return {
-              calories: acc.calories + (meal.calories || 0),
-              protein: acc.protein + (meal.protein || 0),
-              carbs: acc.carbs + (meal.carbs || 0),
-              fats: acc.fats + (meal.fat || 0)
-            };
-          }, { calories: 0, protein: 0, carbs: 0, fats: 0 });
-          
-          setConsumedNutrition(totals);
-        } else {
-          setConsumedNutrition({
-            calories: 0,
-            protein: 0,
-            carbs: 0,
-            fats: 0
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching today's nutrition:", error);
+        setConsumedNutrition(totals);
+      } else {
+        setConsumedNutrition({
+          calories: 0,
+          protein: 0,
+          carbs: 0,
+          fats: 0
+        });
       }
-    };
-    
+    } catch (error) {
+      console.error("Error fetching today's nutrition:", error);
+    }
+  };
+  
+  // Fetch when the component mounts
+  useEffect(() => {
     fetchTodayNutrition();
+    
+    // Set up interval to refresh data every minute
+    const intervalId = setInterval(fetchTodayNutrition, 60000);
+    
+    // Clean up interval on unmount
+    return () => clearInterval(intervalId);
   }, []);
   
   return consumedNutrition;

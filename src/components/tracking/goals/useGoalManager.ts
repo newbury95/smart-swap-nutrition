@@ -8,9 +8,18 @@ export const useGoalManager = (
 ) => {
   const { toast } = useToast();
   const [showGoalDialog, setShowGoalDialog] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const handleSetGoal = async (goal: FitnessGoal) => {
     try {
+      // Prevent multiple rapid goal updates that could cause flickering
+      if (isUpdating) {
+        console.log("Goal update already in progress, ignoring request");
+        return;
+      }
+      
+      setIsUpdating(true);
+      
       await onUpdateGoal(goal);
       setShowGoalDialog(false);
       
@@ -25,12 +34,15 @@ export const useGoalManager = (
         title: "Error",
         description: "Failed to update goal. Please try again.",
       });
+    } finally {
+      setIsUpdating(false);
     }
   };
   
   return {
     showGoalDialog,
     setShowGoalDialog,
-    handleSetGoal
+    handleSetGoal,
+    isUpdating
   };
 };

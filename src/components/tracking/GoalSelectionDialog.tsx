@@ -8,11 +8,23 @@ interface GoalSelectionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSelectGoal: (goal: 'weight_loss' | 'maintenance' | 'mass_building') => void;
+  isUpdating?: boolean;
 }
 
-const GoalSelectionDialog = ({ open, onOpenChange, onSelectGoal }: GoalSelectionDialogProps) => {
+const GoalSelectionDialog = ({ open, onOpenChange, onSelectGoal, isUpdating = false }: GoalSelectionDialogProps) => {
+  const handleGoalSelect = (goal: 'weight_loss' | 'maintenance' | 'mass_building') => {
+    if (!isUpdating) {
+      onSelectGoal(goal);
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(newOpen) => {
+      // Only allow closing if we're not currently updating
+      if (!isUpdating || !newOpen) {
+        onOpenChange(newOpen);
+      }
+    }}>
       <DialogContent className="sm:max-w-md">
         <DialogTitle>Choose Your Fitness Goal</DialogTitle>
         <DialogDescription>
@@ -21,8 +33,9 @@ const GoalSelectionDialog = ({ open, onOpenChange, onSelectGoal }: GoalSelection
         
         <div className="grid grid-cols-1 gap-4 py-4">
           <div 
-            className="flex items-center justify-between p-4 rounded-lg border border-green-200 bg-green-50 cursor-pointer hover:bg-green-100 transition-colors"
-            onClick={() => onSelectGoal('weight_loss')}
+            className={`flex items-center justify-between p-4 rounded-lg border border-green-200 bg-green-50 
+                       ${isUpdating ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer hover:bg-green-100 transition-colors'}`}
+            onClick={() => handleGoalSelect('weight_loss')}
           >
             <div className="flex items-center">
               <div className="p-2 bg-green-100 rounded-full mr-3">
@@ -36,8 +49,9 @@ const GoalSelectionDialog = ({ open, onOpenChange, onSelectGoal }: GoalSelection
           </div>
           
           <div 
-            className="flex items-center justify-between p-4 rounded-lg border border-blue-200 bg-blue-50 cursor-pointer hover:bg-blue-100 transition-colors"
-            onClick={() => onSelectGoal('maintenance')}
+            className={`flex items-center justify-between p-4 rounded-lg border border-blue-200 bg-blue-50 
+                       ${isUpdating ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer hover:bg-blue-100 transition-colors'}`}
+            onClick={() => handleGoalSelect('maintenance')}
           >
             <div className="flex items-center">
               <div className="p-2 bg-blue-100 rounded-full mr-3">
@@ -51,8 +65,9 @@ const GoalSelectionDialog = ({ open, onOpenChange, onSelectGoal }: GoalSelection
           </div>
           
           <div 
-            className="flex items-center justify-between p-4 rounded-lg border border-orange-200 bg-orange-50 cursor-pointer hover:bg-orange-100 transition-colors"
-            onClick={() => onSelectGoal('mass_building')}
+            className={`flex items-center justify-between p-4 rounded-lg border border-orange-200 bg-orange-50 
+                       ${isUpdating ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer hover:bg-orange-100 transition-colors'}`}
+            onClick={() => handleGoalSelect('mass_building')}
           >
             <div className="flex items-center">
               <div className="p-2 bg-orange-100 rounded-full mr-3">
@@ -67,8 +82,12 @@ const GoalSelectionDialog = ({ open, onOpenChange, onSelectGoal }: GoalSelection
         </div>
         
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+          <Button 
+            variant="outline" 
+            onClick={() => onOpenChange(false)}
+            disabled={isUpdating}
+          >
+            {isUpdating ? "Updating..." : "Cancel"}
           </Button>
         </DialogFooter>
       </DialogContent>

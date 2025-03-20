@@ -30,7 +30,7 @@ const TrackingPage = () => {
   const { weightHistory, isWeightHistoryLoading, addWeightRecord } = useWeightData();
   
   // Goal manager hook
-  const { showGoalDialog, setShowGoalDialog, handleSetGoal } = useGoalManager(
+  const { showGoalDialog, setShowGoalDialog, handleSetGoal, isUpdating: isGoalUpdating } = useGoalManager(
     async (goal) => await updateSetting('fitnessGoal', goal)
   );
   
@@ -89,7 +89,8 @@ const TrackingPage = () => {
             remainingCalories={remainingCalories}
             caloriePercentage={caloriePercentage}
             fitnessGoal={settings.fitnessGoal}
-            onChangeGoalClick={() => setShowGoalDialog(true)}
+            onChangeGoalClick={() => !isGoalUpdating && setShowGoalDialog(true)}
+            isGoalUpdating={isGoalUpdating}
           />
           
           <MacroProgressDisplay 
@@ -121,6 +122,7 @@ const TrackingPage = () => {
             open={showGoalDialog} 
             onOpenChange={setShowGoalDialog} 
             onSelectGoal={handleSetGoal} 
+            isUpdating={isGoalUpdating}
           />
           
           <MeasurementsDialog
