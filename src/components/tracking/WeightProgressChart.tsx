@@ -11,6 +11,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Grid,
 } from "recharts";
 import { format, subMonths, subYears, subWeeks, isAfter } from "date-fns";
 
@@ -96,7 +97,7 @@ const WeightProgressChart = ({
             <h2 className="text-xl font-semibold">Weight Progress</h2>
             <div className="bg-gray-200 h-10 w-32 rounded animate-pulse"></div>
           </div>
-          <div className="h-[300px] bg-gray-100 animate-pulse rounded"></div>
+          <div className="h-[250px] bg-gray-100 animate-pulse rounded"></div>
         </CardContent>
       </Card>
     );
@@ -135,7 +136,7 @@ const WeightProgressChart = ({
               </div>
 
               <TabsContent value={timeFrame} className="mt-0">
-                <div className="h-[300px]">
+                <div className="h-[250px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" />
@@ -163,7 +164,7 @@ const WeightProgressChart = ({
               </TabsContent>
             </>
           ) : (
-            <div className="flex flex-col items-center justify-center h-[300px] bg-gray-50 rounded-lg">
+            <div className="flex flex-col items-center justify-center h-[250px] bg-gray-50 rounded-lg">
               <Scale className="h-12 w-12 text-gray-300 mb-4" />
               <p className="text-gray-500 text-center">
                 No weight history data available.

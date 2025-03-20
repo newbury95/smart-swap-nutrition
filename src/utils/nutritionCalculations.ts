@@ -47,11 +47,11 @@ export const defaultMacroRatios: Record<FitnessGoal, MacroRatio> = {
   }
 };
 
-// Fixed calorie adjustments instead of percentage-based
+// Fixed calorie adjustments for different fitness goals
 export const goalCalorieAdjustments: Record<FitnessGoal, number> = {
-  weight_loss: -600, // Deficit of 600 calories
+  weight_loss: -600, // Deficit of 600 calories for weight loss
   maintenance: 0,    // No adjustment for maintenance
-  mass_building: 600 // Surplus of 600 calories
+  mass_building: 600 // Surplus of 600 calories for mass building
 };
 
 /**
@@ -100,7 +100,7 @@ export const calculateTDEE = (bmr: number, activityLevel: ActivityLevel): number
 
 /**
  * Calculate calorie target based on TDEE and fitness goal
- * Now uses fixed adjustments (+/- 600 kcal) instead of percentages
+ * Uses fixed adjustments (+/- 600 kcal) instead of percentages
  */
 export const calculateCalorieTarget = (tdee: number, fitnessGoal: FitnessGoal): number => {
   if (isNaN(tdee) || tdee <= 0) {

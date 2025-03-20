@@ -1,35 +1,23 @@
-import { memo, useState, useEffect } from "react";
+
+import { memo } from "react";
 import { useUserNutrition } from "@/hooks/useUserNutrition";
-import { useToast } from "@/hooks/use-toast";
 import { useSupabase } from "@/hooks/useSupabase";
 import TrackingHeader from "@/components/tracking/TrackingHeader";
 import { PageLoading } from "@/components/PageLoading";
-import { format } from "date-fns";
-import { supabase } from "@/integrations/supabase/client";
 import NutritionSummaryCards from "@/components/tracking/dashboard/NutritionSummaryCards";
 import MacroProgressDisplay from "@/components/tracking/dashboard/MacroProgressDisplay";
 import WeightMetricsDisplay from "@/components/tracking/dashboard/WeightMetricsDisplay";
 import WeightProgressChart from "@/components/tracking/WeightProgressChart";
 import GoalSelectionDialog from "@/components/tracking/GoalSelectionDialog";
 import MeasurementsDialog from "@/components/tracking/MeasurementsDialog";
+import { useGoalManager } from "@/components/tracking/goals/useGoalManager";
+import { useMeasurementManager } from "@/components/tracking/measurements/useMeasurementManager";
+import { useNutritionData } from "@/components/tracking/nutrition/useNutritionData";
+import { useWeightData } from "@/components/tracking/weight/useWeightData";
 import { Gender } from "@/utils/nutritionCalculations";
 
 const TrackingPage = () => {
-  const { toast } = useToast();
-  const [today] = useState(new Date());
-  const { isPremium, addHealthMetric } = useSupabase();
-  const [showGoalDialog, setShowGoalDialog] = useState(false);
-  const [showMeasurementsDialog, setShowMeasurementsDialog] = useState(false);
-  const [weightHistory, setWeightHistory] = useState<{date: string, weight: number}[]>([]);
-  const [isWeightHistoryLoading, setIsWeightHistoryLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [consumedNutrition, setConsumedNutrition] = useState({
-    calories: 0,
-    protein: 0,
-    carbs: 0,
-    fats: 0
-  });
-
+  const { addHealthMetric } = useSupabase();
   const {
     loading: settingsLoading,
     settings,
@@ -37,186 +25,35 @@ const TrackingPage = () => {
     updateSetting,
   } = useUserNutrition();
 
-  useEffect(() => {
-    const fetchTodayNutrition = async () => {
-      try {
-        const today = format(new Date(), 'yyyy-MM-dd');
-        const { data, error } = await supabase
-          .from('meals')
-          .select('calories, protein, carbs, fat')
-          .eq('date', today);
-        
-        if (error) throw error;
-        
-        if (data && data.length > 0) {
-          const totals = data.reduce((acc, meal) => {
-            return {
-              calories: acc.calories + (meal.calories || 0),
-              protein: acc.protein + (meal.protein || 0),
-              carbs: acc.carbs + (meal.carbs || 0),
-              fats: acc.fats + (meal.fat || 0)
-            };
-          }, { calories: 0, protein: 0, carbs: 0, fats: 0 });
-          
-          setConsumedNutrition(totals);
-        } else {
-          setConsumedNutrition({
-            calories: 0,
-            protein: 0,
-            carbs: 0,
-            fats: 0
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching today's nutrition:", error);
-      }
-    };
-    
-    if (!settingsLoading) {
-      fetchTodayNutrition();
-    }
-  }, [settingsLoading]);
-
-  useEffect(() => {
-    const fetchWeightHistory = async () => {
-      try {
-        setIsWeightHistoryLoading(true);
-        const { data: weightData, error } = await supabase
-          .from('health_metrics')
-          .select('value, recorded_at')
-          .eq('metric_type', 'weight')
-          .order('recorded_at', { ascending: false })
-          .limit(30);
-        
-        if (error) throw error;
-        
-        const history = weightData?.map(record => ({
-          date: format(new Date(record.recorded_at), 'yyyy-MM-dd'),
-          weight: Number(record.value)
-        })) || [];
-        
-        setWeightHistory(history);
-        console.log("Weight history loaded:", history);
-      } catch (error) {
-        console.error("Error fetching weight history:", error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to load weight history",
-        });
-      } finally {
-        setIsWeightHistoryLoading(false);
-      }
-    };
-    
-    if (!settingsLoading) {
-      fetchWeightHistory();
-    }
-  }, [settingsLoading, toast]);
-
-  const handleUpdateCalories = async (calories: number) => {
-    try {
-      await updateSetting('calorieTarget', calories);
-      
-      toast({
-        title: "Calorie Goal Updated",
-        description: `Your daily target is now ${calories} calories`,
-      });
-      
-      return Promise.resolve();
-    } catch (error) {
-      console.error("Error updating calorie goal:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to update calorie goal. Please try again.",
-      });
-      return Promise.reject(error);
-    }
-  };
-
-  const handleMeasurementsSubmit = async (weight: number, height: number, age: number, gender: Gender) => {
-    setIsSubmitting(true);
-    try {
+  // Custom hooks for managing different parts of the page
+  const consumedNutrition = useNutritionData();
+  const { weightHistory, isWeightHistoryLoading, addWeightRecord } = useWeightData();
+  
+  // Goal manager hook
+  const { showGoalDialog, setShowGoalDialog, handleSetGoal } = useGoalManager(
+    async (goal) => await updateSetting('fitnessGoal', goal)
+  );
+  
+  // Measurements manager hook
+  const { 
+    showMeasurementsDialog, 
+    setShowMeasurementsDialog, 
+    handleMeasurementsSubmit,
+    isSubmitting 
+  } = useMeasurementManager(
+    settings.weight,
+    settings.height,
+    settings.age,
+    settings.gender,
+    async (weight, height, age, gender) => {
       await updateSetting('weight', weight);
       await updateSetting('height', height);
       await updateSetting('age', age);
       await updateSetting('gender', gender);
-      
-      try {
-        await addHealthMetric({
-          metric_type: 'weight',
-          value: weight.toString(),
-          source: 'manual-tracking'
-        });
-        
-        await addHealthMetric({
-          metric_type: 'height',
-          value: height.toString(),
-          source: 'manual-tracking'
-        });
-        
-        await addHealthMetric({
-          metric_type: 'age',
-          value: age.toString(),
-          source: 'manual-tracking'
-        });
-        
-        await addHealthMetric({
-          metric_type: 'gender',
-          value: gender,
-          source: 'manual-tracking'
-        });
-        
-        setWeightHistory(prev => [{
-          date: format(new Date(), 'yyyy-MM-dd'),
-          weight
-        }, ...prev]);
-        
-        toast({
-          title: "Measurements Updated",
-          description: "Your measurements have been updated successfully.",
-        });
-        
-        setShowMeasurementsDialog(false);
-      } catch (error) {
-        console.error("Error saving health metrics:", error);
-        toast({
-          variant: "destructive",
-          title: "Partial Update",
-          description: "Your settings were updated but we couldn't save the measurements history.",
-        });
-      }
-    } catch (error) {
-      console.error("Error updating measurements:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to update measurements. Please try again.",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleSetGoal = async (goal: 'weight_loss' | 'maintenance' | 'mass_building') => {
-    try {
-      await updateSetting('fitnessGoal', goal);
-      setShowGoalDialog(false);
-      
-      toast({
-        title: "Goal Updated",
-        description: `Your fitness goal has been set to ${goal.replace('_', ' ')}`,
-      });
-    } catch (error) {
-      console.error("Error updating goal:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to update goal. Please try again.",
-      });
-    }
-  };
+      addWeightRecord(weight);
+    },
+    addHealthMetric
+  );
 
   if (settingsLoading) {
     return <PageLoading />;
