@@ -246,11 +246,11 @@ const ForumPage = () => {
       
       const { error } = await supabase
         .from('forum_reports')
-        .insert([{
+        .insert({
           thread_id: reportedThreadId,
           user_id: user.id,
           reason: reportReason
-        }]);
+        });
       
       if (error) throw error;
       

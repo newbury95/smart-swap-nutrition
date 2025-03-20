@@ -87,3 +87,10 @@ export type ForumReport = {
   reason: string;
   created_at: string;
 };
+
+export type ForumLike = {
+  id: string;
+  thread_id: string;
+  user_id: string;
+  created_at: string;
+};

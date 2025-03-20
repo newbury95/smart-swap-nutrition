@@ -312,11 +312,11 @@ const ThreadDetailPage = () => {
       if (user) {
         const { error } = await supabase
           .from('forum_reports')
-          .insert([{
+          .insert({
             thread_id: threadId,
             user_id: user.id,
             reason: reportReason
-          }]);
+          });
         
         if (error) throw error;
       }
