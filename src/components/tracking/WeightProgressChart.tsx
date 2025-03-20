@@ -11,7 +11,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Grid,
 } from "recharts";
 import { format, subMonths, subYears, subWeeks, isAfter } from "date-fns";
 
