@@ -1,7 +1,20 @@
 
 import { useCallback } from 'react';
 import type { NutritionSettings } from '../useUserNutrition';
-import { isValidActivityLevel, isValidFitnessGoal, isValidGender } from './types';
+import { ActivityLevel, FitnessGoal, Gender } from '@/utils/nutritionCalculations';
+
+// Helper functions to validate enum values (previously in types.ts)
+const isValidActivityLevel = (value: string): value is ActivityLevel => {
+  return ['sedentary', 'light', 'moderate', 'active', 'very_active'].includes(value);
+};
+
+const isValidFitnessGoal = (value: string): value is FitnessGoal => {
+  return ['weight_loss', 'maintenance', 'mass_building'].includes(value);
+};
+
+const isValidGender = (value: string): value is Gender => {
+  return ['male', 'female', 'other'].includes(value);
+};
 
 export const useLoadHealthMetrics = (
   settings: NutritionSettings,
