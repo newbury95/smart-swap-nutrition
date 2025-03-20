@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Crown, Flag, Plus, MessageSquare, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -10,16 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
-
-interface ThreadType {
-  id: string;
-  title: string;
-  content: string;
-  user_id: string;
-  created_at: string;
-  author: string;
-  replies: number;
-}
+import type { ForumThread, ForumReport } from "@/hooks/types/supabase";
 
 const ForumPage = () => {
   const navigate = useNavigate();
@@ -31,11 +21,10 @@ const ForumPage = () => {
   const [newThreadTitle, setNewThreadTitle] = useState("");
   const [newThreadContent, setNewThreadContent] = useState("");
   const [reportReason, setReportReason] = useState("");
-  const [threads, setThreads] = useState<ThreadType[]>([]);
+  const [threads, setThreads] = useState<ForumThread[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch threads
   useEffect(() => {
     const fetchThreads = async () => {
       try {
@@ -53,7 +42,6 @@ const ForumPage = () => {
         
         if (error) throw error;
         
-        // Get replies count for each thread
         const threadsWithReplies = await Promise.all(threadsData?.map(async (thread) => {
           const { count, error: countError } = await supabase
             .from('forum_replies')
@@ -64,12 +52,11 @@ const ForumPage = () => {
             console.error('Error counting replies:', countError);
             return {
               ...thread,
-              author: 'Anonymous', // Set a default author name
+              author: 'Anonymous',
               replies: 0
             };
           }
           
-          // Fetch author information separately
           let authorName = 'Anonymous';
           try {
             const { data: profileData, error: profileError } = await supabase
@@ -92,7 +79,6 @@ const ForumPage = () => {
           };
         }) || []);
         
-        // Format the threads data
         const formattedThreads = threadsWithReplies.map(thread => ({
           id: thread.id,
           title: thread.title,
@@ -157,7 +143,6 @@ const ForumPage = () => {
         throw error;
       }
       
-      // Get the user's profile information
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('first_name, last_name')
@@ -168,7 +153,6 @@ const ForumPage = () => {
         console.warn('Could not fetch profile data:', profileError);
       }
       
-      // Add the new thread to the state
       if (data) {
         const authorName = profileData 
           ? `${profileData.first_name} ${profileData.last_name}` 
@@ -349,7 +333,6 @@ const ForumPage = () => {
         </div>
       </main>
 
-      {/* New Thread Dialog */}
       <Dialog open={showNewThreadDialog} onOpenChange={setShowNewThreadDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -405,7 +388,6 @@ const ForumPage = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Report Dialog */}
       <Dialog open={showReportDialog} onOpenChange={setShowReportDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>

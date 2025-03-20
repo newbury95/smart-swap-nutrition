@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { MessageSquare, Heart, Flag, ArrowLeft, Send } from "lucide-react";
@@ -12,6 +11,7 @@ import { format } from "date-fns";
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogHeader, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import type { ForumLike } from "@/hooks/types/supabase";
 
 interface ThreadType {
   id: string;
@@ -267,10 +267,10 @@ const ThreadDetailPage = () => {
         // Like the thread
         const { error } = await supabase
           .from('forum_likes')
-          .insert([{
+          .insert({
             thread_id: threadId,
             user_id: user.id
-          }]);
+          });
         
         if (error) throw error;
         
