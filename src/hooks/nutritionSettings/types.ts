@@ -1,27 +1,14 @@
 
-import { ActivityLevel, FitnessGoal, Gender } from '@/utils/nutritionCalculations';
-
-// Mapping from settings keys to health metric types in the database
+// Map nutrition settings keys to health metric types for database storage
 export const metricTypeMap: Record<string, string> = {
-  weight: 'weight',
-  height: 'height', 
   age: 'age',
+  weight: 'weight',
+  height: 'height',
+  gender: 'gender',
   activityLevel: 'activity_level',
   fitnessGoal: 'fitness_goal',
-  gender: 'gender',
   customMacroRatio: 'custom_macro_ratio',
-  calorieTarget: 'calorie_target' // Ensure calorie target mapping is available
+  calorieTarget: 'calorie_target'
 };
 
-// Type validation helpers
-export const isValidActivityLevel = (value: string): value is ActivityLevel => {
-  return ['sedentary', 'light', 'moderate', 'active', 'very_active'].includes(value);
-};
-
-export const isValidFitnessGoal = (value: string): value is FitnessGoal => {
-  return ['weight_loss', 'maintenance', 'mass_building'].includes(value);
-};
-
-export const isValidGender = (value: string): value is Gender => {
-  return ['male', 'female', 'other'].includes(value);
-};
+export type HealthMetricKey = keyof typeof metricTypeMap;

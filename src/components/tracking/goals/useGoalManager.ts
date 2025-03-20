@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { FitnessGoal } from "@/utils/nutritionCalculations";
+import { supabase } from "@/integrations/supabase/client";
 
 export const useGoalManager = (
   onUpdateGoal: (goal: FitnessGoal) => Promise<void>
@@ -19,8 +20,14 @@ export const useGoalManager = (
       }
       
       setIsUpdating(true);
+      console.log("Setting fitness goal to:", goal);
       
+      // Save the goal to the database
       await onUpdateGoal(goal);
+      
+      // Store in localStorage as a backup
+      localStorage.setItem('fitnessGoal', goal);
+      
       setShowGoalDialog(false);
       
       toast({
