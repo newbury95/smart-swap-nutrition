@@ -275,13 +275,7 @@ const ForumPage = () => {
   };
 
   const viewThread = (threadId: string) => {
-    // This would navigate to a thread detail page in a real app
-    console.log("Viewing thread:", threadId);
-    
-    toast({
-      title: "Feature coming soon",
-      description: "Thread viewing will be available in the next update."
-    });
+    navigate(`/forum/thread/${threadId}`);
   };
 
   return (
