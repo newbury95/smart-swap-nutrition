@@ -3,6 +3,7 @@ import { useState, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { generateUsername } from "@/utils/userNameGenerator";
 
 export interface SignupFormData {
   firstName: string;
@@ -41,8 +42,12 @@ export function useSignup() {
         throw new Error("All fields are required");
       }
 
+      // Generate a username for the user
+      const username = generateUsername(formData.firstName, formData.lastName);
+
       console.log("Signing up with data:", {
         ...formData,
+        username,
         password: "******", // Don't log the actual password
       });
 
@@ -57,7 +62,8 @@ export function useSignup() {
             date_of_birth: formData.dateOfBirth, // Already in YYYY-MM-DD format
             height: parseFloat(formData.height),
             weight: parseFloat(formData.weight),
-            is_premium: formData.isPremium
+            is_premium: formData.isPremium,
+            username: username, // Add the generated username
           }
         }
       });

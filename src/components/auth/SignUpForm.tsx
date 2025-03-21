@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { FormField } from "./FormField";
 import { Input } from "@/components/ui/input";
+import { generateUsername } from "@/utils/userNameGenerator";
 
 interface SignUpFormProps {
   onSuccess: () => void;
@@ -37,6 +38,9 @@ export const SignUpForm = ({ onSuccess }: SignUpFormProps) => {
     }
     
     try {
+      // Generate a username from first and last name
+      const username = generateUsername(firstName, lastName);
+      
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
@@ -46,7 +50,8 @@ export const SignUpForm = ({ onSuccess }: SignUpFormProps) => {
             last_name: lastName,
             height: Number(height),
             weight: Number(weight),
-            is_premium: false
+            is_premium: false,
+            username: username, // Add the generated username
           }
         }
       });

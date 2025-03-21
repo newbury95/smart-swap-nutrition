@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import type { ForumThread } from "@/hooks/types/supabase";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ThreadListProps {
   onReportThread: (threadId: string) => void;
@@ -52,15 +53,17 @@ export const ThreadList = ({ onReportThread }: ThreadListProps) => {
           }
           
           let authorName = 'Anonymous';
+          let username = '';
           try {
             const { data: profileData, error: profileError } = await supabase
               .from('profiles')
-              .select('first_name, last_name')
+              .select('first_name, last_name, username')
               .eq('id', thread.user_id)
               .single();
             
             if (!profileError && profileData) {
               authorName = `${profileData.first_name} ${profileData.last_name}`;
+              username = profileData.username || generateUsername(profileData.first_name, profileData.last_name);
             }
           } catch (err) {
             console.error('Error fetching profile data:', err);
@@ -69,6 +72,7 @@ export const ThreadList = ({ onReportThread }: ThreadListProps) => {
           return {
             ...thread,
             author: authorName,
+            username: username,
             replies: count || 0
           };
         }) || []);
@@ -80,6 +84,7 @@ export const ThreadList = ({ onReportThread }: ThreadListProps) => {
           user_id: thread.user_id,
           created_at: format(new Date(thread.created_at), 'PP'),
           author: thread.author,
+          username: thread.username,
           replies: thread.replies
         }));
         
@@ -106,9 +111,17 @@ export const ThreadList = ({ onReportThread }: ThreadListProps) => {
   return (
     <>
       {isLoading ? (
-        <div className="text-center py-12 text-gray-500">
-          <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-30 animate-pulse" />
-          <p>Loading threads...</p>
+        <div className="space-y-4">
+          {[1, 2, 3].map((index) => (
+            <div key={index} className="border rounded-lg p-4">
+              <Skeleton className="h-6 w-3/4 mb-2" />
+              <Skeleton className="h-4 w-1/2 mb-4" />
+              <div className="flex justify-between">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-4 w-16" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : threads.length > 0 ? (
         <div className="space-y-4">
@@ -122,7 +135,7 @@ export const ThreadList = ({ onReportThread }: ThreadListProps) => {
                 <div>
                   <h3 className="font-medium text-lg mb-1">{thread.title}</h3>
                   <div className="flex items-center text-sm text-gray-500">
-                    <span>By {thread.author} • {thread.created_at}</span>
+                    <span>By @{thread.username || 'anonymous'} • {thread.created_at}</span>
                   </div>
                 </div>
                 <div className="flex items-center">

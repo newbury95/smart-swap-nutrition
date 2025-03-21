@@ -11,6 +11,8 @@ import { ThreadDetail } from "@/components/forum/ThreadDetail";
 import { ReplyList } from "@/components/forum/ReplyList";
 import { ReplyForm } from "@/components/forum/ReplyForm";
 import { ThreadDetailReportDialog } from "@/components/forum/ThreadDetailReportDialog";
+import { generateUsername } from "@/utils/userNameGenerator";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export interface ThreadType {
   id: string;
@@ -19,6 +21,7 @@ export interface ThreadType {
   user_id: string;
   created_at: string;
   author: string;
+  username: string;
   likes: number;
   liked_by_user: boolean;
 }
@@ -29,6 +32,7 @@ export interface ReplyType {
   user_id: string;
   created_at: string;
   author: string;
+  username: string;
 }
 
 const ThreadDetailPage = () => {
@@ -69,7 +73,7 @@ const ThreadDetailPage = () => {
         // Fetch thread author
         const { data: authorData, error: authorError } = await supabase
           .from('profiles')
-          .select('first_name, last_name')
+          .select('first_name, last_name, username')
           .eq('id', threadData.user_id)
           .single();
         
@@ -96,9 +100,13 @@ const ThreadDetailPage = () => {
           ? `${authorData.first_name} ${authorData.last_name}`
           : 'Anonymous';
         
+        const username = authorData?.username || 
+          (authorData ? generateUsername(authorData.first_name, authorData.last_name) : 'anonymous');
+        
         setThread({
           ...threadData,
           author: authorName,
+          username: username,
           likes: likesCount || 0,
           liked_by_user: likedByUser
         });
@@ -121,7 +129,7 @@ const ThreadDetailPage = () => {
         const repliesWithAuthors = await Promise.all(repliesData.map(async (reply) => {
           const { data: replyAuthorData } = await supabase
             .from('profiles')
-            .select('first_name, last_name')
+            .select('first_name, last_name, username')
             .eq('id', reply.user_id)
             .maybeSingle();
           
@@ -129,9 +137,13 @@ const ThreadDetailPage = () => {
             ? `${replyAuthorData.first_name} ${replyAuthorData.last_name}`
             : 'Anonymous';
           
+          const replyUsername = replyAuthorData?.username || 
+            (replyAuthorData ? generateUsername(replyAuthorData.first_name, replyAuthorData.last_name) : 'anonymous');
+          
           return {
             ...reply,
             author: replyAuthorName,
+            username: replyUsername,
             created_at: format(new Date(reply.created_at), 'PP')
           };
         }));
@@ -191,7 +203,7 @@ const ThreadDetailPage = () => {
       // Get user profile info
       const { data: profileData } = await supabase
         .from('profiles')
-        .select('first_name, last_name')
+        .select('first_name, last_name, username')
         .eq('id', user.id)
         .single();
       
@@ -199,13 +211,17 @@ const ThreadDetailPage = () => {
         ? `${profileData.first_name} ${profileData.last_name}`
         : user.email?.split('@')[0] || 'Anonymous';
       
+      const username = profileData?.username || 
+        (profileData ? generateUsername(profileData.first_name, profileData.last_name) : 'anonymous');
+      
       // Add the new reply to the state
       const newReplyObj = {
         id: data.id,
         content: data.content,
         user_id: data.user_id,
         created_at: format(new Date(), 'PP'),
-        author: authorName
+        author: authorName,
+        username: username
       };
       
       setReplies(prev => [...prev, newReplyObj]);
@@ -308,8 +324,7 @@ const ThreadDetailPage = () => {
       }
       
       // Send email to contact@nutritrack.co.uk with the report details
-      // In a real implementation, you would use a serverless function to send emails
-      console.log(`Sending report email to contact@nutritrack.co.uk:
+      console.log(`Sending report email:
         Thread ID: ${threadId}
         Reason: ${reason}
         Reporter: ${email || (user ? user.email : 'Anonymous')}
@@ -347,9 +362,15 @@ const ThreadDetailPage = () => {
           </Button>
           
           {isLoading ? (
-            <div className="text-center py-12 text-gray-500">
-              <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-30 animate-pulse" />
-              <p>Loading thread...</p>
+            <div className="space-y-6">
+              <Skeleton className="h-48 w-full rounded-lg" />
+              <div>
+                <Skeleton className="h-6 w-48 mb-4" />
+                <div className="space-y-4">
+                  <Skeleton className="h-32 w-full rounded-lg" />
+                  <Skeleton className="h-32 w-full rounded-lg" />
+                </div>
+              </div>
             </div>
           ) : thread ? (
             <div className="space-y-6">

@@ -1,12 +1,13 @@
 
 import { useState } from "react";
-import { Plus, MessageSquare } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { ThreadList } from "@/components/forum/ThreadList";
 import { NewThreadDialog } from "@/components/forum/NewThreadDialog";
 import { ReportDialog } from "@/components/forum/ReportDialog";
 import type { ForumThread } from "@/hooks/types/supabase";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ForumPage = () => {
   const { user } = useAuth();
@@ -28,12 +29,12 @@ const ForumPage = () => {
     <div className="min-h-screen bg-gray-50 pb-32">
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-xl p-8 shadow-sm">
-            <div className="flex justify-between items-center mb-6">
+          <div className="bg-white rounded-xl p-6 sm:p-8 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
               <h1 className="text-2xl font-semibold">Community Forum</h1>
               <Button 
                 onClick={() => setShowNewThreadDialog(true)}
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-green-600 hover:bg-green-700 whitespace-nowrap"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Start Thread
