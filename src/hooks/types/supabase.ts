@@ -79,6 +79,8 @@ export type ForumReply = {
   content: string;
   user_id: string;
   created_at: string;
+  author?: string;
+  username?: string;
 };
 
 export type ForumReport = {
@@ -94,4 +96,16 @@ export type ForumLike = {
   thread_id: string;
   user_id: string;
   created_at: string;
+};
+
+export type UserProfile = {
+  id: string;
+  first_name: string;
+  last_name: string;
+  username: string;
+  nickname?: string;
+  date_of_birth?: string;
+  height?: number;
+  weight?: number;
+  is_premium: boolean;
 };

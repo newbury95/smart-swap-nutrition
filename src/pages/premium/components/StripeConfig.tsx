@@ -24,9 +24,12 @@ const appearance = {
   },
 };
 
+// Memoize the options to prevent unnecessary re-renders
+const options = { appearance };
+
 const StripeConfig = () => {
   return (
-    <Elements stripe={stripePromise} options={{ appearance }}>
+    <Elements stripe={stripePromise} options={options}>
       <Card className="mt-6">
         <CardContent className="p-6">
           <h3 className="text-lg font-medium mb-4">Payment Details</h3>

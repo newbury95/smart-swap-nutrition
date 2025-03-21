@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { CreditCard } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -20,7 +20,7 @@ const CheckoutForm = () => {
   const { user } = useAuth();
   const { refreshPremiumStatus } = usePremiumStatus();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!stripe || !elements) {
@@ -63,8 +63,6 @@ const CheckoutForm = () => {
       if (stripeError) {
         throw stripeError;
       }
-      
-      console.log('Payment method created:', paymentMethod.id);
       
       // Create payment record
       const { error: paymentError } = await supabase
@@ -116,7 +114,7 @@ const CheckoutForm = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [stripe, elements, user, toast, navigate, refreshPremiumStatus]);
   
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
