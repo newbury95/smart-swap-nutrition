@@ -1,4 +1,3 @@
-
 import React, { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate, useNavigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -16,6 +15,7 @@ const MealPlansPage = lazy(() => import("@/pages/meal-plans/MealPlansPage"));
 const PremiumPage = lazy(() => import("@/pages/premium/PremiumUpgradePage"));
 const AuthPage = lazy(() => import("@/pages/auth/AuthPage"));
 const ForumPage = lazy(() => import("@/pages/forum/ForumPage"));
+const ThreadDetailPage = lazy(() => import("@/pages/forum/ThreadDetailPage"));
 const ContactPage = lazy(() => import("@/pages/contact/ContactPage"));
 const WorkoutPlansPage = lazy(() => import("@/pages/premium/WorkoutPlansPage"));
 
@@ -131,6 +131,14 @@ const AppRoutes = () => {
             element={
               <ProtectedRoute>
                 <ForumPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/forum/thread/:threadId" 
+            element={
+              <ProtectedRoute>
+                <ThreadDetailPage />
               </ProtectedRoute>
             } 
           />

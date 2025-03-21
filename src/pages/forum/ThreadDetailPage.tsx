@@ -1,19 +1,18 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { MessageSquare, Heart, Flag, ArrowLeft, Send } from "lucide-react";
+import { MessageSquare, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
-import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogHeader, DialogFooter } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import type { ForumLike } from "@/hooks/types/supabase";
+import { ThreadDetail } from "@/components/forum/ThreadDetail";
+import { ReplyList } from "@/components/forum/ReplyList";
+import { ReplyForm } from "@/components/forum/ReplyForm";
+import { ThreadDetailReportDialog } from "@/components/forum/ThreadDetailReportDialog";
 
-interface ThreadType {
+export interface ThreadType {
   id: string;
   title: string;
   content: string;
@@ -24,7 +23,7 @@ interface ThreadType {
   liked_by_user: boolean;
 }
 
-interface ReplyType {
+export interface ReplyType {
   id: string;
   content: string;
   user_id: string;
@@ -40,10 +39,7 @@ const ThreadDetailPage = () => {
   
   const [thread, setThread] = useState<ThreadType | null>(null);
   const [replies, setReplies] = useState<ReplyType[]>([]);
-  const [newReply, setNewReply] = useState("");
   const [showReportDialog, setShowReportDialog] = useState(false);
-  const [reportReason, setReportReason] = useState("");
-  const [reportEmail, setReportEmail] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -157,7 +153,7 @@ const ThreadDetailPage = () => {
     fetchThreadDetails();
   }, [threadId, navigate, toast, user]);
 
-  const handleAddReply = async () => {
+  const handleAddReply = async (content: string) => {
     if (!user) {
       toast({
         variant: "destructive",
@@ -168,7 +164,7 @@ const ThreadDetailPage = () => {
       return;
     }
     
-    if (!newReply.trim()) {
+    if (!content.trim()) {
       toast({
         variant: "destructive",
         title: "Error",
@@ -184,7 +180,7 @@ const ThreadDetailPage = () => {
         .from('forum_replies')
         .insert([{
           thread_id: threadId,
-          content: newReply,
+          content: content,
           user_id: user.id
         }])
         .select()
@@ -213,7 +209,6 @@ const ThreadDetailPage = () => {
       };
       
       setReplies(prev => [...prev, newReplyObj]);
-      setNewReply("");
       
       toast({
         title: "Reply added",
@@ -295,16 +290,7 @@ const ThreadDetailPage = () => {
     }
   };
 
-  const handleReportThread = async () => {
-    if (!reportReason.trim()) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Please provide a reason for your report."
-      });
-      return;
-    }
-
+  const handleReportThread = async (reason: string, email: string) => {
     try {
       setIsSubmitting(true);
       
@@ -315,7 +301,7 @@ const ThreadDetailPage = () => {
           .insert({
             thread_id: threadId,
             user_id: user.id,
-            reason: reportReason
+            reason: reason
           });
         
         if (error) throw error;
@@ -323,15 +309,12 @@ const ThreadDetailPage = () => {
       
       // Send email to contact@nutritrack.co.uk with the report details
       // In a real implementation, you would use a serverless function to send emails
-      // For this example, we'll just log it and show a success message
       console.log(`Sending report email to contact@nutritrack.co.uk:
         Thread ID: ${threadId}
-        Reason: ${reportReason}
-        Reporter: ${reportEmail || (user ? user.email : 'Anonymous')}
+        Reason: ${reason}
+        Reporter: ${email || (user ? user.email : 'Anonymous')}
       `);
       
-      setReportReason("");
-      setReportEmail("");
       setShowReportDialog(false);
       
       toast({
@@ -370,98 +353,23 @@ const ThreadDetailPage = () => {
             </div>
           ) : thread ? (
             <div className="space-y-6">
-              <Card>
-                <CardHeader className="pb-4">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h1 className="text-2xl font-semibold">{thread.title}</h1>
-                      <p className="text-gray-500 text-sm mt-1">
-                        Posted by {thread.author} on {format(new Date(thread.created_at), 'PP')}
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant={thread.liked_by_user ? "default" : "outline"}
-                        size="sm"
-                        onClick={handleLikeThread}
-                        className={thread.liked_by_user ? "bg-pink-500 hover:bg-pink-600" : ""}
-                      >
-                        <Heart className={`w-4 h-4 mr-1 ${thread.liked_by_user ? "fill-current" : ""}`} />
-                        {thread.likes}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowReportDialog(true)}
-                      >
-                        <Flag className="w-4 h-4 mr-1" />
-                        Report
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="prose max-w-none">
-                    <p className="whitespace-pre-wrap">{thread.content}</p>
-                  </div>
-                </CardContent>
-              </Card>
+              <ThreadDetail 
+                thread={thread} 
+                onLike={handleLikeThread} 
+                onReport={() => setShowReportDialog(true)} 
+              />
               
               <div className="mt-8">
                 <h2 className="text-xl font-semibold mb-4">
                   Replies ({replies.length})
                 </h2>
                 
-                {replies.length > 0 ? (
-                  <div className="space-y-4">
-                    {replies.map((reply) => (
-                      <Card key={reply.id}>
-                        <CardHeader className="py-3">
-                          <div className="flex justify-between items-center">
-                            <p className="text-sm text-gray-500">
-                              {reply.author} · {reply.created_at}
-                            </p>
-                          </div>
-                        </CardHeader>
-                        <CardContent className="py-2">
-                          <p className="whitespace-pre-wrap">{reply.content}</p>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <Card className="bg-gray-50">
-                    <CardContent className="text-center py-8">
-                      <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-30" />
-                      <p className="text-gray-500">No replies yet. Be the first to reply!</p>
-                    </CardContent>
-                  </Card>
-                )}
+                <ReplyList replies={replies} />
                 
-                <Card className="mt-6">
-                  <CardHeader>
-                    <h3 className="text-lg font-medium">Add a Reply</h3>
-                  </CardHeader>
-                  <CardContent>
-                    <Textarea
-                      placeholder="Write your reply here..."
-                      value={newReply}
-                      onChange={(e) => setNewReply(e.target.value)}
-                      rows={4}
-                      className="resize-none"
-                    />
-                  </CardContent>
-                  <CardFooter className="flex justify-end">
-                    <Button
-                      onClick={handleAddReply}
-                      disabled={isSubmitting || !newReply.trim()}
-                      className="bg-green-600 hover:bg-green-700"
-                    >
-                      {isSubmitting ? "Posting..." : "Post Reply"}
-                      <Send className="w-4 h-4 ml-2" />
-                    </Button>
-                  </CardFooter>
-                </Card>
+                <ReplyForm 
+                  onSubmit={handleAddReply}
+                  isSubmitting={isSubmitting}
+                />
               </div>
             </div>
           ) : (
@@ -480,60 +388,12 @@ const ThreadDetailPage = () => {
         </div>
       </main>
 
-      {/* Report Dialog */}
-      <Dialog open={showReportDialog} onOpenChange={setShowReportDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Report Thread</DialogTitle>
-            <DialogDescription>
-              Help us keep the community safe by reporting inappropriate content.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="report-reason">Reason for reporting</Label>
-              <Textarea
-                id="report-reason"
-                placeholder="Please explain why you're reporting this thread..."
-                value={reportReason}
-                onChange={(e) => setReportReason(e.target.value)}
-                rows={4}
-              />
-            </div>
-            
-            {!user && (
-              <div className="space-y-2">
-                <Label htmlFor="report-email">Your email (optional)</Label>
-                <Input
-                  id="report-email"
-                  type="email"
-                  placeholder="Enter your email address"
-                  value={reportEmail}
-                  onChange={(e) => setReportEmail(e.target.value)}
-                />
-              </div>
-            )}
-          </div>
-          
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowReportDialog(false)}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleReportThread}
-              variant="destructive"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Submitting..." : "Submit Report"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ThreadDetailReportDialog 
+        open={showReportDialog} 
+        onOpenChange={setShowReportDialog}
+        onSubmit={handleReportThread}
+        isSubmitting={isSubmitting}
+      />
     </div>
   );
 };
