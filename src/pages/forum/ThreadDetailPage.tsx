@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { MessageSquare, ArrowLeft } from "lucide-react";
@@ -73,7 +72,7 @@ const ThreadDetailPage = () => {
         // Fetch thread author
         const { data: authorData, error: authorError } = await supabase
           .from('profiles')
-          .select('first_name, last_name, username')
+          .select('first_name, last_name')
           .eq('id', threadData.user_id)
           .single();
         
@@ -100,8 +99,9 @@ const ThreadDetailPage = () => {
           ? `${authorData.first_name} ${authorData.last_name}`
           : 'Anonymous';
         
-        const username = authorData?.username || 
-          (authorData ? generateUsername(authorData.first_name, authorData.last_name) : 'anonymous');
+        const username = authorData 
+          ? generateUsername(authorData.first_name, authorData.last_name)
+          : 'anonymous';
         
         setThread({
           ...threadData,
@@ -129,7 +129,7 @@ const ThreadDetailPage = () => {
         const repliesWithAuthors = await Promise.all(repliesData.map(async (reply) => {
           const { data: replyAuthorData } = await supabase
             .from('profiles')
-            .select('first_name, last_name, username')
+            .select('first_name, last_name')
             .eq('id', reply.user_id)
             .maybeSingle();
           
@@ -137,8 +137,9 @@ const ThreadDetailPage = () => {
             ? `${replyAuthorData.first_name} ${replyAuthorData.last_name}`
             : 'Anonymous';
           
-          const replyUsername = replyAuthorData?.username || 
-            (replyAuthorData ? generateUsername(replyAuthorData.first_name, replyAuthorData.last_name) : 'anonymous');
+          const replyUsername = replyAuthorData
+            ? generateUsername(replyAuthorData.first_name, replyAuthorData.last_name)
+            : 'anonymous';
           
           return {
             ...reply,
@@ -203,7 +204,7 @@ const ThreadDetailPage = () => {
       // Get user profile info
       const { data: profileData } = await supabase
         .from('profiles')
-        .select('first_name, last_name, username')
+        .select('first_name, last_name')
         .eq('id', user.id)
         .single();
       
@@ -211,8 +212,9 @@ const ThreadDetailPage = () => {
         ? `${profileData.first_name} ${profileData.last_name}`
         : user.email?.split('@')[0] || 'Anonymous';
       
-      const username = profileData?.username || 
-        (profileData ? generateUsername(profileData.first_name, profileData.last_name) : 'anonymous');
+      const username = profileData
+        ? generateUsername(profileData.first_name, profileData.last_name)
+        : 'anonymous';
       
       // Add the new reply to the state
       const newReplyObj = {

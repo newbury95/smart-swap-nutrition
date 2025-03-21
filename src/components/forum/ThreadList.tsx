@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import type { ForumThread } from "@/hooks/types/supabase";
 import { Skeleton } from "@/components/ui/skeleton";
+import { generateUsername } from "@/utils/userNameGenerator";
 
 interface ThreadListProps {
   onReportThread: (threadId: string) => void;
@@ -55,15 +56,16 @@ export const ThreadList = ({ onReportThread }: ThreadListProps) => {
           let authorName = 'Anonymous';
           let username = '';
           try {
+            // Check if username column exists before trying to select it
             const { data: profileData, error: profileError } = await supabase
               .from('profiles')
-              .select('first_name, last_name, username')
+              .select('first_name, last_name')
               .eq('id', thread.user_id)
-              .single();
+              .maybeSingle();
             
             if (!profileError && profileData) {
               authorName = `${profileData.first_name} ${profileData.last_name}`;
-              username = profileData.username || generateUsername(profileData.first_name, profileData.last_name);
+              username = generateUsername(profileData.first_name, profileData.last_name);
             }
           } catch (err) {
             console.error('Error fetching profile data:', err);
@@ -84,7 +86,7 @@ export const ThreadList = ({ onReportThread }: ThreadListProps) => {
           user_id: thread.user_id,
           created_at: format(new Date(thread.created_at), 'PP'),
           author: thread.author,
-          username: thread.username,
+          username: thread.username || 'anonymous',
           replies: thread.replies
         }));
         
