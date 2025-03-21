@@ -350,6 +350,7 @@ export type Database = {
           is_premium: boolean
           last_name: string
           nickname: string | null
+          username: string | null
           weight: number
         }
         Insert: {
@@ -362,6 +363,7 @@ export type Database = {
           is_premium?: boolean
           last_name: string
           nickname?: string | null
+          username?: string | null
           weight: number
         }
         Update: {
@@ -374,6 +376,7 @@ export type Database = {
           is_premium?: boolean
           last_name?: string
           nickname?: string | null
+          username?: string | null
           weight?: number
         }
         Relationships: []

@@ -69,6 +69,7 @@ export type ForumThread = {
   user_id: string;
   created_at: string;
   author?: string;
+  username?: string;
   replies?: number;
 };
 

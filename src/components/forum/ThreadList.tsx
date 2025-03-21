@@ -15,10 +15,17 @@ interface ThreadListProps {
   onReportThread: (threadId: string) => void;
 }
 
+// Extend the ForumThread type to include properties added during fetching
+interface ExtendedForumThread extends ForumThread {
+  author: string;
+  username: string;
+  replies: number;
+}
+
 export const ThreadList = ({ onReportThread }: ThreadListProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [threads, setThreads] = useState<ForumThread[]>([]);
+  const [threads, setThreads] = useState<ExtendedForumThread[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -49,12 +56,13 @@ export const ThreadList = ({ onReportThread }: ThreadListProps) => {
             return {
               ...thread,
               author: 'Anonymous',
+              username: 'anonymous',
               replies: 0
             };
           }
           
           let authorName = 'Anonymous';
-          let username = '';
+          let username = 'anonymous';
           try {
             // Check if username column exists before trying to select it
             const { data: profileData, error: profileError } = await supabase
@@ -86,7 +94,7 @@ export const ThreadList = ({ onReportThread }: ThreadListProps) => {
           user_id: thread.user_id,
           created_at: format(new Date(thread.created_at), 'PP'),
           author: thread.author,
-          username: thread.username || 'anonymous',
+          username: thread.username,
           replies: thread.replies
         }));
         
@@ -137,7 +145,7 @@ export const ThreadList = ({ onReportThread }: ThreadListProps) => {
                 <div>
                   <h3 className="font-medium text-lg mb-1">{thread.title}</h3>
                   <div className="flex items-center text-sm text-gray-500">
-                    <span>By @{thread.username || 'anonymous'} • {thread.created_at}</span>
+                    <span>By @{thread.username} • {thread.created_at}</span>
                   </div>
                 </div>
                 <div className="flex items-center">
