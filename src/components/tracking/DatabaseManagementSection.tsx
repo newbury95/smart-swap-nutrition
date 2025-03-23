@@ -2,9 +2,11 @@
 import { memo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Database, Crown } from "lucide-react";
+import { Database, Crown, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { CSVUploader } from "@/components/food/CSVUploader";
+import { AdminFoodImporter } from "@/components/food/AdminFoodImporter";
 
 const DatabaseManagementSection = () => {
   const { toast } = useToast();
@@ -86,6 +88,10 @@ const DatabaseManagementSection = () => {
             Test Premium Payment
           </Button>
         </div>
+        
+        <AdminFoodImporter />
+        
+        <CSVUploader />
       </CardContent>
     </Card>
   );
