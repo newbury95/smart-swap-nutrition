@@ -79,7 +79,6 @@ export const DailySummary = ({ dailyTotals }: DailySummaryProps) => {
   useEffect(() => {
     if (healthData?.caloriesBurned) {
       setCaloriesBurned(healthData.caloriesBurned);
-      localStorage.setItem('caloriesBurned', healthData.caloriesBurned.toString());
     } else {
       const storedCaloriesBurned = localStorage.getItem('caloriesBurned');
       if (storedCaloriesBurned) {

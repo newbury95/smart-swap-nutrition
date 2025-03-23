@@ -9,7 +9,7 @@ import DifficultyTabs from './components/DifficultyTabs';
 import WorkoutList from './components/WorkoutList';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Dumbbell, Filter, Plus, X } from 'lucide-react';
+import { Dumbbell, Plus, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useWorkoutManagement } from '@/hooks/useWorkoutManagement';
 
@@ -23,7 +23,6 @@ const WorkoutPlansPage = () => {
   const [selectedMuscleGroup, setSelectedMuscleGroup] = useState<string>("all");
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>("all");
   const [showAllWorkouts, setShowAllWorkouts] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -98,38 +97,28 @@ const WorkoutPlansPage = () => {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Recommended Workouts</h2>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2"
-            >
-              <Filter className="w-4 h-4" />
-              {showFilters ? "Hide Filters" : "Filter Workouts"}
-            </Button>
           </div>
           
-          {showFilters && (
-            <div className="bg-white p-4 rounded-lg shadow-sm mb-6 animate-in fade-in duration-300">
-              <div className="mb-4">
-                <h3 className="text-sm font-medium mb-2">Target Muscle Group</h3>
-                <MuscleGroupGrid 
-                  muscleGroups={muscleGroups} 
-                  isPremium={isPremium} 
-                  onMuscleGroupSelect={setSelectedMuscleGroup}
-                  selectedMuscleGroup={selectedMuscleGroup}
-                />
-              </div>
-              
-              <div>
-                <h3 className="text-sm font-medium mb-2">Difficulty Level</h3>
-                <DifficultyTabs 
-                  selectedDifficulty={selectedDifficulty} 
-                  onSelectDifficulty={setSelectedDifficulty} 
-                />
-              </div>
+          {/* Always show filters */}
+          <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
+            <div className="mb-4">
+              <h3 className="text-sm font-medium mb-2">Target Muscle Group</h3>
+              <MuscleGroupGrid 
+                muscleGroups={muscleGroups} 
+                isPremium={isPremium} 
+                onMuscleGroupSelect={setSelectedMuscleGroup}
+                selectedMuscleGroup={selectedMuscleGroup}
+              />
             </div>
-          )}
+            
+            <div>
+              <h3 className="text-sm font-medium mb-2">Difficulty Level</h3>
+              <DifficultyTabs 
+                selectedDifficulty={selectedDifficulty} 
+                onSelectDifficulty={setSelectedDifficulty} 
+              />
+            </div>
+          </div>
           
           <div className="mt-6">
             <WorkoutList 

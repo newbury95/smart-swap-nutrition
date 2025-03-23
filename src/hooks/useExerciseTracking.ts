@@ -26,6 +26,28 @@ export const useExerciseTracking = ({ isPremium, addHealthMetric }: UseExerciseT
   const [showExerciseDialog, setShowExerciseDialog] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Load exercises and calories from localStorage when component mounts
+  useEffect(() => {
+    try {
+      const savedExercises = localStorage.getItem('exercises');
+      if (savedExercises) {
+        setExercises(JSON.parse(savedExercises));
+      }
+      
+      const savedCalories = localStorage.getItem('caloriesBurned');
+      if (savedCalories) {
+        setCaloriesBurned(parseInt(savedCalories));
+      }
+    } catch (error) {
+      console.error('Error loading exercises from localStorage:', error);
+    }
+  }, []);
+
+  // Persist exercises to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('exercises', JSON.stringify(exercises));
+  }, [exercises]);
+  
   // Persist calories to localStorage for sharing with other components
   useEffect(() => {
     localStorage.setItem('caloriesBurned', caloriesBurned.toString());

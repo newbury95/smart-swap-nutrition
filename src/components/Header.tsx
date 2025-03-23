@@ -100,7 +100,7 @@ const Header = () => {
               className="flex flex-col items-center gap-1 p-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-all duration-300"
             >
               <MessageSquare className="w-4 h-4" />
-              <span className="text-[10px]">Forum</span>
+              <span className="text-[10px]">Blogs</span>
             </button>
 
             <button

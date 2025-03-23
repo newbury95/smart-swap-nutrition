@@ -15,7 +15,7 @@ const DiaryPage = lazy(() => import("@/pages/diary/FoodDiary"));
 const MealPlansPage = lazy(() => import("@/pages/meal-plans/MealPlansPage"));
 const PremiumPage = lazy(() => import("@/pages/premium/PremiumUpgradePage"));
 const AuthPage = lazy(() => import("@/pages/auth/AuthPage"));
-const ForumPage = lazy(() => import("@/pages/forum/ForumPage"));
+const BlogsPage = lazy(() => import("@/pages/forum/ForumPage"));
 const ThreadDetailPage = lazy(() => import("@/pages/forum/ThreadDetailPage"));
 const ContactPage = lazy(() => import("@/pages/contact/ContactPage"));
 const WorkoutPlansPage = lazy(() => import("@/pages/premium/WorkoutPlansPage"));
@@ -131,7 +131,7 @@ const AppRoutes = () => {
             path="/forum" 
             element={
               <ProtectedRoute>
-                <ForumPage />
+                <BlogsPage />
               </ProtectedRoute>
             } 
           />
