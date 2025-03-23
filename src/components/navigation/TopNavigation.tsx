@@ -91,7 +91,7 @@ const TopNavigation = () => {
             />
             <NavTile
               icon={<MessageSquare className="w-4 h-4" />}
-              label="Forum"
+              label="Blogs"
               href="/forum"
             />
             <NavTile

@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Flag, MessageSquare } from "lucide-react";
+import { Flag, MessageSquare, Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -20,6 +20,7 @@ interface ExtendedForumThread extends ForumThread {
   author: string;
   username: string;
   replies: number;
+  likes: number;
 }
 
 export const ThreadList = ({ onReportThread }: ThreadListProps) => {
@@ -45,8 +46,9 @@ export const ThreadList = ({ onReportThread }: ThreadListProps) => {
         
         if (error) throw error;
         
-        const threadsWithReplies = await Promise.all(threadsData?.map(async (thread) => {
-          const { count, error: countError } = await supabase
+        const threadsWithDetails = await Promise.all(threadsData?.map(async (thread) => {
+          // Count replies
+          const { count: replyCount, error: countError } = await supabase
             .from('forum_replies')
             .select('*', { count: 'exact', head: true })
             .eq('thread_id', thread.id);
@@ -57,7 +59,25 @@ export const ThreadList = ({ onReportThread }: ThreadListProps) => {
               ...thread,
               author: 'Anonymous',
               username: 'anonymous',
-              replies: 0
+              replies: 0,
+              likes: 0
+            };
+          }
+          
+          // Count likes
+          const { count: likeCount, error: likeError } = await supabase
+            .from('forum_likes')
+            .select('*', { count: 'exact', head: true })
+            .eq('thread_id', thread.id);
+            
+          if (likeError) {
+            console.error('Error counting likes:', likeError);
+            return {
+              ...thread,
+              author: 'Anonymous',
+              username: 'anonymous',
+              replies: replyCount || 0,
+              likes: 0
             };
           }
           
@@ -83,11 +103,12 @@ export const ThreadList = ({ onReportThread }: ThreadListProps) => {
             ...thread,
             author: authorName,
             username: username,
-            replies: count || 0
+            replies: replyCount || 0,
+            likes: likeCount || 0
           };
         }) || []);
         
-        const formattedThreads = threadsWithReplies.map(thread => ({
+        const formattedThreads = threadsWithDetails.map(thread => ({
           id: thread.id,
           title: thread.title,
           content: thread.content,
@@ -95,7 +116,8 @@ export const ThreadList = ({ onReportThread }: ThreadListProps) => {
           created_at: format(new Date(thread.created_at), 'PP'),
           author: thread.author,
           username: thread.username,
-          replies: thread.replies
+          replies: thread.replies,
+          likes: thread.likes
         }));
         
         setThreads(formattedThreads);
@@ -149,7 +171,11 @@ export const ThreadList = ({ onReportThread }: ThreadListProps) => {
                   </div>
                 </div>
                 <div className="flex items-center">
-                  <div className="text-gray-500 text-sm mr-4">
+                  <div className="text-gray-500 text-sm mr-3">
+                    <Heart className="inline w-4 h-4 mr-1 text-pink-500" />
+                    {thread.likes}
+                  </div>
+                  <div className="text-gray-500 text-sm mr-3">
                     <MessageSquare className="inline w-4 h-4 mr-1" />
                     {thread.replies}
                   </div>
@@ -172,7 +198,7 @@ export const ThreadList = ({ onReportThread }: ThreadListProps) => {
       ) : (
         <div className="text-center py-12 text-gray-500">
           <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-30" />
-          <p>No threads yet. Be the first to start a conversation!</p>
+          <p>No blogs yet. Be the first to start a conversation!</p>
         </div>
       )}
     </>

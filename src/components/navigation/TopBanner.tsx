@@ -109,7 +109,7 @@ const TopBanner = () => {
                       {/* General features */}
                       <NavTile
                         icon={<MessageSquare className="w-4 h-4" />}
-                        label="Forum"
+                        label="Blogs"
                         href="/forum"
                       />
                       <NavTile
@@ -128,7 +128,7 @@ const TopBanner = () => {
                       />
                       <NavTile
                         icon={<MessageSquare className="w-4 h-4" />}
-                        label="Forum"
+                        label="Blogs"
                         href="/forum"
                       />
                       <NavTile
