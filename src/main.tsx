@@ -27,7 +27,7 @@ window.addEventListener('unhandledrejection', (event) => {
 const initializeApp = () => {
   const root = document.getElementById("root");
   if (root) {
-    // Create a persistent root to improve React 18 performance
+    // Create a persistent root for React 19
     const reactRoot = createRoot(root);
     
     reactRoot.render(
