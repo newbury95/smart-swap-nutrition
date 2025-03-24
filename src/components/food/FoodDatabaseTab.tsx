@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { CustomFoodForm } from "./CustomFoodForm";
+import { SkeletonLoader } from "@/components/ui/SkeletonLoader";
 
 interface FoodDatabaseTabProps {
   onSelect: (food: Food) => void;
@@ -22,17 +23,35 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
   const [isScanning, setIsScanning] = useState(false);
   const [showCustomFoodForm, setShowCustomFoodForm] = useState(false);
   const [forceRefresh, setForceRefresh] = useState(0);
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+
+  // Debounce search query to reduce database queries
+  useEffect(() => {
+    const timerId = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 300);
+
+    return () => clearTimeout(timerId);
+  }, [searchQuery]);
 
   const { 
     data: foods = [], 
     isLoading, 
     refetch 
   } = useQuery({
-    queryKey: ['foods', searchQuery, forceRefresh],
+    queryKey: ['foods', debouncedQuery, forceRefresh],
     queryFn: async () => {
       try {
         let query = supabase.from('nutritional_info').select(`
-          *,
+          id,
+          food_item,
+          provider,
+          kcal,
+          protein,
+          fats,
+          carbohydrates,
+          serving_size,
+          barcode,
           serving_size_options (
             id,
             description,
@@ -41,12 +60,13 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
           )
         `);
 
-        if (searchQuery) {
+        if (debouncedQuery) {
           // Use pattern matching for more flexible search
-          query = query.ilike('food_item', `%${searchQuery}%`);
+          query = query.ilike('food_item', `%${debouncedQuery}%`);
         }
 
-        const { data, error } = await query.limit(100); // Increased limit for better selection
+        // Limit results to improve performance
+        const { data, error } = await query.order('food_item', { ascending: true }).limit(50);
 
         if (error) {
           throw error;
@@ -153,6 +173,8 @@ export const FoodDatabaseTab = memo(({ onSelect }: FoodDatabaseTabProps) => {
           onCancel={() => setIsScanning(false)} 
           onFoodFound={handleFoodSelect}
         />
+      ) : isLoading ? (
+        <SkeletonLoader type="list" count={5} />
       ) : (
         <FoodList 
           foods={foods} 

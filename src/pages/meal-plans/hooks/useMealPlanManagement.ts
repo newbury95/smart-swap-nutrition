@@ -21,32 +21,37 @@ export const useMealPlanManagement = () => {
 
   const regenerateMealPlans = () => {
     try {
-      const shuffled = mockMealPlans.map(plan => {
-        const newPlan = { ...plan };
-        newPlan.days = plan.days.map(day => ({
-          ...day,
-          breakfast: shuffleArray([...day.breakfast]),
-          lunch: shuffleArray([...day.lunch]),
-          dinner: shuffleArray([...day.dinner]),
-          snacks: shuffleArray([...day.snacks]),
-        }));
+      setIsLoading(true);
+      // Use a web worker or setTimeout to move this work off the main thread
+      setTimeout(() => {
+        const shuffled = mockMealPlans.map(plan => {
+          const newPlan = { ...plan };
+          newPlan.days = plan.days.map(day => ({
+            ...day,
+            breakfast: shuffleArray([...day.breakfast]),
+            lunch: shuffleArray([...day.lunch]),
+            dinner: shuffleArray([...day.dinner]),
+            snacks: shuffleArray([...day.snacks]),
+          }));
+          
+          const allFoods = newPlan.days.flatMap(day => [
+            ...day.breakfast, 
+            ...day.lunch, 
+            ...day.dinner, 
+            ...day.snacks
+          ]);
+          
+          newPlan.calories = Math.round(allFoods.reduce((sum, food) => sum + food.calories, 0) / newPlan.days.length);
+          newPlan.protein = Math.round(allFoods.reduce((sum, food) => sum + food.protein, 0) / newPlan.days.length);
+          newPlan.carbs = Math.round(allFoods.reduce((sum, food) => sum + food.carbs, 0) / newPlan.days.length);
+          newPlan.fat = Math.round(allFoods.reduce((sum, food) => sum + food.fat, 0) / newPlan.days.length);
+          
+          return newPlan;
+        });
         
-        const allFoods = newPlan.days.flatMap(day => [
-          ...day.breakfast, 
-          ...day.lunch, 
-          ...day.dinner, 
-          ...day.snacks
-        ]);
-        
-        newPlan.calories = Math.round(allFoods.reduce((sum, food) => sum + food.calories, 0) / newPlan.days.length);
-        newPlan.protein = Math.round(allFoods.reduce((sum, food) => sum + food.protein, 0) / newPlan.days.length);
-        newPlan.carbs = Math.round(allFoods.reduce((sum, food) => sum + food.carbs, 0) / newPlan.days.length);
-        newPlan.fat = Math.round(allFoods.reduce((sum, food) => sum + food.fat, 0) / newPlan.days.length);
-        
-        return newPlan;
-      });
-      
-      setShuffledMeals(shuffled);
+        setShuffledMeals(shuffled);
+        setIsLoading(false);
+      }, 0);
     } catch (error) {
       console.error("Error regenerating meal plans:", error);
       toast({
@@ -54,28 +59,13 @@ export const useMealPlanManagement = () => {
         title: "Error",
         description: "Failed to update meal plans. Please try again.",
       });
+      setIsLoading(false);
     }
   };
 
   // Initialize with shuffled meal plans
   useEffect(() => {
-    setIsLoading(true);
-    try {
-      const timer = setTimeout(() => {
-        regenerateMealPlans();
-        setIsLoading(false);
-      }, 100);
-      
-      return () => clearTimeout(timer);
-    } catch (error) {
-      console.error("Error loading meal plans:", error);
-      setIsLoading(false);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to load meal plans. Please try again.",
-      });
-    }
+    regenerateMealPlans();
   }, []);
 
   return {

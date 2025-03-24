@@ -71,11 +71,13 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Check if fast food data already exists
+    // Check if fast food data already exists using a more efficient query with IN
+    const foodNames = fastFoodSample.map(item => item.name);
+    
     const { data: existingData, error: checkError } = await supabase
       .from('nutritional_info')
       .select('food_item')
-      .in('food_item', fastFoodSample.map(item => item.name));
+      .in('food_item', foodNames);
 
     if (checkError) {
       return new Response(
@@ -99,6 +101,18 @@ serve(async (req) => {
     // Filter out existing items
     const existingItems = existingData ? existingData.map(item => item.food_item) : [];
     const itemsToInsert = fastFoodSample.filter(item => !existingItems.includes(item.name));
+
+    // If there's nothing to insert, return success
+    if (itemsToInsert.length === 0) {
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: 'No new items to import',
+          existingItems: existingItems.length
+        }),
+        { headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
 
     // Transform data to match the nutritional_info table schema
     const dataToInsert = itemsToInsert.map(item => ({
@@ -125,36 +139,36 @@ serve(async (req) => {
       sugar_unit: 'g'
     }));
 
-    // If there's nothing to insert, return success
-    if (dataToInsert.length === 0) {
-      return new Response(
-        JSON.stringify({ 
-          success: true, 
-          message: 'No new items to import',
-          existingItems: existingItems.length
-        }),
-        { headers: { 'Content-Type': 'application/json', ...corsHeaders } }
-      );
-    }
-
-    // Insert data
-    const { data, error } = await supabase
-      .from('nutritional_info')
-      .insert(dataToInsert)
-      .select();
-
-    if (error) {
-      return new Response(
-        JSON.stringify({ error: `Error inserting data: ${error.message}` }),
-        { headers: { 'Content-Type': 'application/json', ...corsHeaders }, status: 500 }
-      );
+    // Batch inserts in chunks of 20 for better performance
+    const chunkSize = 20;
+    const results = [];
+    
+    for (let i = 0; i < dataToInsert.length; i += chunkSize) {
+      const chunk = dataToInsert.slice(i, i + chunkSize);
+      const { data, error } = await supabase
+        .from('nutritional_info')
+        .insert(chunk)
+        .select();
+        
+      if (error) {
+        console.error(`Error inserting chunk ${i/chunkSize}:`, error);
+        return new Response(
+          JSON.stringify({ error: `Error inserting data: ${error.message}` }),
+          { headers: { 'Content-Type': 'application/json', ...corsHeaders }, status: 500 }
+        );
+      }
+      
+      if (data) {
+        results.push(...data);
+      }
     }
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         message: `Successfully imported ${dataToInsert.length} fast food items`,
-        totalItems: existingItems.length + dataToInsert.length
+        totalItems: existingItems.length + dataToInsert.length,
+        importedItems: results.length
       }),
       { headers: { 'Content-Type': 'application/json', ...corsHeaders } }
     );
@@ -182,6 +196,13 @@ function mapProviderName(name: string): string {
   if (normalized.includes('marks') || normalized.includes('m&s')) return 'M&S';
   if (normalized.includes('ocado')) return 'Ocado';
   if (normalized.includes('aldi')) return 'Aldi';
+  if (normalized.includes('mcdonald')) return 'McDonalds';
+  if (normalized.includes('kfc')) return 'KFC';
+  if (normalized.includes('burger king')) return 'Burger King';
+  if (normalized.includes('subway')) return 'Subway';
+  if (normalized.includes('domino')) return 'Dominos';
+  if (normalized.includes('pizza hut')) return 'Pizza Hut';
+  if (normalized.includes('nando')) return 'Nandos';
   
   // Default to Generic for any other sources
   return 'Generic';

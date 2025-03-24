@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Loader2, Upload } from 'lucide-react';
 import { useNutritionUpload } from '@/hooks/useNutritionUpload';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export const CSVUploader = () => {
   const [csvFile, setCsvFile] = useState<File | null>(null);

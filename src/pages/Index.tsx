@@ -1,23 +1,23 @@
 
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useEffect } from "react";
 import { PageSpinner } from "@/components/ui/spinner";
+import { Skeleton } from "@/components/ui/skeleton";
 
-// Lazy load components for better code splitting
+// Lazy load components with meaningful chunk names
 const FreePlanCard = lazy(() => import("@/components/pricing/FreePlanCard"));
 const PremiumPlanCard = lazy(() => import("@/components/pricing/PremiumPlanCard"));
 
 // Loading placeholder for lazy-loaded components
 const CardPlaceholder = () => (
-  <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6 h-[450px] animate-pulse">
-    <div className="h-7 w-3/4 bg-gray-200 rounded mb-4"></div>
-    <div className="h-4 w-1/2 bg-gray-200 rounded mb-6"></div>
+  <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6 h-[450px]">
+    <Skeleton className="h-7 w-3/4 mb-4" />
+    <Skeleton className="h-4 w-1/2 mb-6" />
     <div className="space-y-2">
       {[1, 2, 3, 4, 5].map((i) => (
-        <div key={i} className="h-4 w-full bg-gray-200 rounded"></div>
+        <Skeleton key={i} className="h-4 w-full" />
       ))}
     </div>
   </div>
@@ -26,15 +26,36 @@ const CardPlaceholder = () => (
 const Index = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
+  const [sessionChecked, setSessionChecked] = useState(false);
 
   useEffect(() => {
-    // Simulate loading for demonstration
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 200);
-    
-    return () => clearTimeout(timer);
-  }, []);
+    // Check if user is already logged in
+    const checkSession = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (data.session) {
+          navigate("/diary");
+        }
+      } catch (error) {
+        console.error("Error checking session:", error);
+      } finally {
+        setSessionChecked(true);
+      }
+    };
+
+    checkSession();
+  }, [navigate]);
+
+  useEffect(() => {
+    // Only start loading animation after session check
+    if (sessionChecked) {
+      // Shorter loading time - just enough for a smooth transition
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [sessionChecked]);
 
   // Memoize these values to prevent unnecessary re-renders
   const premiumFeatures = [
@@ -70,8 +91,8 @@ const Index = () => {
       opacity: 1, 
       y: 0,
       transition: { 
-        duration: 0.5,
-        ease: [0.25, 0.1, 0.25, 1.0]
+        duration: 0.4,
+        ease: "easeOut"
       } 
     }
   };

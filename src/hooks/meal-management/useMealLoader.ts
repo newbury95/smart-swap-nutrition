@@ -26,13 +26,28 @@ export const useMealLoader = (
   // Create stable date string for dependency to prevent infinite renders
   const formattedDate = date.toISOString().split('T')[0];
   const isInitialMount = useRef(true);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // Load meals when date changes
   const loadMeals = useCallback(async () => {
+    // Cancel any in-flight request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    
+    // Create new abort controller for this request
+    abortControllerRef.current = new AbortController();
+    
     setIsLoading(true);
     try {
+      console.log('Fetching meals for date:', formattedDate);
       const fetchedMeals = await getMeals(date);
-      console.log('Fetched meals for date:', formattedDate, fetchedMeals);
+      
+      // Check if the request was aborted
+      if (abortControllerRef.current.signal.aborted) {
+        console.log('Meal fetch aborted for:', formattedDate);
+        return;
+      }
       
       // Initialize with empty arrays for all meal types
       const initializedMeals = { 
@@ -71,14 +86,16 @@ export const useMealLoader = (
       }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
       
       setNutrients(totals);
-      console.log('Total nutrients calculated once:', totals);
     } catch (error) {
-      console.error('Error loading meals:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to load meals",
-      });
+      // Only show error if the request wasn't aborted
+      if (error.name !== 'AbortError') {
+        console.error('Error loading meals:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load meals",
+        });
+      }
       // Still set empty meal structure on error
       setMeals({ breakfast: [], lunch: [], dinner: [], snack: [] });
       setNutrients({ calories: 0, protein: 0, carbs: 0, fat: 0 });
@@ -88,13 +105,15 @@ export const useMealLoader = (
   }, [formattedDate, getMeals, toast]);
 
   useEffect(() => {
-    // Only call loadMeals on initial mount and when formattedDate changes
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      loadMeals();
-    } else {
-      loadMeals();
-    }
+    loadMeals();
+    
+    // Cleanup function to abort any in-flight request when component unmounts
+    // or when date changes
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, [formattedDate, loadMeals]);
 
   return {
