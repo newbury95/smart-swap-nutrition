@@ -61,7 +61,7 @@ const SignUp = () => {
           transition={{ duration: 0.6 }}
           className="max-w-4xl mx-auto"
         >
-          <h1 className="text-4xl font-bold mb-4 text-center bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold mb-4 text-center bg-gradient-to-r from-primary-dark to-primary bg-clip-text text-transparent">
             What's Your Goal?
           </h1>
           <p className="text-gray-600 text-center mb-12">
@@ -74,14 +74,14 @@ const SignUp = () => {
                 key={goal.id}
                 className={`relative p-6 rounded-3xl backdrop-blur-sm border-2 transition-all duration-300 cursor-pointer
                   ${selectedGoal === goal.id 
-                    ? 'bg-green-50/80 border-green-400 shadow-xl' 
-                    : 'bg-white/80 border-gray-100 hover:border-green-200 hover:shadow-lg'}`}
+                    ? 'bg-primary-lighter/20 border-primary-light shadow-xl' 
+                    : 'bg-white/80 border-gray-100 hover:border-primary-lighter hover:shadow-lg'}`}
                 onClick={() => setSelectedGoal(goal.id)}
                 whileHover={{ scale: 1.02, y: -5 }}
                 whileTap={{ scale: 0.98 }}
               >
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="p-3 rounded-2xl bg-green-50 text-green-600">
+                  <div className="p-3 rounded-2xl bg-primary-lighter/20 text-primary">
                     {goal.icon}
                   </div>
                   <h3 className="text-xl font-semibold">{goal.title}</h3>
@@ -98,7 +98,7 @@ const SignUp = () => {
           >
             {selectedGoal && (
               <button 
-                className="bg-gradient-to-r from-green-600 to-green-400 text-white px-8 py-4 rounded-full font-medium hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl"
+                className="bg-gradient-to-r from-primary-dark to-primary text-white px-8 py-4 rounded-full font-medium hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl"
                 onClick={() => navigate('/signup/personal-info')}
               >
                 Continue

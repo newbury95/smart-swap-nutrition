@@ -17,14 +17,14 @@ const NavTile = ({ icon, label, href, isPremium }: NavTileProps) => (
     to={href}
     className={cn(
       "flex flex-col items-center gap-1 p-2 rounded-lg transition-colors",
-      "hover:bg-gray-100",
-      "text-gray-600 hover:text-gray-900"
+      "hover:bg-primary-lighter/20",
+      "text-gray-600 hover:text-primary"
     )}
   >
     <div className="relative">
       {icon}
       {isPremium && (
-        <span className="absolute -top-1 -right-1 text-yellow-500">
+        <span className="absolute -top-1 -right-1 text-primary">
           <Crown className="w-3 h-3" />
         </span>
       )}
@@ -54,7 +54,7 @@ const TopBanner = () => {
     <nav className="bg-white border-b">
       <div className="container mx-auto px-4 py-2">
         <div className="flex justify-between items-center">
-          <Link to="/" className="text-xl font-semibold text-green-600 hover:text-green-800 transition-colors mr-4">
+          <Link to="/" className="text-xl font-semibold text-primary hover:text-primary-dark transition-colors mr-4">
             NutriTrack
           </Link>
           
@@ -64,13 +64,13 @@ const TopBanner = () => {
               <div className="flex gap-2">
                 <Link
                   to="/auth"
-                  className="text-sm hover:text-green-600 transition-colors"
+                  className="text-sm hover:text-primary transition-colors"
                 >
                   Sign In
                 </Link>
                 <Link
                   to="/auth?tab=signup"
-                  className="bg-green-600 text-white px-3 py-1 rounded-md text-sm hover:bg-green-700 transition-colors"
+                  className="bg-primary text-white px-3 py-1 rounded-md text-sm hover:bg-primary-dark transition-colors"
                 >
                   Sign Up
                 </Link>
@@ -146,7 +146,7 @@ const TopBanner = () => {
                       variant="ghost" 
                       size="sm" 
                       onClick={handleSignOut}
-                      className="flex items-center gap-1 text-gray-600"
+                      className="flex items-center gap-1 text-gray-600 hover:text-primary hover:bg-primary-lighter/20"
                     >
                       <LogOut className="w-4 h-4" />
                       <span className="hidden md:inline">Sign Out</span>
@@ -158,13 +158,13 @@ const TopBanner = () => {
                   <div className="ml-4 md:ml-8 flex gap-2">
                     <Link
                       to="/auth"
-                      className="text-sm hover:text-green-600 transition-colors"
+                      className="text-sm hover:text-primary transition-colors"
                     >
                       Sign In
                     </Link>
                     <Link
                       to="/auth?tab=signup"
-                      className="bg-green-600 text-white px-3 py-1 rounded-md text-sm hover:bg-green-700 transition-colors"
+                      className="bg-primary text-white px-3 py-1 rounded-md text-sm hover:bg-primary-dark transition-colors"
                     >
                       Sign Up
                     </Link>

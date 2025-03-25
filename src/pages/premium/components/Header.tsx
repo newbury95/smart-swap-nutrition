@@ -8,10 +8,10 @@ export interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ title, subtitle }) => {
   return (
-    <header className="bg-gradient-to-r from-green-700 to-green-500 py-12 px-4">
+    <header className="bg-gradient-to-r from-primary-dark to-primary py-12 px-4">
       <div className="container mx-auto">
         <h1 className="text-3xl font-bold text-white">{title}</h1>
-        {subtitle && <p className="text-green-50 mt-2">{subtitle}</p>}
+        {subtitle && <p className="text-primary-foreground/90 mt-2">{subtitle}</p>}
       </div>
     </header>
   );

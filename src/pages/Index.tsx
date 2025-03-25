@@ -102,7 +102,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-soft-green/20 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-white via-primary-lighter/10 to-white">
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-12">
         <motion.div 
@@ -112,7 +112,7 @@ const Index = () => {
           variants={staggerAnimation}
         >
           <motion.h1 
-            className="text-4xl md:text-5xl font-bold mb-6 text-green-800"
+            className="text-4xl md:text-5xl font-bold mb-6 text-center bg-gradient-to-r from-primary-dark to-primary bg-clip-text text-transparent"
             variants={itemAnimation}
           >
             Track Your Nutrition Journey

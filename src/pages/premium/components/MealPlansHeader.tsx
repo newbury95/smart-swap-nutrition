@@ -20,7 +20,7 @@ const MealPlansHeader: React.FC<MealPlansHeaderProps> = ({ title = "Meal Plans" 
           <ChevronLeft className="w-4 h-4" />
           Back to Dashboard
         </button>
-        <h1 className="text-xl font-semibold text-green-600">{title}</h1>
+        <h1 className="text-xl font-semibold text-primary">{title}</h1>
       </div>
     </header>
   );
