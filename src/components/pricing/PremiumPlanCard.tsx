@@ -1,8 +1,8 @@
-
 import { motion } from "framer-motion";
 import { Crown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import PlanFeatureList from "./PlanFeatureList";
+import { useAuth } from "@/hooks/useAuth";
 
 interface PremiumPlanCardProps {
   features: string[];
@@ -10,6 +10,17 @@ interface PremiumPlanCardProps {
 
 const PremiumPlanCard = ({ features }: PremiumPlanCardProps) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  
+  const handlePremiumClick = () => {
+    if (user) {
+      // Existing user - redirect directly to Stripe
+      window.open("https://buy.stripe.com/3cs7vfbo97269pudQQ", "_blank");
+    } else {
+      // New user - go to auth page with premium flag
+      navigate('/auth?tab=signup&premium=true');
+    }
+  };
 
   return (
     <motion.div
@@ -33,10 +44,10 @@ const PremiumPlanCard = ({ features }: PremiumPlanCardProps) => {
       <PlanFeatureList features={features} />
 
       <button
-        onClick={() => navigate('/auth?tab=signup')}
+        onClick={handlePremiumClick}
         className="w-full bg-green-600 text-white py-3 rounded-full hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
       >
-        Get Premium
+        {user ? "Complete Payment" : "Get Premium"}
         <Crown className="w-4 h-4" />
       </button>
     </motion.div>

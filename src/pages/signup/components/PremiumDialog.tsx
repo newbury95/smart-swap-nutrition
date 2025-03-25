@@ -54,7 +54,7 @@ export const PremiumDialog = ({ open, onOpenChange, onUpgrade }: PremiumDialogPr
             onClick={onUpgrade}
             className="sm:w-full bg-green-600 hover:bg-green-700"
           >
-            Upgrade to Premium
+            Complete Payment
           </Button>
         </DialogFooter>
       </DialogContent>

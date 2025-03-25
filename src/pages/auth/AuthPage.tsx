@@ -2,87 +2,132 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { useAuth } from "@/hooks/useAuth";
-import { AuthContainer } from "@/components/auth/AuthContainer";
 import { SignInForm } from "@/components/auth/SignInForm";
 import { SignUpForm } from "@/components/auth/SignUpForm";
 import { PasswordResetForm } from "@/components/auth/PasswordResetForm";
+import AuthContainer from "@/components/auth/AuthContainer";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const AuthPage = () => {
+  const [activeTab, setActiveTab] = useState<string>("signin");
+  const [showResetForm, setShowResetForm] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, loading } = useAuth();
+  const { toast } = useToast();
   
+  // Parse query parameters
   const params = new URLSearchParams(location.search);
-  const tabParam = params.get('tab');
-  const redirectParam = params.get('redirect');
-  
-  const [isResetMode, setIsResetMode] = useState(false);
-  const [activeTab, setActiveTab] = useState(tabParam === 'signup' ? 'signup' : 'signin');
+  const tabParam = params.get("tab");
+  const redirectParam = params.get("redirect");
+  const isPremium = params.get("premium") === "true";
 
   useEffect(() => {
-    if (!loading && user) {
-      if (redirectParam === 'premium') {
-        navigate('/premium');
-      } else {
-        navigate('/diary');
-      }
+    // Set active tab based on query parameter
+    if (tabParam === "signup" || tabParam === "signin") {
+      setActiveTab(tabParam);
     }
-  }, [loading, user, navigate, redirectParam]);
+  }, [tabParam]);
 
-  const handleSuccessfulSignIn = () => {
-    if (redirectParam === 'premium') {
-      navigate('/premium');
+  useEffect(() => {
+    // Check if user is already signed in
+    const checkUser = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        if (redirectParam) {
+          navigate(`/${redirectParam}`);
+        } else {
+          navigate("/diary");
+        }
+      }
+    };
+    
+    checkUser();
+  }, [navigate, redirectParam]);
+
+  const handleSignInSuccess = () => {
+    toast({
+      title: "Welcome back!",
+      description: "You have successfully signed in.",
+    });
+    
+    if (redirectParam) {
+      navigate(`/${redirectParam}`);
     } else {
       navigate("/diary");
     }
   };
 
-  const handleSuccessfulSignUp = () => {
-    setActiveTab("signin");
+  const handleSignUpSuccess = () => {
+    toast({
+      title: "Account created!",
+      description: "Your account has been successfully created.",
+    });
+    
+    if (isPremium) {
+      // Redirect to payment page for premium users
+      window.open("https://buy.stripe.com/3cs7vfbo97269pudQQ", "_blank");
+      navigate("/diary");
+    } else if (redirectParam) {
+      navigate(`/${redirectParam}`);
+    } else {
+      navigate("/diary");
+    }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600"></div>
-      </div>
-    );
-  }
-
-  if (user) return null;
+  const handleResetSuccess = () => {
+    setShowResetForm(false);
+    toast({
+      title: "Password reset email sent",
+      description: "Check your inbox for the password reset link.",
+    });
+  };
 
   return (
-    <ErrorBoundary fallback={<div className="p-4 bg-red-100 rounded-md text-red-700 m-4">There was an error loading the authentication page.</div>}>
-      <AuthContainer 
-        title="NutriTrack" 
-        description="Your journey to a healthier lifestyle starts here"
-        onBackToHome={() => navigate('/')}
-      >
-        {isResetMode ? (
-          <PasswordResetForm onBack={() => setIsResetMode(false)} />
+    <div className="min-h-screen bg-gradient-to-br from-white via-green-50 to-white flex items-center justify-center p-4">
+      <AuthContainer>
+        {showResetForm ? (
+          <div className="space-y-6">
+            <div className="text-center">
+              <h1 className="text-2xl font-bold">Reset Password</h1>
+              <p className="text-gray-600 mt-2">Enter your email to receive a reset link</p>
+            </div>
+            <PasswordResetForm 
+              onSuccess={handleResetSuccess} 
+              onCancel={() => setShowResetForm(false)}
+            />
+          </div>
         ) : (
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-2 mb-6">
+          <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid grid-cols-2 mb-8">
               <TabsTrigger value="signin">Sign In</TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
             </TabsList>
-            
-            <TabsContent value="signin">
-              <SignInForm 
-                onForgotPassword={() => setIsResetMode(true)}
-                onSuccess={handleSuccessfulSignIn}
-              />
+            <TabsContent value="signin" className="mt-0">
+              <div className="space-y-6">
+                <div className="text-center">
+                  <h1 className="text-2xl font-bold">Welcome Back</h1>
+                  <p className="text-gray-600 mt-2">Sign in to continue to your account</p>
+                </div>
+                <SignInForm 
+                  onSuccess={handleSignInSuccess} 
+                  onForgotPassword={() => setShowResetForm(true)}
+                />
+              </div>
             </TabsContent>
-            
-            <TabsContent value="signup">
-              <SignUpForm onSuccess={handleSuccessfulSignUp} />
+            <TabsContent value="signup" className="mt-0">
+              <div className="space-y-6">
+                <div className="text-center">
+                  <h1 className="text-2xl font-bold">{isPremium ? "Premium Sign Up" : "Create Account"}</h1>
+                  <p className="text-gray-600 mt-2">{isPremium ? "Sign up for premium access" : "Sign up to get started with your account"}</p>
+                </div>
+                <SignUpForm onSuccess={handleSignUpSuccess} />
+              </div>
             </TabsContent>
           </Tabs>
         )}
       </AuthContainer>
-    </ErrorBoundary>
+    </div>
   );
 };
 

@@ -1,3 +1,4 @@
+
 import {
   Dialog,
   DialogContent,
@@ -23,7 +24,8 @@ export const PremiumFoodDialog = ({ open, onOpenChange }: PremiumFoodDialogProps
     onOpenChange(false);
     
     if (user) {
-      navigate('/premium');
+      // Direct existing users to Stripe payment link
+      window.open("https://buy.stripe.com/3cs7vfbo97269pudQQ", "_blank");
     } else {
       navigate('/auth?tab=signup&redirect=premium');
     }
@@ -46,7 +48,7 @@ export const PremiumFoodDialog = ({ open, onOpenChange }: PremiumFoodDialogProps
             onClick={handleUpgrade}
             className="w-full"
           >
-            Upgrade to Premium
+            {user ? "Complete Payment" : "Upgrade to Premium"}
           </Button>
         </div>
       </DialogContent>

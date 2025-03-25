@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { PageSpinner } from "@/components/ui/spinner";
 import PremiumBenefits from "./components/PremiumBenefits";
-import StripeConfig from "./components/StripeConfig";
+import { Button } from "@/components/ui/button";
 
 const PremiumUpgradePage = () => {
   const { user, loading } = useAuth();
@@ -27,6 +27,10 @@ const PremiumUpgradePage = () => {
       navigate('/auth?redirect=premium');
     }
   }, [loading, user, navigate]);
+
+  const handlePayment = () => {
+    window.open("https://buy.stripe.com/3cs7vfbo97269pudQQ", "_blank");
+  };
 
   if (loading) {
     return <PageSpinner />;
@@ -48,7 +52,15 @@ const PremiumUpgradePage = () => {
           </div>
 
           <PremiumBenefits />
-          <StripeConfig />
+          
+          <div className="mt-6">
+            <Button 
+              onClick={handlePayment} 
+              className="w-full bg-green-600 hover:bg-green-700"
+            >
+              Complete Payment
+            </Button>
+          </div>
         </motion.div>
       </div>
     </div>
