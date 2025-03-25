@@ -1,4 +1,3 @@
-
 import React, { Suspense, lazy } from "react";
 import { Route, Routes, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -6,6 +5,7 @@ import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { PageLoading } from "@/components/PageLoading";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Layout from "@/components/layout/Layout";
+import CookiePolicyPage from "@/pages/legal/CookiePolicyPage";
 
 // Load components with better chunk naming for more efficient caching
 const IndexPage = lazy(() => import("@/pages/Index") /* webpackChunkName: "index-page" */);
@@ -181,16 +181,9 @@ const AppRoutes: React.FC = () => {
               <AboutPage />
             </Layout>
           } />
-          <Route path="/privacy" element={
-            <Layout>
-              <PrivacyPolicyPage />
-            </Layout>
-          } />
-          <Route path="/terms" element={
-            <Layout>
-              <TermsOfUsePage />
-            </Layout>
-          } />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms" element={<TermsOfUsePage />} />
+          <Route path="/cookies" element={<CookiePolicyPage />} />
           <Route path="*" element={
             <Layout>
               <Navigate to="/" replace />

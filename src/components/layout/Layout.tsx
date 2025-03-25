@@ -3,6 +3,7 @@ import React from "react";
 import TopBanner from "@/components/navigation/TopBanner";
 import Footer from "@/components/navigation/Footer";
 import SEO from "@/components/seo/SEO";
+import CookieConsent from "@/components/cookies/CookieConsent";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -32,6 +33,7 @@ const Layout: React.FC<LayoutProps> = ({
           {children}
         </main>
         <Footer />
+        <CookieConsent />
       </div>
     </>
   );
