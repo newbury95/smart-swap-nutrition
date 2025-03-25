@@ -4,6 +4,7 @@ import { type Meal } from "@/hooks/useSupabase";
 import { MealItem } from "./MealItem";
 import { MealSectionHeader } from "./MealSectionHeader";
 import { MealSectionSummary } from "./MealSectionSummary";
+import React from "react";
 
 type MealType = "breakfast" | "lunch" | "dinner" | "snack";
 
@@ -15,7 +16,7 @@ interface MealSectionProps {
   onDeleteFood: (mealId: string) => void;
 }
 
-export const MealSection = ({ type, title, meals = [], onAddFood, onDeleteFood }: MealSectionProps) => {
+export const MealSection = React.memo(({ type, title, meals = [], onAddFood, onDeleteFood }: MealSectionProps) => {
   const { toast } = useToast();
   
   // Ensure meals is always an array, even if it's undefined or null
@@ -67,4 +68,6 @@ export const MealSection = ({ type, title, meals = [], onAddFood, onDeleteFood }
       )}
     </div>
   );
-};
+});
+
+MealSection.displayName = 'MealSection';

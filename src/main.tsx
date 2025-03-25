@@ -3,28 +3,27 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-// Add performance monitoring
-const reportWebVitals = (metric: any) => {
-  // You could send to an analytics endpoint here
-  console.log('Web Vitals:', metric);
-};
-
-// Add global error handler
-const handleGlobalError = (event: ErrorEvent) => {
-  console.error('Global error:', event.error);
-  // Prevent default browser error handling
-  event.preventDefault();
-};
-
-window.addEventListener('error', handleGlobalError);
-
-// Add unhandled promise rejection handler
-window.addEventListener('unhandledrejection', (event) => {
-  console.error('Unhandled promise rejection:', event.reason);
-});
+// Function to add link preload hints for critical resources
+function addPreloadHints() {
+  const criticalAssets = [
+    '/favicon.ico',
+    '/index.html',
+  ];
+  
+  criticalAssets.forEach(asset => {
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.href = asset;
+    link.as = asset.endsWith('.css') ? 'style' : 'script';
+    document.head.appendChild(link);
+  });
+}
 
 // Use requestIdleCallback for non-critical initialization
 const initializeApp = () => {
+  // Add preloading for critical resources
+  addPreloadHints();
+  
   const root = document.getElementById("root");
   if (root) {
     // Create a persistent root for React 19

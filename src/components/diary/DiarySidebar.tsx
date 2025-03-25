@@ -14,7 +14,7 @@ interface DiarySidebarProps {
   };
 }
 
-export const DiarySidebar: React.FC<DiarySidebarProps> = ({
+export const DiarySidebar: React.FC<DiarySidebarProps> = React.memo(({
   date,
   onSelectDate,
   dailyTotals,
@@ -32,4 +32,6 @@ export const DiarySidebar: React.FC<DiarySidebarProps> = ({
       <DailySummary dailyTotals={dailyTotals} />
     </div>
   );
-};
+});
+
+DiarySidebar.displayName = 'DiarySidebar';

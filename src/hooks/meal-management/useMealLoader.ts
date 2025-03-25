@@ -75,8 +75,12 @@ export const useMealLoader = (
       setMeals(initializedMeals);
       
       // Calculate total nutrients here to avoid calculation on every render
-      const allMeals = [...initializedMeals.breakfast, ...initializedMeals.lunch, 
-                         ...initializedMeals.dinner, ...initializedMeals.snack];
+      const allMeals = [
+        ...initializedMeals.breakfast, 
+        ...initializedMeals.lunch, 
+        ...initializedMeals.dinner, 
+        ...initializedMeals.snack
+      ];
       
       const totals = allMeals.reduce((acc, meal) => ({
         calories: acc.calories + (meal.calories || 0),

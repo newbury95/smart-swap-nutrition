@@ -13,7 +13,24 @@ export type { CustomFood, HealthMetric, Meal, FoodSwap } from './types/supabase'
 const supabaseUrl = (window as any).ENV?.VITE_SUPABASE_URL;
 const supabaseKey = (window as any).ENV?.VITE_SUPABASE_ANON_KEY;
 
-export const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
+export const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+  },
+  global: {
+    fetch: (...args) => {
+      // Add performance headers
+      const [url, config] = args;
+      config.headers = {
+        ...config.headers,
+        'Cache-Control': 'max-age=600',
+      };
+      return fetch(url, config);
+    }
+  }
+}) : null;
 
 export const useSupabase = () => {
   const { isPremium, loading } = usePremiumStatus();
