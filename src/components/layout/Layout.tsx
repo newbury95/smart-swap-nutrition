@@ -28,9 +28,9 @@ const Layout: React.FC<LayoutProps> = ({
       <SEO {...seo} />
       <div className="flex flex-col min-h-screen">
         {showTopBanner && <TopBanner />}
-        <div className="flex-grow">
+        <main className="flex-grow" itemScope itemType="https://schema.org/WebPage">
           {children}
-        </div>
+        </main>
         <Footer />
       </div>
     </>

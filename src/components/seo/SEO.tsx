@@ -25,6 +25,28 @@ export const SEO: React.FC<SEOProps> = ({
   const pageUrl = canonicalUrl || window.location.href;
   const fullImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`;
   
+  // Create structured data for current page
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": title,
+    "description": description,
+    "url": pageUrl,
+    "image": fullImageUrl,
+    "publisher": {
+      "@type": "Organization",
+      "name": "NutriTrack",
+      "logo": {
+        "@type": "ImageObject",
+        "url": `${siteUrl}/favicon.ico`
+      }
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": pageUrl
+    }
+  };
+  
   return (
     <Helmet>
       {/* Basic Meta Tags */}
@@ -41,6 +63,7 @@ export const SEO: React.FC<SEOProps> = ({
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={fullImageUrl} />
+      <meta property="og:site_name" content="NutriTrack" />
       
       {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />
@@ -53,12 +76,17 @@ export const SEO: React.FC<SEOProps> = ({
       {noIndex ? (
         <meta name="robots" content="noindex, nofollow" />
       ) : (
-        <meta name="robots" content="index, follow" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
       )}
       
       {/* Preconnect to important domains */}
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      
+      {/* Structured Data */}
+      <script type="application/ld+json">
+        {JSON.stringify(structuredData)}
+      </script>
     </Helmet>
   );
 };

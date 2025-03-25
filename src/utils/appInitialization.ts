@@ -30,6 +30,27 @@ export function addPreloadHints() {
     link.rel = 'dns-prefetch';
     link.href = domain;
     document.head.appendChild(link);
+    
+    // Also add preconnect for faster initial connection
+    const preconnect = document.createElement('link');
+    preconnect.rel = 'preconnect';
+    preconnect.href = domain;
+    preconnect.crossOrigin = 'anonymous';
+    document.head.appendChild(preconnect);
+  });
+  
+  // Add resource hints for third-party services
+  const preconnectDomains = [
+    'https://www.google-analytics.com',
+    'https://www.googletagmanager.com'
+  ];
+  
+  preconnectDomains.forEach(domain => {
+    const link = document.createElement('link');
+    link.rel = 'preconnect';
+    link.href = domain;
+    link.crossOrigin = 'anonymous';
+    document.head.appendChild(link);
   });
 }
 
@@ -55,6 +76,12 @@ export function initializeCache() {
   metaHttpEquiv.httpEquiv = 'Cache-Control';
   metaHttpEquiv.content = 'public, max-age=31536000';
   document.head.appendChild(metaHttpEquiv);
+  
+  // Add a custom meta tag for CDN caching hints
+  const cdnCachingHint = document.createElement('meta');
+  cdnCachingHint.name = 'x-cache-control';
+  cdnCachingHint.content = 'max-age=86400';
+  document.head.appendChild(cdnCachingHint);
 }
 
 // Function to optimize page performance
@@ -69,5 +96,67 @@ export function optimizePerformance() {
         });
       });
     }
+    
+    // Add event listeners for Core Web Vitals optimization
+    if ('PerformanceObserver' in window) {
+      // Largest Contentful Paint
+      new PerformanceObserver((entryList) => {
+        const entries = entryList.getEntries();
+        const lastEntry = entries[entries.length - 1];
+        console.log('LCP:', lastEntry.startTime);
+        // Report LCP to analytics
+      }).observe({ type: 'largest-contentful-paint', buffered: true });
+      
+      // First Input Delay
+      new PerformanceObserver((entryList) => {
+        const entries = entryList.getEntries();
+        entries.forEach(entry => {
+          console.log('FID:', entry.processingStart - entry.startTime);
+          // Report FID to analytics
+        });
+      }).observe({ type: 'first-input', buffered: true });
+      
+      // Cumulative Layout Shift
+      let cumulativeLayoutShift = 0;
+      new PerformanceObserver((entryList) => {
+        for (const entry of entryList.getEntries()) {
+          if (!entry.hadRecentInput) {
+            // @ts-ignore - TypeScript doesn't know about value property on CLS entries
+            cumulativeLayoutShift += entry.value;
+          }
+        }
+        console.log('CLS:', cumulativeLayoutShift);
+        // Report CLS to analytics
+      }).observe({ type: 'layout-shift', buffered: true });
+    }
   }, 2000);
+}
+
+// Generate a sitemap for better indexing
+export function generateSitemap() {
+  // This would normally be done server-side, but we include the logic here for demonstration
+  const urls = [
+    '/',
+    '/diary',
+    '/tracking',
+    '/forum',
+    '/about',
+    '/contact',
+    '/premium',
+    '/privacy',
+    '/terms'
+  ];
+  
+  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  ${urls.map(url => `
+  <url>
+    <loc>${window.location.origin}${url}</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>${url === '/' ? '1.0' : '0.8'}</priority>
+  </url>`).join('')}
+</urlset>`;
+  
+  console.log('Sitemap generated (would normally be saved to server):', sitemap);
 }

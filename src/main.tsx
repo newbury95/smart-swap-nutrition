@@ -5,8 +5,19 @@ import './index.css';
 
 // Add the web vitals measurement for SEO performance tracking
 const reportWebVitals = (metric: any) => {
-  // You can send these metrics to an analytics service
+  // Send these metrics to an analytics service
   console.log(metric);
+  
+  // In a production environment, you would send these to your analytics
+  if (navigator.sendBeacon) {
+    const analyticsUrl = 'https://youranalytics.com/collect';
+    const data = JSON.stringify({
+      name: metric.name,
+      value: metric.value,
+      id: metric.id
+    });
+    navigator.sendBeacon(analyticsUrl, data);
+  }
 };
 
 const initializeApp = () => {
@@ -29,7 +40,7 @@ const initializeApp = () => {
   }
 };
 
-// Use requestIdleCallback if available, otherwise use setTimeout
+// Use requestIdleCallback for non-critical initialization
 if ('requestIdleCallback' in window) {
   // @ts-ignore - TypeScript doesn't recognize requestIdleCallback
   window.requestIdleCallback(initializeApp);
@@ -42,11 +53,26 @@ document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') {
     // Page is now visible, can load non-critical resources
     // This helps with Core Web Vitals metrics
+    const lazyImages = document.querySelectorAll('img[loading="lazy"]');
+    if ('IntersectionObserver' in window) {
+      const imageObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const img = entry.target as HTMLImageElement;
+            img.src = img.dataset.src || '';
+            imageObserver.unobserve(img);
+          }
+        });
+      });
+      
+      lazyImages.forEach(img => {
+        imageObserver.observe(img);
+      });
+    }
   }
 });
 
 // Measure and report web vitals when supported
-// @ts-ignore - web-vitals would be imported in a real app
 if (typeof reportWebVitals === 'function') {
   import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
     getCLS(reportWebVitals);

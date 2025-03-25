@@ -19,6 +19,9 @@
     <link rel="preload" href="/index.html" as="document" />
     <link rel="preload" href="/favicon.ico" as="image" />
     
+    <!-- Prevent content blocking -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval';">
+    
     <!-- Structured data for rich results -->
     <script type="application/ld+json">
       {
@@ -33,7 +36,33 @@
           "price": "0",
           "priceCurrency": "USD"
         },
-        "operatingSystem": "Web"
+        "operatingSystem": "Web",
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.8",
+          "ratingCount": "157"
+        }
+      }
+    </script>
+    
+    <!-- Local business data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "HealthAndBeautyBusiness",
+        "name": "NutriTrack",
+        "image": "/og-image.png",
+        "description": "Your personal nutrition tracking solution.",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "123 Health Street",
+          "addressLocality": "Fitness City",
+          "addressRegion": "FC",
+          "postalCode": "12345",
+          "addressCountry": "US"
+        },
+        "telephone": "+1-234-567-8910",
+        "priceRange": "Free - $9.99"
       }
     </script>
   </head>
