@@ -29,6 +29,11 @@ export default {
         },
         primary: {
           DEFAULT: "#00b3a1",
+          50: "#f0fdfb",
+          100: "#ccf7f1",
+          200: "#99ece3",
+          300: "#66e0d4",
+          400: "#33d5c6",
           light: "#33c2b3",
           lighter: "#a6e3de",
           dark: "#00918a",
@@ -84,6 +89,11 @@ export default {
         "accordion-up": "accordion-up 0.2s ease-out",
         fadeIn: "fadeIn 0.6s ease-out forwards",
       },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+        'gradient-primary': 'linear-gradient(to right, #00b3a1, #00918a)',
+      }
     },
   },
   plugins: [require("tailwindcss-animate")],

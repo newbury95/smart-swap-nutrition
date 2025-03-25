@@ -12,7 +12,7 @@ const PremiumPlanCard = lazy(() => import("@/components/pricing/PremiumPlanCard"
 
 // Loading placeholder for lazy-loaded components
 const CardPlaceholder = () => (
-  <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6 h-[450px]">
+  <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6 h-[400px]">
     <Skeleton className="h-7 w-3/4 mb-4" />
     <Skeleton className="h-4 w-1/2 mb-6" />
     <div className="space-y-2">
@@ -104,7 +104,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-primary-lighter/10 to-white">
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-12">
+      <section className="container mx-auto px-4 py-8">
         <motion.div 
           className="text-center max-w-3xl mx-auto"
           initial="hidden"
@@ -112,13 +112,13 @@ const Index = () => {
           variants={staggerAnimation}
         >
           <motion.h1 
-            className="text-4xl md:text-5xl font-bold mb-6 text-center bg-gradient-to-r from-primary-dark to-primary bg-clip-text text-transparent"
+            className="text-4xl md:text-5xl font-bold mb-6 text-center bg-gradient-to-r from-primary-darker to-primary bg-clip-text text-transparent"
             variants={itemAnimation}
           >
             Track Your Nutrition Journey
           </motion.h1>
           <motion.p 
-            className="text-lg text-gray-600 mb-8"
+            className="text-lg text-gray-600 mb-6"
             variants={itemAnimation}
           >
             Join our community of health enthusiasts and achieve your fitness goals
@@ -131,7 +131,7 @@ const Index = () => {
           initial="hidden"
           animate="visible"
           variants={staggerAnimation}
-          className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mt-16"
+          className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto mt-8"
         >
           <motion.div variants={itemAnimation}>
             <Suspense fallback={<CardPlaceholder />}>
