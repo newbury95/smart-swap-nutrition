@@ -33,8 +33,8 @@ const MetricsSection = memo(({
       {/* BMI first, Exercise second */}
       <MetricCard
         icon={Activity}
-        iconColor="text-green-600"
-        bgColor="bg-green-100"
+        iconColor="text-primary"
+        bgColor="bg-soft-green"
         title="Current BMI"
         value={latestBMI}
         buttonLabel={getBMICategory(latestBMI)}
@@ -44,8 +44,8 @@ const MetricsSection = memo(({
 
       <MetricCard
         icon={Dumbbell}
-        iconColor="text-purple-600"
-        bgColor="bg-purple-100"
+        iconColor="text-primary"
+        bgColor="bg-soft-teal"
         title="Exercise"
         value={exercises.length}
         onUpdate={onShowExerciseDialog}
@@ -56,8 +56,8 @@ const MetricsSection = memo(({
         
       <MetricCard
         icon={Flame}
-        iconColor="text-orange-600"
-        bgColor="bg-orange-100"
+        iconColor="text-primary"
+        bgColor="bg-soft-mint"
         title="Calories Burned"
         value={caloriesBurned}
         isPremium={isPremium}
@@ -67,8 +67,8 @@ const MetricsSection = memo(({
 
       <MetricCard
         icon={Footprints}
-        iconColor="text-blue-600"
-        bgColor="bg-blue-100"
+        iconColor="text-primary"
+        bgColor="bg-soft-green"
         title="Daily Steps"
         value={steps}
         isPremium={isPremium}

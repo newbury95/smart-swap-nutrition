@@ -30,7 +30,7 @@ const EnergyExpenditureCard = ({
     return (
       <Card className="flex-1 overflow-hidden">
         <CardContent className="p-0">
-          <div className="relative w-full bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-t-lg">
+          <div className="relative w-full bg-gradient-to-br from-soft-green to-soft-teal p-6 rounded-t-lg">
             <Skeleton className="h-7 w-48 mb-2" />
             <Skeleton className="h-9 w-32 mb-4" />
           </div>
@@ -46,18 +46,18 @@ const EnergyExpenditureCard = ({
   return (
     <Card className="flex-1 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
       <CardContent className="p-0">
-        <div className="relative w-full bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-t-lg">
+        <div className="relative w-full bg-gradient-to-br from-soft-green to-soft-teal p-6 rounded-t-lg">
           <div className="absolute -right-5 -top-5 w-24 h-24 bg-white/20 rounded-full backdrop-blur-sm" />
           <div className="absolute -right-3 -bottom-8 w-16 h-16 bg-white/20 rounded-full backdrop-blur-sm" />
           
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-blue-800">Daily Energy Expenditure</h3>
-              <p className="text-3xl font-bold mt-2 text-blue-900">{validTdee.toLocaleString()} kcal</p>
+              <h3 className="text-lg font-semibold text-primary-dark">Daily Energy Expenditure</h3>
+              <p className="text-3xl font-bold mt-2 text-primary-darker">{validTdee.toLocaleString()} kcal</p>
             </div>
             <div className="relative z-10">
               <div className="bg-white p-3 rounded-full">
-                <Flame className="w-10 h-10 text-blue-600" />
+                <Flame className="w-10 h-10 text-primary" />
               </div>
             </div>
           </div>
@@ -90,7 +90,7 @@ const EnergyExpenditureCard = ({
                 </PopoverContent>
               </Popover>
             </span>
-            <span className="font-medium text-blue-600">
+            <span className="font-medium text-primary">
               {activityFactor}x
             </span>
           </div>

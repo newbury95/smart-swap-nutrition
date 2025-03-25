@@ -25,18 +25,18 @@ const WorkoutCard: React.FC<WorkoutCardProps> = ({ workout, onSave }) => {
   const getDifficultyColor = (difficulty: string) => {
     switch(difficulty) {
       case 'beginner':
-        return 'bg-green-100 text-green-800';
+        return 'bg-soft-green text-primary-dark';
       case 'intermediate':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-primary-lighter text-primary-dark';
       case 'advanced':
-        return 'bg-red-100 text-red-800';
+        return 'bg-primary-light/30 text-primary-darker';
       default:
         return 'bg-gray-100 text-gray-800';
     }
   };
 
   return (
-    <div className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+    <div className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow border-primary-lighter/40">
       <div className="p-4">
         <div className="flex justify-between items-start mb-2">
           <h3 className="text-lg font-semibold">{workout.name}</h3>
@@ -52,7 +52,7 @@ const WorkoutCard: React.FC<WorkoutCardProps> = ({ workout, onSave }) => {
             {workout.duration}
           </span>
           {workout.primaryMuscleGroups.map((muscle, index) => (
-            <span key={index} className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs">
+            <span key={index} className="bg-soft-green text-primary-dark px-2 py-1 rounded text-xs">
               {muscle.charAt(0).toUpperCase() + muscle.slice(1)}
             </span>
           ))}
@@ -68,7 +68,7 @@ const WorkoutCard: React.FC<WorkoutCardProps> = ({ workout, onSave }) => {
               </li>
             ))}
             {workout.exercises.length > 2 && (
-              <li className="text-green-600 text-xs">+{workout.exercises.length - 2} more exercises</li>
+              <li className="text-primary text-xs">+{workout.exercises.length - 2} more exercises</li>
             )}
           </ul>
         </div>

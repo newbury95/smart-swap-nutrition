@@ -51,6 +51,10 @@ const MealPlanCard: React.FC<MealPlanCardProps> = ({
     }
   };
 
+  // All cards use the primary color in different shade variants
+  const bgColor = "bg-primary-lighter";
+  const iconColor = "text-primary";
+
   return (
     <motion.div
       key={planType.type}
@@ -59,12 +63,12 @@ const MealPlanCard: React.FC<MealPlanCardProps> = ({
       transition={{ duration: 0.3, delay: index * 0.05 }}
     >
       <Card 
-        className="cursor-pointer hover:shadow-md transition-shadow"
+        className="cursor-pointer hover:shadow-md transition-shadow border-primary-lighter/40"
         onClick={handleClick}
       >
         <CardHeader className="pb-2">
-          <div className={`w-10 h-10 rounded-full ${planType.color} flex items-center justify-center mb-2`}>
-            {planType.icon}
+          <div className={`w-10 h-10 rounded-full ${bgColor} flex items-center justify-center mb-2`}>
+            {React.cloneElement(planType.icon as React.ReactElement, { className: `h-5 w-5 ${iconColor}` })}
           </div>
           <CardTitle className="text-lg">{planType.type}</CardTitle>
         </CardHeader>
@@ -74,7 +78,7 @@ const MealPlanCard: React.FC<MealPlanCardProps> = ({
           </CardDescription>
         </CardContent>
         <CardFooter>
-          <Button variant="ghost" className="w-full flex justify-between items-center">
+          <Button variant="ghost" className="w-full flex justify-between items-center text-primary hover:bg-soft-green hover:text-primary-dark">
             <span>View Plan</span>
             <ArrowRight className="h-4 w-4" />
           </Button>

@@ -49,8 +49,8 @@ const MuscleGroupGrid: React.FC<MuscleGroupGridProps> = ({
             p-2 rounded-lg text-center transition-all
             ${isPremium 
               ? selectedMuscleGroup === muscle.id 
-                ? 'bg-green-50 shadow-md border border-green-200' 
-                : 'hover:bg-green-50 hover:shadow-sm bg-white border border-gray-200' 
+                ? 'bg-soft-green shadow-md border border-primary-light/40' 
+                : 'hover:bg-soft-green hover:shadow-sm bg-white border border-gray-200' 
               : 'relative opacity-75 bg-gray-100 border border-gray-200'}
           `}
         >
@@ -58,7 +58,7 @@ const MuscleGroupGrid: React.FC<MuscleGroupGridProps> = ({
           <h3 className="text-xs font-medium">{muscle.name}</h3>
           
           {!isPremium && (
-            <div className="absolute top-1 right-1 text-yellow-500">
+            <div className="absolute top-1 right-1 text-primary">
               <Crown className="w-3 h-3" />
             </div>
           )}

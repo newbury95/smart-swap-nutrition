@@ -96,7 +96,7 @@ const MacronutrientCard = ({
               </div>
               <Progress 
                 value={(validCurrentMacros.protein / (validMacros.protein || 1)) * 100} 
-                indicatorClassName="bg-red-500"
+                indicatorClassName="bg-primary-darker"
               />
             </div>
             
@@ -108,7 +108,7 @@ const MacronutrientCard = ({
               </div>
               <Progress 
                 value={(validCurrentMacros.carbs / (validMacros.carbs || 1)) * 100}
-                indicatorClassName="bg-blue-500"
+                indicatorClassName="bg-primary"
               />
             </div>
             
@@ -120,7 +120,7 @@ const MacronutrientCard = ({
               </div>
               <Progress 
                 value={(validCurrentMacros.fats / (validMacros.fats || 1)) * 100}
-                indicatorClassName="bg-yellow-500"
+                indicatorClassName="bg-primary-light"
               />
             </div>
           </TabsContent>
@@ -130,7 +130,7 @@ const MacronutrientCard = ({
               <div className="space-y-4">
                 <MacroProgress
                   label="Protein"
-                  color="bg-red-500"
+                  color="bg-primary-darker"
                   percentage={(validCurrentMacros.protein / (validMacros.protein || 1)) * 100}
                   current={validCurrentMacros.protein}
                   target={validMacros.protein}
@@ -138,7 +138,7 @@ const MacronutrientCard = ({
                 />
                 <MacroProgress
                   label="Carbs"
-                  color="bg-blue-500"
+                  color="bg-primary"
                   percentage={(validCurrentMacros.carbs / (validMacros.carbs || 1)) * 100}
                   current={validCurrentMacros.carbs}
                   target={validMacros.carbs}
@@ -146,7 +146,7 @@ const MacronutrientCard = ({
                 />
                 <MacroProgress
                   label="Fats"
-                  color="bg-yellow-500"
+                  color="bg-primary-light"
                   percentage={(validCurrentMacros.fats / (validMacros.fats || 1)) * 100}
                   current={validCurrentMacros.fats}
                   target={validMacros.fats}

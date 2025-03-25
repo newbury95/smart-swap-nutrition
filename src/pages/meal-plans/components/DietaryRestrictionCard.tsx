@@ -25,7 +25,7 @@ const DietaryRestrictionCard: React.FC<DietaryRestrictionCardProps> = ({ restric
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.05 }}
     >
-      <Card className="cursor-pointer hover:shadow-md transition-shadow">
+      <Card className="cursor-pointer hover:shadow-md transition-shadow border-primary-lighter/40">
         <CardHeader>
           <CardTitle className="text-lg">{restriction}</CardTitle>
         </CardHeader>
@@ -35,7 +35,7 @@ const DietaryRestrictionCard: React.FC<DietaryRestrictionCardProps> = ({ restric
           </CardDescription>
         </CardContent>
         <CardFooter>
-          <Button variant="ghost" className="w-full flex justify-between items-center">
+          <Button variant="ghost" className="w-full flex justify-between items-center text-primary hover:bg-soft-green hover:text-primary-dark">
             <span>View Plans</span>
             <ArrowRight className="h-4 w-4" />
           </Button>

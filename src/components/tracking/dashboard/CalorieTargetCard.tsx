@@ -50,7 +50,7 @@ const CalorieTargetCard = ({
     return (
       <Card className="flex-1 overflow-hidden">
         <CardContent className="p-0">
-          <div className="relative w-full bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-t-lg">
+          <div className="relative w-full bg-gradient-to-br from-soft-green to-soft-mint p-6 rounded-t-lg">
             <Skeleton className="h-7 w-48 mb-2" />
             <Skeleton className="h-9 w-32 mb-4" />
             <Skeleton className="h-6 w-full" />
@@ -67,18 +67,18 @@ const CalorieTargetCard = ({
   return (
     <Card className="flex-1 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
       <CardContent className="p-0">
-        <div className="relative w-full bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-t-lg">
+        <div className="relative w-full bg-gradient-to-br from-soft-green to-soft-mint p-6 rounded-t-lg">
           <div className="absolute -right-5 -top-5 w-24 h-24 bg-white/20 rounded-full backdrop-blur-sm" />
           <div className="absolute -right-3 -bottom-8 w-16 h-16 bg-white/20 rounded-full backdrop-blur-sm" />
           
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-purple-800">Daily Calorie Target</h3>
-              <p className="text-3xl font-bold mt-2 text-purple-900">{validCalorieTarget.toLocaleString()} kcal</p>
+              <h3 className="text-lg font-semibold text-primary-dark">Daily Calorie Target</h3>
+              <p className="text-3xl font-bold mt-2 text-primary-darker">{validCalorieTarget.toLocaleString()} kcal</p>
             </div>
             <div className="relative z-10 flex flex-col items-end">
               <div className="bg-white p-3 rounded-full mb-2">
-                <Apple className="w-10 h-10 text-purple-600" />
+                <Apple className="w-10 h-10 text-primary" />
               </div>
               
               <Dialog open={openSettings} onOpenChange={setOpenSettings}>
@@ -105,24 +105,24 @@ const CalorieTargetCard = ({
           
           <div className="mt-4">
             <div className="flex justify-between text-sm mb-1">
-              <span className="text-purple-800 flex items-center">
+              <span className="text-primary-dark flex items-center">
                 Progress
                 <Popover>
                   <PopoverTrigger>
-                    <Info className="h-3.5 w-3.5 ml-1 text-purple-400 cursor-help" />
+                    <Info className="h-3.5 w-3.5 ml-1 text-primary-light cursor-help" />
                   </PopoverTrigger>
                   <PopoverContent className="w-80 text-xs p-3 bg-white z-50 shadow-lg">
                     <p>This shows your current progress toward your daily calorie target.</p>
                   </PopoverContent>
                 </Popover>
               </span>
-              <span className="font-medium text-purple-900">{caloriePercentage}%</span>
+              <span className="font-medium text-primary-darker">{caloriePercentage}%</span>
             </div>
             <Progress 
               value={caloriePercentage} 
-              className="h-2 bg-purple-200" 
+              className="h-2 bg-primary-lighter" 
               indicatorClassName={cn(
-                caloriePercentage > 100 ? "bg-red-500" : "bg-purple-600"
+                caloriePercentage > 100 ? "bg-red-500" : "bg-primary"
               )} 
             />
           </div>
@@ -137,7 +137,7 @@ const CalorieTargetCard = ({
             <span className="text-gray-500">Remaining</span>
             <span className={cn(
               "font-medium",
-              validCalorieTarget - validCurrentCalories < 0 ? "text-red-500" : "text-purple-500"
+              validCalorieTarget - validCurrentCalories < 0 ? "text-red-500" : "text-primary"
             )}>
               {(validCalorieTarget - validCurrentCalories).toLocaleString()} kcal
             </span>

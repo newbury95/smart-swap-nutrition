@@ -19,14 +19,14 @@ const NavTile = ({ icon, label, href, isPremium }: NavTileProps) => (
     to={href}
     className={cn(
       "flex flex-col items-center gap-1 p-2 rounded-lg transition-colors",
-      "hover:bg-gray-100",
-      "text-gray-600 hover:text-gray-900"
+      "hover:bg-soft-green",
+      "text-gray-600 hover:text-primary-dark"
     )}
   >
     <div className="relative">
       {icon}
       {isPremium && (
-        <span className="absolute -top-1 -right-1 text-yellow-500">
+        <span className="absolute -top-1 -right-1 text-primary">
           <Crown className="w-3 h-3" />
         </span>
       )}
@@ -106,7 +106,7 @@ const TopNavigation = () => {
               variant="ghost" 
               size="sm" 
               onClick={handleSignOut}
-              className="flex items-center gap-1 text-gray-600"
+              className="flex items-center gap-1 text-gray-600 hover:text-primary hover:bg-soft-green"
             >
               <LogOut className="w-4 h-4" />
               <span>Sign Out</span>

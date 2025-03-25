@@ -21,14 +21,18 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         soft: {
-          green: "#F2FCE2",
-          purple: "#D6BCFA",
+          green: "#e6f7f5",
+          teal: "#d5f2ef",
+          mint: "#c4ede9",
           blue: "#D3E4FD",
+          purple: "#D6BCFA",
         },
         primary: {
           DEFAULT: "#00b3a1",
           light: "#33c2b3",
+          lighter: "#a6e3de",
           dark: "#00918a",
+          darker: "#007a74",
           foreground: "#ffffff",
         },
         secondary: {

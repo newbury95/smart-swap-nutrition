@@ -51,7 +51,7 @@ const MetricCard = memo(({
           onClick={onUpdate} 
           variant="outline" 
           size="sm"
-          className={!isPremium ? "cursor-not-allowed opacity-50" : ""}
+          className={!isPremium ? "cursor-not-allowed opacity-50" : "border-primary-light hover:bg-primary-light/10 text-primary"}
         >
           {buttonLabel}
         </Button>

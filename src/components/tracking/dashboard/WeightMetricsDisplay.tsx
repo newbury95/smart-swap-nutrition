@@ -37,8 +37,8 @@ const WeightMetricsDisplay = ({
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="flex items-center space-x-4">
-            <div className="bg-blue-100 p-3 rounded-full">
-              <Scale className="h-6 w-6 text-blue-600" />
+            <div className="bg-soft-teal p-3 rounded-full">
+              <Scale className="h-6 w-6 text-primary" />
             </div>
             <div>
               <p className="text-sm text-gray-500">Current Weight</p>
@@ -47,7 +47,7 @@ const WeightMetricsDisplay = ({
               {isWeightHistoryLoading ? (
                 <Skeleton className="h-5 w-24 mt-1" />
               ) : hasWeightChange ? (
-                <p className={`text-sm ${weightChange > 0 ? 'text-red-500' : weightChange < 0 ? 'text-green-500' : 'text-gray-500'}`}>
+                <p className={`text-sm ${weightChange > 0 ? 'text-red-500' : weightChange < 0 ? 'text-primary' : 'text-gray-500'}`}>
                   {weightChange > 0 ? '+' : ''}{weightChange.toFixed(1)} kg
                 </p>
               ) : (
@@ -57,8 +57,8 @@ const WeightMetricsDisplay = ({
           </div>
           
           <div className="flex items-center space-x-4">
-            <div className="bg-purple-100 p-3 rounded-full">
-              <Ruler className="h-6 w-6 text-purple-600" />
+            <div className="bg-soft-mint p-3 rounded-full">
+              <Ruler className="h-6 w-6 text-primary" />
             </div>
             <div>
               <p className="text-sm text-gray-500">Current Height</p>
@@ -67,13 +67,13 @@ const WeightMetricsDisplay = ({
           </div>
           
           <div className="flex items-center space-x-4">
-            <div className="bg-green-100 p-3 rounded-full">
-              <AreaChart className="h-6 w-6 text-green-600" />
+            <div className="bg-soft-green p-3 rounded-full">
+              <AreaChart className="h-6 w-6 text-primary" />
             </div>
             <div>
               <p className="text-sm text-gray-500">BMI</p>
               <p className="text-2xl font-semibold">{bmi.toFixed(1)}</p>
-              <p className="text-sm" style={{ color: getBmiStatusColor(bmiCategory) }}>
+              <p className="text-sm text-primary">
                 {bmiCategory}
               </p>
             </div>
@@ -84,7 +84,7 @@ const WeightMetricsDisplay = ({
           <Button 
             onClick={onUpdateClick}
             variant="outline"
-            className="w-full"
+            className="w-full border-primary text-primary hover:bg-primary/10"
           >
             Update
           </Button>
@@ -94,20 +94,6 @@ const WeightMetricsDisplay = ({
   );
 };
 
-// Helper function to get color based on BMI category
-const getBmiStatusColor = (status: string): string => {
-  switch (status) {
-    case 'Underweight':
-      return '#F59E0B'; // Amber
-    case 'Normal weight':
-      return '#10B981'; // Green
-    case 'Overweight':
-      return '#F97316'; // Orange
-    case 'Obese':
-      return '#EF4444'; // Red
-    default:
-      return '#6B7280'; // Gray
-  }
-};
+// Helper function removed as we're using primary color instead
 
 export default memo(WeightMetricsDisplay);
