@@ -21,7 +21,7 @@ const FreePlanCard = ({ features }: FreePlanCardProps) => {
           <h3 className="text-2xl font-semibold">Free Plan</h3>
           <p className="text-gray-600 mt-2">Get started with the basics</p>
         </div>
-        <span className="text-2xl font-bold text-primary">£0</span>
+        <span className="text-2xl font-bold text-gray-900">£0</span>
       </div>
       
       <PlanFeatureList features={features} />

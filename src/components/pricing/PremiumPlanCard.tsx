@@ -32,12 +32,12 @@ const PremiumPlanCard = ({ features }: PremiumPlanCardProps) => {
         <div>
           <div className="flex items-center gap-2">
             <h3 className="text-2xl font-semibold">Premium</h3>
-            <Crown className="w-5 h-5 text-primary" />
+            <Crown className="w-5 h-5 text-amber-500" />
           </div>
           <p className="text-gray-600 mt-2">Unlock all features</p>
         </div>
         <div className="text-right">
-          <span className="text-2xl font-bold text-primary-dark">£7.99</span>
+          <span className="text-2xl font-bold text-gray-900">£7.99</span>
           <p className="text-sm text-gray-500">/month</p>
         </div>
       </div>
@@ -49,7 +49,7 @@ const PremiumPlanCard = ({ features }: PremiumPlanCardProps) => {
         className="w-full bg-primary text-white py-3 rounded-full hover:bg-primary-dark transition-colors flex items-center justify-center gap-2"
       >
         {user ? "Complete Payment" : "Get Premium"}
-        <Crown className="w-4 h-4" />
+        <Crown className="w-4 h-4 text-amber-200" />
       </button>
     </motion.div>
   );
