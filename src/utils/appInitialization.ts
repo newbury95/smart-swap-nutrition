@@ -111,7 +111,9 @@ export function optimizePerformance() {
       new PerformanceObserver((entryList) => {
         const entries = entryList.getEntries();
         entries.forEach(entry => {
-          console.log('FID:', entry.processingStart - entry.startTime);
+          // Use type assertion to access the processingStart property
+          const fidEntry = entry as unknown as {startTime: number; processingStart: number};
+          console.log('FID:', fidEntry.processingStart - fidEntry.startTime);
           // Report FID to analytics
         });
       }).observe({ type: 'first-input', buffered: true });
@@ -120,9 +122,10 @@ export function optimizePerformance() {
       let cumulativeLayoutShift = 0;
       new PerformanceObserver((entryList) => {
         for (const entry of entryList.getEntries()) {
-          if (!entry.hadRecentInput) {
-            // @ts-ignore - TypeScript doesn't know about value property on CLS entries
-            cumulativeLayoutShift += entry.value;
+          // Use type assertion to access the hadRecentInput and value properties
+          const clsEntry = entry as unknown as {hadRecentInput: boolean; value: number};
+          if (!clsEntry.hadRecentInput) {
+            cumulativeLayoutShift += clsEntry.value;
           }
         }
         console.log('CLS:', cumulativeLayoutShift);
