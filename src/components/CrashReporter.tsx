@@ -30,10 +30,11 @@ const CrashReporter: React.FC<CrashReporterProps> = ({
       console.error('Crash error:', error);
       console.error('Component stack:', componentStack);
       
-      // Submit to Supabase (if available)
+      // Submit to Supabase
       if (supabase) {
-        await supabase.from('error_reports').insert([
-          {
+        await supabase
+          .from('error_reports')
+          .insert([{
             error_message: error.message,
             error_stack: error.stack,
             component_stack: componentStack,
@@ -41,8 +42,7 @@ const CrashReporter: React.FC<CrashReporterProps> = ({
             user_id: user?.id || null,
             user_agent: navigator.userAgent,
             url: window.location.href,
-          },
-        ]);
+          }]);
       }
       
       toast({

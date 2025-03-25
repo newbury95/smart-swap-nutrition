@@ -13,6 +13,7 @@ import { generateUsername } from "@/utils/userNameGenerator";
 
 interface ThreadListProps {
   onReportThread: (threadId: string) => void;
+  requireAuthForInteraction?: boolean;
 }
 
 // Extend the ForumThread type to include properties added during fetching
@@ -23,7 +24,7 @@ interface ExtendedForumThread extends ForumThread {
   likes: number;
 }
 
-export const ThreadList = ({ onReportThread }: ThreadListProps) => {
+export const ThreadList = ({ onReportThread, requireAuthForInteraction = true }: ThreadListProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [threads, setThreads] = useState<ExtendedForumThread[]>([]);
