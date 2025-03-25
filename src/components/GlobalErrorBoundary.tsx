@@ -1,39 +1,68 @@
 
-import React from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
+import React, { Component, ErrorInfo } from 'react';
+import CrashReporter from './CrashReporter';
 
-interface ErrorFallbackProps {
-  error: Error;
-  resetErrorBoundary: () => void;
+interface Props {
+  children: React.ReactNode;
 }
 
-const ErrorFallback = ({ error, resetErrorBoundary }: ErrorFallbackProps) => {
-  return (
-    <div className="p-4 m-4 bg-red-50 border border-red-200 rounded-md">
-      <h2 className="text-lg font-medium text-red-800 mb-2">Something went wrong:</h2>
-      <pre className="text-sm text-red-600 overflow-auto p-2 bg-red-100 rounded">{error.message}</pre>
-      <button
-        onClick={resetErrorBoundary}
-        className="mt-4 px-4 py-2 bg-red-100 hover:bg-red-200 text-red-800 rounded-md transition-colors"
-      >
-        Try again
-      </button>
-    </div>
-  );
-};
+interface State {
+  hasError: boolean;
+  error: Error | null;
+  componentStack: string | null;
+}
 
-export const GlobalErrorBoundary: React.FC<{
-  children: React.ReactNode;
-}> = ({ children }) => {
-  return (
-    <ErrorBoundary
-      FallbackComponent={ErrorFallback}
-      onReset={() => {
-        // Reset the state of your app here
-        window.location.href = '/';
-      }}
-    >
-      {children}
-    </ErrorBoundary>
-  );
-};
+export class GlobalErrorBoundary extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      hasError: false,
+      error: null,
+      componentStack: null
+    };
+  }
+
+  static getDerivedStateFromError(error: Error): Partial<State> {
+    // Update state so the next render will show the fallback UI
+    return {
+      hasError: true,
+      error
+    };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    // Log the error to an error reporting service
+    console.error('Uncaught error:', error, errorInfo);
+    this.setState({
+      componentStack: errorInfo.componentStack
+    });
+  }
+
+  resetError = () => {
+    this.setState({
+      hasError: false,
+      error: null,
+      componentStack: null
+    });
+    
+    // Force reload the page to ensure clean state
+    window.location.reload();
+  };
+
+  render() {
+    if (this.state.hasError && this.state.error) {
+      // You can render any custom fallback UI
+      return (
+        <CrashReporter
+          error={this.state.error}
+          componentStack={this.state.componentStack || undefined}
+          resetError={this.resetError}
+        />
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+export default GlobalErrorBoundary;

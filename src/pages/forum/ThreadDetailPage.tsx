@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { MessageSquare, ArrowLeft } from "lucide-react";
@@ -166,14 +167,22 @@ const ThreadDetailPage = () => {
     fetchThreadDetails();
   }, [threadId, navigate, toast, user]);
 
+  const promptLogin = (message: string) => {
+    toast({
+      title: "Authentication required",
+      description: message,
+      duration: 5000,
+    });
+    
+    // Redirect to auth page after a short delay
+    setTimeout(() => {
+      navigate("/auth");
+    }, 1500);
+  };
+
   const handleAddReply = async (content: string) => {
     if (!user) {
-      toast({
-        variant: "destructive",
-        title: "Authentication Required",
-        description: "You must be logged in to reply to a thread."
-      });
-      navigate("/auth");
+      promptLogin("You must be logged in to reply to a thread.");
       return;
     }
     
@@ -246,12 +255,7 @@ const ThreadDetailPage = () => {
 
   const handleLikeThread = async () => {
     if (!user) {
-      toast({
-        variant: "destructive",
-        title: "Authentication Required",
-        description: "You must be logged in to like a thread."
-      });
-      navigate("/auth");
+      promptLogin("You must be logged in to like a thread.");
       return;
     }
 
@@ -309,6 +313,11 @@ const ThreadDetailPage = () => {
   };
 
   const handleReportThread = async (reason: string, email: string) => {
+    if (!user) {
+      promptLogin("You must be logged in to report a thread.");
+      return;
+    }
+    
     try {
       setIsSubmitting(true);
       
@@ -379,7 +388,13 @@ const ThreadDetailPage = () => {
               <ThreadDetail 
                 thread={thread} 
                 onLike={handleLikeThread} 
-                onReport={() => setShowReportDialog(true)} 
+                onReport={() => {
+                  if (!user) {
+                    promptLogin("You must be logged in to report a thread.");
+                    return;
+                  }
+                  setShowReportDialog(true);
+                }} 
               />
               
               <div className="mt-8">
@@ -392,6 +407,7 @@ const ThreadDetailPage = () => {
                 <ReplyForm 
                   onSubmit={handleAddReply}
                   isSubmitting={isSubmitting}
+                  isLoggedIn={!!user}
                 />
               </div>
             </div>

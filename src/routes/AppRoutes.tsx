@@ -1,3 +1,4 @@
+
 import React, { Suspense, lazy } from "react";
 import { Route, Routes, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -6,6 +7,7 @@ import { PageLoading } from "@/components/PageLoading";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Layout from "@/components/layout/Layout";
 import CookiePolicyPage from "@/pages/legal/CookiePolicyPage";
+import GlobalErrorBoundary from "@/components/GlobalErrorBoundary";
 
 // Load components with better chunk naming for more efficient caching
 const IndexPage = lazy(() => import("@/pages/Index") /* webpackChunkName: "index-page" */);
@@ -77,121 +79,119 @@ const AppRoutes: React.FC = () => {
   }
 
   return (
-    <ErrorBoundary fallback={<div className="p-4 bg-red-100 text-red-700">Something went wrong with the application. Please refresh the page.</div>}>
-      <Suspense fallback={<PageLoading />}>
-        <Routes>
-          <Route path="/" element={
-            <Layout>
-              {user ? <Navigate to="/diary" /> : <IndexPage />}
-            </Layout>
-          } />
-          <Route 
-            path="/tracking" 
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <TrackingPage />
-                </Layout>
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/diary" 
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <DiaryPage />
-                </Layout>
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/meal-plans" 
-            element={
-              <ProtectedRoute>
-                <PremiumRoute>
+    <GlobalErrorBoundary>
+      <ErrorBoundary fallback={<div className="p-4 bg-red-100 text-red-700">Something went wrong with the application. Please refresh the page.</div>}>
+        <Suspense fallback={<PageLoading />}>
+          <Routes>
+            <Route path="/" element={
+              <Layout>
+                {user ? <Navigate to="/diary" /> : <IndexPage />}
+              </Layout>
+            } />
+            <Route 
+              path="/tracking" 
+              element={
+                <ProtectedRoute>
                   <Layout>
-                    <MealPlansPage />
+                    <TrackingPage />
                   </Layout>
-                </PremiumRoute>
-              </ProtectedRoute>
-            } 
-          />
-          <Route path="/premium" element={
-            <Layout>
-              <PremiumPage />
-            </Layout>
-          } />
-          <Route path="/auth" element={
-            <Layout showTopBanner={false}>
-              <AuthPage />
-            </Layout>
-          } />
-          <Route 
-            path="/forum" 
-            element={
-              <ProtectedRoute>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/diary" 
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <DiaryPage />
+                  </Layout>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/meal-plans" 
+              element={
+                <ProtectedRoute>
+                  <PremiumRoute>
+                    <Layout>
+                      <MealPlansPage />
+                    </Layout>
+                  </PremiumRoute>
+                </ProtectedRoute>
+              } 
+            />
+            <Route path="/premium" element={
+              <Layout>
+                <PremiumPage />
+              </Layout>
+            } />
+            <Route path="/auth" element={
+              <Layout showTopBanner={false}>
+                <AuthPage />
+              </Layout>
+            } />
+            <Route 
+              path="/forum" 
+              element={
                 <Layout>
                   <BlogsPage />
                 </Layout>
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/forum/thread/:threadId" 
-            element={
-              <ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/forum/thread/:threadId" 
+              element={
                 <Layout>
                   <ThreadDetailPage />
                 </Layout>
-              </ProtectedRoute>
-            } 
-          />
-          <Route path="/contact" element={
-            <Layout>
-              <ContactPage />
-            </Layout>
-          } />
-          <Route 
-            path="/workouts" 
-            element={
-              <ProtectedRoute>
-                <PremiumRoute>
-                  <Layout>
-                    <WorkoutPlansPage />
-                  </Layout>
-                </PremiumRoute>
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/offers" 
-            element={
-              <ProtectedRoute>
-                <PremiumRoute>
-                  <Layout>
-                    <OffersPage />
-                  </Layout>
-                </PremiumRoute>
-              </ProtectedRoute>
-            } 
-          />
-          <Route path="/about" element={
-            <Layout>
-              <AboutPage />
-            </Layout>
-          } />
-          <Route path="/privacy" element={<PrivacyPolicyPage />} />
-          <Route path="/terms" element={<TermsOfUsePage />} />
-          <Route path="/cookies" element={<CookiePolicyPage />} />
-          <Route path="*" element={
-            <Layout>
-              <Navigate to="/" replace />
-            </Layout>
-          } />
-        </Routes>
-      </Suspense>
-    </ErrorBoundary>
+              } 
+            />
+            <Route path="/contact" element={
+              <Layout>
+                <ContactPage />
+              </Layout>
+            } />
+            <Route 
+              path="/workouts" 
+              element={
+                <ProtectedRoute>
+                  <PremiumRoute>
+                    <Layout>
+                      <WorkoutPlansPage />
+                    </Layout>
+                  </PremiumRoute>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/offers" 
+              element={
+                <ProtectedRoute>
+                  <PremiumRoute>
+                    <Layout>
+                      <OffersPage />
+                    </Layout>
+                  </PremiumRoute>
+                </ProtectedRoute>
+              } 
+            />
+            <Route path="/about" element={
+              <Layout>
+                <AboutPage />
+              </Layout>
+            } />
+            <Route path="/privacy" element={<PrivacyPolicyPage />} />
+            <Route path="/terms" element={<TermsOfUsePage />} />
+            <Route path="/cookies" element={<CookiePolicyPage />} />
+            <Route path="*" element={
+              <Layout>
+                <Navigate to="/" replace />
+              </Layout>
+            } />
+          </Routes>
+        </Suspense>
+      </ErrorBoundary>
+    </GlobalErrorBoundary>
   );
 };
 
