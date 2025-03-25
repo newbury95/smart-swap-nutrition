@@ -21,14 +21,14 @@ const FreePlanCard = ({ features }: FreePlanCardProps) => {
           <h3 className="text-2xl font-semibold">Free Plan</h3>
           <p className="text-gray-600 mt-2">Get started with the basics</p>
         </div>
-        <span className="text-2xl font-bold text-green-600">£0</span>
+        <span className="text-2xl font-bold text-primary">£0</span>
       </div>
       
       <PlanFeatureList features={features} />
 
       <button
         onClick={() => navigate('/auth?tab=signup')}
-        className="w-full bg-gray-100 text-gray-800 py-3 rounded-full hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+        className="w-full bg-primary-lighter text-primary-dark py-3 rounded-full hover:bg-primary-100 transition-colors flex items-center justify-center gap-2"
       >
         Try for Free
         <ArrowRight className="w-4 h-4" />

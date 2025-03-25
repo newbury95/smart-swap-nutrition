@@ -9,7 +9,7 @@ export const StepsMetric = ({ value }: StepsMetricProps) => {
   return (
     <div className="bg-white rounded-xl p-4 border shadow-sm hover:shadow-md transition-shadow">
       <div className="flex items-center gap-3">
-        <div className="p-2 bg-primary-100 rounded-lg">
+        <div className="p-2 bg-primary-lighter rounded-lg">
           <Footprints className="w-5 h-5 text-primary-dark" />
         </div>
         <div>

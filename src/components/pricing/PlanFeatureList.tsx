@@ -10,7 +10,7 @@ const PlanFeatureList = ({ features }: PlanFeatureListProps) => {
     <div className="space-y-4 mb-8">
       {features.map((feature, index) => (
         <div key={index} className="flex items-center gap-3">
-          <CheckCircle2 className="w-5 h-5 text-green-500" />
+          <CheckCircle2 className="w-5 h-5 text-primary" />
           <span className="text-gray-600">{feature}</span>
         </div>
       ))}
@@ -19,4 +19,3 @@ const PlanFeatureList = ({ features }: PlanFeatureListProps) => {
 };
 
 export default PlanFeatureList;
-
