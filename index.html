@@ -4,8 +4,38 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    <meta name="theme-color" content="#00b3a1" />
+    <meta name="author" content="NutriTrack" />
+    <meta name="application-name" content="NutriTrack" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="NutriTrack" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <title>Your Fitness Journey</title>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/index.html" as="document" />
+    <link rel="preload" href="/favicon.ico" as="image" />
+    
+    <!-- Structured data for rich results -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "NutriTrack",
+        "description": "Track your nutrition, set fitness goals, and achieve a healthier lifestyle with our comprehensive nutrition tracking tools.",
+        "url": "https://yoursite.com",
+        "applicationCategory": "HealthApplication",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "operatingSystem": "Web"
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

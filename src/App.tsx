@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/hooks/useAuth";
 import AppRoutes from "@/routes/AppRoutes";
 import QueryProvider from "@/providers/QueryProvider";
+import { HelmetProvider } from "react-helmet-async";
 import { addPreloadHints, initializeCache } from "@/utils/appInitialization";
 
 // Use requestIdleCallback for non-critical initialization
@@ -26,14 +27,16 @@ if ('requestIdleCallback' in window) {
 
 function App() {
   return (
-    <QueryProvider>
-      <AuthProvider>
-        <Router>
-          <AppRoutes />
-          <Toaster />
-        </Router>
-      </AuthProvider>
-    </QueryProvider>
+    <HelmetProvider>
+      <QueryProvider>
+        <AuthProvider>
+          <Router>
+            <AppRoutes />
+            <Toaster />
+          </Router>
+        </AuthProvider>
+      </QueryProvider>
+    </HelmetProvider>
   );
 }
 
