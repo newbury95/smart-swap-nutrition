@@ -8,6 +8,7 @@ const PremiumBenefits = () => {
     "Premium workout plans",
     "Custom foods and recipes",
     "Health app integration (Apple Health & Samsung Health)",
+    "Discounts and offers"
   ];
 
   return (

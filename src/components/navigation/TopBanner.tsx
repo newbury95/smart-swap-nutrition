@@ -1,5 +1,5 @@
 
-import { BookOpen, Activity, MessageSquare, PhoneCall, Crown, Dumbbell, LogOut } from "lucide-react";
+import { BookOpen, Activity, MessageSquare, PhoneCall, Crown, Dumbbell, LogOut, BadgePercent } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -77,7 +77,7 @@ const TopBanner = () => {
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-4">
+                <div className="grid grid-cols-3 md:grid-cols-7 gap-2 md:gap-4">
                   {user ? (
                     <>
                       {/* Free features */}
@@ -103,6 +103,12 @@ const TopBanner = () => {
                         icon={<Dumbbell className="w-4 h-4" />}
                         label="Workouts"
                         href="/workouts"
+                        isPremium={true}
+                      />
+                      <NavTile
+                        icon={<BadgePercent className="w-4 h-4" />}
+                        label="Offers"
+                        href="/offers"
                         isPremium={true}
                       />
                       
