@@ -6,9 +6,9 @@ const AboutPage = () => {
     <div className="min-h-screen bg-gray-50 py-16">
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-sm p-8">
-          <h1 className="text-3xl font-bold mb-6">About NutriTrackPro</h1>
+          <h1 className="text-3xl font-bold mb-6">About NutriTrack</h1>
           <p className="text-gray-700 mb-6">
-            NutriTrackPro is a comprehensive nutrition tracking application designed to help you
+            NutriTrack is a comprehensive nutrition tracking application designed to help you
             monitor your daily food intake, track calories, and achieve your health goals.
           </p>
           <p className="text-gray-700 mb-6">
@@ -17,7 +17,7 @@ const AboutPage = () => {
           </p>
           <h2 className="text-2xl font-semibold mt-8 mb-4">Our Story</h2>
           <p className="text-gray-700 mb-6">
-            Founded in 2023, NutriTrackPro was born from a passion for health and wellness. Our team
+            Founded in 2023, NutriTrack was born from a passion for health and wellness. Our team
             of nutritionists, fitness experts, and developers came together to create a platform that
             combines scientific nutrition principles with user-friendly technology.
           </p>

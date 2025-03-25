@@ -13,14 +13,14 @@ const TermsOfUsePage = () => {
             <section>
               <h2 className="text-xl font-semibold mb-3">1. Acceptance of Terms</h2>
               <p className="text-gray-700">
-                By accessing or using NutriTrackPro, you agree to be bound by these Terms of Use and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this site.
+                By accessing or using NutriTrack, you agree to be bound by these Terms of Use and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this site.
               </p>
             </section>
             
             <section>
               <h2 className="text-xl font-semibold mb-3">2. Use License</h2>
               <p className="text-gray-700">
-                Permission is granted to temporarily download one copy of the materials on NutriTrackPro's website for personal, non-commercial transitory viewing only. This is the grant of a license, not a transfer of title.
+                Permission is granted to temporarily download one copy of the materials on NutriTrack's website for personal, non-commercial transitory viewing only. This is the grant of a license, not a transfer of title.
               </p>
             </section>
             
@@ -41,7 +41,7 @@ const TermsOfUsePage = () => {
             <section>
               <h2 className="text-xl font-semibold mb-3">5. Limitation of Liability</h2>
               <p className="text-gray-700">
-                NutriTrackPro shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your access to or use of or inability to access or use the service.
+                NutriTrack shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your access to or use of or inability to access or use the service.
               </p>
             </section>
             
@@ -55,7 +55,7 @@ const TermsOfUsePage = () => {
             <section>
               <h2 className="text-xl font-semibold mb-3">7. Contact Us</h2>
               <p className="text-gray-700">
-                If you have any questions or concerns about our Terms of Use, please contact us at <a href="mailto:support@nutritrackpro.com" className="text-green-600 hover:underline">support@nutritrackpro.com</a>.
+                If you have any questions or concerns about our Terms of Use, please contact us at <a href="mailto:contact@nutritrack.co.uk" className="text-green-600 hover:underline">contact@nutritrack.co.uk</a>.
               </p>
             </section>
           </div>

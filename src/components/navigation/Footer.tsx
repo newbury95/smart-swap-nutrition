@@ -14,7 +14,7 @@ const Footer = () => {
               <Heart className="h-10 w-10 text-[#00b3a1]" />
             </div>
             <p className="text-white">
-              NutriTrackPro helps you easily track your food calories with our comprehensive tools.
+              NutriTrack helps you easily track your food calories with our comprehensive tools.
             </p>
           </div>
 
@@ -62,8 +62,8 @@ const Footer = () => {
             </p>
             <p>
               Email:{" "}
-              <a href="mailto:support@nutritrackpro.com" className="underline">
-                support@nutritrackpro.com
+              <a href="mailto:contact@nutritrack.co.uk" className="underline">
+                contact@nutritrack.co.uk
               </a>
             </p>
           </div>
@@ -71,7 +71,7 @@ const Footer = () => {
 
         {/* Copyright */}
         <div className="border-t border-white/20 mt-8 pt-8 text-center">
-          <p>© 2025 — NutriTrackPro. All rights reserved.</p>
+          <p>© 2025 — NutriTrack. All rights reserved.</p>
         </div>
       </div>
     </footer>

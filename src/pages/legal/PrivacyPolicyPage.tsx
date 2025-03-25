@@ -13,7 +13,7 @@ const PrivacyPolicyPage = () => {
             <section>
               <h2 className="text-xl font-semibold mb-3">1. Introduction</h2>
               <p className="text-gray-700">
-                At NutriTrackPro, we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our website and services.
+                At NutriTrack, we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our website and services.
               </p>
             </section>
             
@@ -48,7 +48,7 @@ const PrivacyPolicyPage = () => {
             <section>
               <h2 className="text-xl font-semibold mb-3">6. Contact Us</h2>
               <p className="text-gray-700">
-                If you have any questions or concerns about our Privacy Policy, please contact us at <a href="mailto:support@nutritrackpro.com" className="text-green-600 hover:underline">support@nutritrackpro.com</a>.
+                If you have any questions or concerns about our Privacy Policy, please contact us at <a href="mailto:contact@nutritrack.co.uk" className="text-green-600 hover:underline">contact@nutritrack.co.uk</a>.
               </p>
             </section>
           </div>
