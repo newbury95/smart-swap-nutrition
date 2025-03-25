@@ -1,7 +1,7 @@
 
 import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import type { Meal } from '@/hooks/useSupabase';
+import type { Meal } from '@/hooks/types/supabase';
 
 export const useMeals = () => {
   // Create a cache for meals by date
@@ -40,13 +40,26 @@ export const useMeals = () => {
         return [];
       }
       
+      // Ensure proper type casting for meal_type
+      const typedMeals = (data || []).map(meal => {
+        // Validate that meal_type is one of the allowed values
+        const validMealType = ['breakfast', 'lunch', 'dinner', 'snack'].includes(meal.meal_type)
+          ? meal.meal_type as Meal['meal_type'] 
+          : 'snack'; // Default to snack if invalid type
+          
+        return {
+          ...meal,
+          meal_type: validMealType
+        } as Meal;
+      });
+      
       // Store in cache
       mealsCache.set(cacheKey, { 
         timestamp: now,
-        data: data || []
+        data: typedMeals
       });
       
-      return (data || []) as Meal[];
+      return typedMeals;
     } catch (error) {
       console.error('Error in getMeals:', error);
       return [];
@@ -57,6 +70,11 @@ export const useMeals = () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) return null;
+
+      // Validate meal_type
+      if (!['breakfast', 'lunch', 'dinner', 'snack'].includes(meal.meal_type)) {
+        throw new Error(`Invalid meal_type: ${meal.meal_type}`);
+      }
 
       // Sanitize meal data to prevent invalid values
       const sanitizedMeal = {
