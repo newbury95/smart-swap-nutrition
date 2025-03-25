@@ -91,14 +91,12 @@ export const CookieConsent: React.FC = () => {
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent 
           side="bottom" 
-          className="sm:max-w-full relative"
+          className="sm:max-w-full relative cookie-consent-sheet"
         >
-          {/* We hide the default close button with CSS and add our own buttons for control */}
-          <style jsx global>{`
-            .cookie-consent-sheet .radix-dialog-close {
-              display: none;
-            }
-          `}</style>
+          {/* Style to hide the default close button */}
+          <style dangerouslySetInnerHTML={{
+            __html: `.cookie-consent-sheet .radix-dialog-close { display: none; }`
+          }} />
           
           <SheetHeader className="mb-4">
             <SheetTitle className="flex items-center gap-2">
