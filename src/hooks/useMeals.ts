@@ -43,8 +43,9 @@ export const useMeals = () => {
       // Ensure proper type casting for meal_type
       const typedMeals = (data || []).map(meal => {
         // Validate that meal_type is one of the allowed values
-        const validMealType = ['breakfast', 'lunch', 'dinner', 'snack'].includes(meal.meal_type)
-          ? meal.meal_type as Meal['meal_type'] 
+        const mealType = meal.meal_type as string;
+        const validMealType = ['breakfast', 'lunch', 'dinner', 'snack'].includes(mealType)
+          ? mealType as Meal['meal_type'] 
           : 'snack'; // Default to snack if invalid type
           
         return {
