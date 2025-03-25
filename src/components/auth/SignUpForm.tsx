@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { FormField } from "./FormField";
 import { Input } from "@/components/ui/input";
 import { generateUsername } from "@/utils/userNameGenerator";
+import { Switch } from "@/components/ui/switch";
 
 interface SignUpFormProps {
   onSuccess: () => void;
@@ -23,8 +24,13 @@ export const SignUpForm = ({ onSuccess }: SignUpFormProps) => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
+  const [isPremium, setIsPremium] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const handlePremiumToggle = (checked: boolean) => {
+    setIsPremium(checked);
+  };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,6 +40,14 @@ export const SignUpForm = ({ onSuccess }: SignUpFormProps) => {
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       setIsLoading(false);
+      return;
+    }
+
+    // If premium is selected, redirect to Stripe payment
+    if (isPremium) {
+      window.open("https://buy.stripe.com/3cs7vfbo97269pudQQ", "_blank");
+      setIsLoading(false);
+      onSuccess();
       return;
     }
     
@@ -149,6 +163,23 @@ export const SignUpForm = ({ onSuccess }: SignUpFormProps) => {
         icon={<Lock className="h-4 w-4" />}
       />
       
+      <div className="border-t border-gray-200 pt-4 mb-2">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-medium text-gray-900">Premium Subscription</h3>
+            <p className="text-xs text-gray-500">Get access to premium features</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-gray-600">Free</span>
+            <Switch
+              checked={isPremium}
+              onCheckedChange={handlePremiumToggle}
+            />
+            <span className="text-xs font-medium text-green-600">Premium £7.99/mo</span>
+          </div>
+        </div>
+      </div>
+
       {error && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
@@ -157,7 +188,7 @@ export const SignUpForm = ({ onSuccess }: SignUpFormProps) => {
       )}
       
       <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading ? "Creating account..." : "Create Account"}
+        {isLoading ? "Creating account..." : isPremium ? "Complete Payment" : "Create Account"}
       </Button>
     </form>
   );
