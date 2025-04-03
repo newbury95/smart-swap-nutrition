@@ -15,6 +15,7 @@ const TrackingPage = lazy(() => import("@/pages/tracking/TrackingPage") /* webpa
 const DiaryPage = lazy(() => import("@/pages/diary/FoodDiary") /* webpackChunkName: "diary-page" */);
 const MealPlansPage = lazy(() => import("@/pages/meal-plans/MealPlansPage") /* webpackChunkName: "meal-plans-page" */);
 const PremiumPage = lazy(() => import("@/pages/premium/PremiumUpgradePage") /* webpackChunkName: "premium-page" */);
+const CancellationPage = lazy(() => import("@/pages/premium/CancellationPage") /* webpackChunkName: "cancellation-page" */);
 const AuthPage = lazy(() => import("@/pages/auth/AuthPage") /* webpackChunkName: "auth-page" */);
 const BlogsPage = lazy(() => import("@/pages/forum/ForumPage") /* webpackChunkName: "forum-page" */);
 const ThreadDetailPage = lazy(() => import("@/pages/forum/ThreadDetailPage") /* webpackChunkName: "thread-detail-page" */);
@@ -124,6 +125,13 @@ const AppRoutes: React.FC = () => {
               <Layout>
                 <PremiumPage />
               </Layout>
+            } />
+            <Route path="/cancel-subscription" element={
+              <ProtectedRoute>
+                <Layout>
+                  <CancellationPage />
+                </Layout>
+              </ProtectedRoute>
             } />
             <Route path="/auth" element={
               <Layout showTopBanner={false}>

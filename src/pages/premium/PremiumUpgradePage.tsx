@@ -1,5 +1,5 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Crown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -13,11 +13,12 @@ const PremiumUpgradePage = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { isPremium } = usePremiumStatus();
+  const [showCancelOption, setShowCancelOption] = useState(false);
 
   // Redirect already premium users to diary
   useEffect(() => {
     if (!loading && isPremium) {
-      navigate('/diary');
+      setShowCancelOption(true);
     }
   }, [loading, isPremium, navigate]);
 
@@ -30,6 +31,10 @@ const PremiumUpgradePage = () => {
 
   const handlePayment = () => {
     window.open("https://buy.stripe.com/3cs7vfbo97269pudQQ", "_blank");
+  };
+  
+  const handleCancelSubscription = () => {
+    navigate('/cancel-subscription');
   };
 
   if (loading) {
@@ -48,18 +53,39 @@ const PremiumUpgradePage = () => {
         >
           <div className="flex items-center gap-2 mb-6">
             <Crown className="w-6 h-6 text-yellow-500" />
-            <h1 className="text-2xl font-semibold">Upgrade to Premium</h1>
+            <h1 className="text-2xl font-semibold">{showCancelOption ? "Manage Premium" : "Upgrade to Premium"}</h1>
           </div>
 
           <PremiumBenefits />
           
           <div className="mt-6">
-            <Button 
-              onClick={handlePayment} 
-              className="w-full bg-green-600 hover:bg-green-700"
-            >
-              Complete Payment
-            </Button>
+            {showCancelOption ? (
+              <div className="space-y-3">
+                <p className="text-sm text-gray-500 mb-4">
+                  You currently have an active premium subscription. You can manage your subscription below.
+                </p>
+                <Button 
+                  onClick={handleCancelSubscription} 
+                  className="w-full bg-red-500 hover:bg-red-600"
+                >
+                  Cancel Subscription
+                </Button>
+                <Button 
+                  onClick={() => navigate('/diary')} 
+                  variant="outline"
+                  className="w-full"
+                >
+                  Return to Diary
+                </Button>
+              </div>
+            ) : (
+              <Button 
+                onClick={handlePayment} 
+                className="w-full bg-green-600 hover:bg-green-700"
+              >
+                Complete Payment
+              </Button>
+            )}
           </div>
         </motion.div>
       </div>
