@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
@@ -8,13 +8,12 @@ import { ExtendedForumThread } from "../types/forum-types";
 
 export const useThreadList = () => {
   const { toast } = useToast();
-  const [threads, setThreads] = useState<ExtendedForumThread[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchThreads = async () => {
+  // Fetch threads with React Query
+  const { data: threads = [], isLoading } = useQuery({
+    queryKey: ['forumThreads'],
+    queryFn: async (): Promise<ExtendedForumThread[]> => {
       try {
-        setIsLoading(true);
         const { data: threadsData, error } = await supabase
           .from('forum_threads')
           .select(`
@@ -102,7 +101,7 @@ export const useThreadList = () => {
           likes: thread.likes
         }));
         
-        setThreads(formattedThreads);
+        return formattedThreads;
       } catch (error) {
         console.error('Error fetching threads:', error);
         toast({
@@ -110,13 +109,12 @@ export const useThreadList = () => {
           title: "Error",
           description: "Failed to load forum threads."
         });
-      } finally {
-        setIsLoading(false);
+        return [];
       }
-    };
-    
-    fetchThreads();
-  }, [toast]);
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 10, // 10 minutes
+  });
 
   return {
     threads,

@@ -9,6 +9,66 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      coach_profiles: {
+        Row: {
+          age_group: string | null
+          available_points: number | null
+          avatar_url: string | null
+          club_logo_url: string | null
+          coaching_level: string | null
+          coaching_license: string | null
+          created_at: string
+          full_name: string
+          id: string
+          last_stats_update: string | null
+          playing_philosophy: string | null
+          playing_styles: string[] | null
+          preferred_formation: string | null
+          specialties: string[] | null
+          stats: Json | null
+          team_name: string | null
+          updated_at: string
+        }
+        Insert: {
+          age_group?: string | null
+          available_points?: number | null
+          avatar_url?: string | null
+          club_logo_url?: string | null
+          coaching_level?: string | null
+          coaching_license?: string | null
+          created_at?: string
+          full_name: string
+          id: string
+          last_stats_update?: string | null
+          playing_philosophy?: string | null
+          playing_styles?: string[] | null
+          preferred_formation?: string | null
+          specialties?: string[] | null
+          stats?: Json | null
+          team_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          age_group?: string | null
+          available_points?: number | null
+          avatar_url?: string | null
+          club_logo_url?: string | null
+          coaching_level?: string | null
+          coaching_license?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          last_stats_update?: string | null
+          playing_philosophy?: string | null
+          playing_styles?: string[] | null
+          preferred_formation?: string | null
+          specialties?: string[] | null
+          stats?: Json | null
+          team_name?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       custom_foods: {
         Row: {
           brand: string | null
@@ -228,6 +288,45 @@ export type Database = {
         }
         Relationships: []
       }
+      match_plans: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_public: boolean
+          items: Json
+          pitch_size: string
+          squad_size: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          items: Json
+          pitch_size: string
+          squad_size: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          items?: Json
+          pitch_size?: string
+          squad_size?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       meals: {
         Row: {
           calories: number
@@ -417,6 +516,45 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_videos: {
+        Row: {
+          category: string
+          created_at: string
+          duration: string
+          id: string
+          thumbnail: string
+          title: string
+          user_id: string
+          video_id: string
+          video_url: string
+          views: number
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          duration: string
+          id?: string
+          thumbnail: string
+          title: string
+          user_id: string
+          video_id: string
+          video_url: string
+          views: number
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          duration?: string
+          id?: string
+          thumbnail?: string
+          title?: string
+          user_id?: string
+          video_id?: string
+          video_url?: string
+          views?: number
+        }
+        Relationships: []
+      }
       serving_size_options: {
         Row: {
           description: string
@@ -448,6 +586,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      training_sessions: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_public: boolean
+          items: Json
+          pitch_size: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          items: Json
+          pitch_size: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          items?: Json
+          pitch_size?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {
